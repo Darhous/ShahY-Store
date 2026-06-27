@@ -4,6 +4,8 @@ import { products, productImages, categories } from "@/lib/db/drizzle/schema"
 import { eq, and } from "drizzle-orm"
 import LoadingIntro from "@/components/store/LoadingIntro"
 import ProductGrid, { type StoreProduct } from "@/components/store/ProductGrid"
+import StoreHeader from "@/components/store/StoreHeader"
+import StoreFooter from "@/components/store/StoreFooter"
 
 export const metadata: Metadata = {
   title: "ShahY Store — إكسسوارات فاخرة مستوردة",
@@ -55,6 +57,7 @@ export default async function StorePage() {
 
   return (
     <>
+      <StoreHeader />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;700;800;900&family=Playfair+Display:ital,wght@1,400&family=Cormorant+Garamond:ital,wght@1,300&display=swap');
         * { box-sizing: border-box; }
@@ -134,7 +137,7 @@ export default async function StorePage() {
               }}>
               تسوّق الآن
             </a>
-            <a href={`https://wa.me/201030002331?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
+            <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
               target="_blank" rel="noopener noreferrer"
               style={{
                 fontFamily: "Tajawal, sans-serif", fontWeight: 700, fontSize: 15,
@@ -163,6 +166,7 @@ export default async function StorePage() {
       <div id="products">
         <ProductGrid initialProducts={initialProducts} />
       </div>
+      <StoreFooter />
     </>
   )
 }

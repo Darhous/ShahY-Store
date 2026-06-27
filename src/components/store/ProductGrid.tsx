@@ -1,8 +1,9 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import Link from "next/link"
 
-const WA = "201030002331"
+const WA = "201015835455"
 
 const QUALITY_LABELS: Record<string, string> = {
   hi_copy:  "نسخة عالية",
@@ -81,6 +82,7 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
     : `perspective(800px) rotateX(-4deg) rotateY(${index % 2 === 0 ? 3 : -3}deg) translateY(50px) scale(0.95)`
 
   return (
+    <Link href={`/products/${product.slug}`} style={{ textDecoration: "none", display: "block", width: 290 }}>
     <div ref={ref} style={{ width: 290 }}>
       <div
         onMouseMove={onMove} onMouseEnter={onEnter} onMouseLeave={onLeave}
@@ -191,6 +193,7 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
         </div>
       </div>
     </div>
+    </Link>
   )
 }
 
