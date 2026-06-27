@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
+import { useCart } from "@/contexts/CartContext"
 
 const WA = "201015835455"
 
@@ -52,7 +54,9 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
   const [tilt, setTilt]     = useState({ x: 0, y: 0, gx: 50, gy: 50 })
   const [hovered, setHovered] = useState(false)
   const [shimmer, setShimmer] = useState(false)
+  const [adding, setAdding]   = useState(false)
   const raf = useRef<number>(0)
+  const { addItem } = useCart()
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -71,6 +75,22 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
     setTimeout(() => setShimmer(false), 700)
   }
   const onLeave = () => { setHovered(false); setTilt({ x: 0, y: 0, gx: 50, gy: 50 }) }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setAdding(true)
+    addItem({
+      id: product.id,
+      slug: product.slug,
+      name_ar: product.name_ar,
+      price: product.price,
+      image: product.image?.url ?? null,
+      quality_tier: product.quality_tier,
+    })
+    toast.success(`تمت الإضافة: ${product.name_ar}`, { duration: 2000 })
+    setTimeout(() => setAdding(false), 600)
+  }
 
   const waText = encodeURIComponent(`السلام عليكم، أريد الاستفسار عن: ${product.name_ar} (${product.price.toLocaleString("ar-EG")} ج.م)`)
   const waHref = `https://wa.me/${WA}?text=${waText}`
@@ -177,19 +197,61 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
             )}
           </div>
           <div style={{ height: 1, margin: "8px 0", background: "linear-gradient(90deg,#C9A84C44,transparent)" }} />
-          <a href={waHref} target="_blank" rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              background: hovered ? "linear-gradient(135deg,#C9A84C,#F0D882)" : "linear-gradient(135deg,#7B1C2E,#9B2C3E)",
-              color: hovered ? "#0A0806" : "#F5EFE0",
-              fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
-              padding: "11px 16px", borderRadius: 8, textDecoration: "none",
-              transition: "all 0.35s cubic-bezier(0.2,0,0.2,1)", letterSpacing: "0.05em",
-            }}>
-            <span style={{ fontSize: 17 }}>📱</span>
-            اطلب عبر واتساب
-          </a>
+
+          {/* Dual CTAs */}
+          <div style={{ display: "flex", gap: 8 }} onClick={e => e.preventDefault()}>
+            {/* Add to cart */}
+            <button
+              onClick={handleAddToCart}
+              disabled={adding}
+              style={{
+                flex: 1,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                background: adding
+                  ? "linear-gradient(135deg,#C9A84C,#F0D882)"
+                  : "linear-gradient(135deg,#7B1C2E,#9B2C3E)",
+                color: adding ? "#0A0806" : "#F5EFE0",
+                fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 13,
+                padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",
+                transition: "all 0.3s cubic-bezier(0.2,0,0.2,1)",
+                letterSpacing: "0.03em",
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              {adding ? "✓ تمت" : "أضف للسلة"}
+            </button>
+
+            {/* WhatsApp */}
+            <a href={waHref} target="_blank" rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+                background: "rgba(37,160,85,0.15)",
+                border: "1px solid rgba(37,160,85,0.35)",
+                color: "#25D366",
+                fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 12,
+                padding: "10px 12px", borderRadius: 8, textDecoration: "none",
+                transition: "all 0.25s ease", whiteSpace: "nowrap",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(37,160,85,0.25)"
+                e.currentTarget.style.borderColor = "rgba(37,160,85,0.6)"
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(37,160,85,0.15)"
+                e.currentTarget.style.borderColor = "rgba(37,160,85,0.35)"
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
+              </svg>
+              واتساب
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -244,7 +306,7 @@ function SectionHeader() {
 
 // ── Main export ──────────────────────────────────────────────────────────────
 export default function ProductGrid({ initialProducts }: { initialProducts: StoreProduct[] }) {
-  const [products, setProducts] = useState<StoreProduct[]>(initialProducts)
+  const [products] = useState<StoreProduct[]>(initialProducts)
   const [activeCategory, setActiveCategory] = useState("الكل")
 
   const categories = ["الكل", ...Array.from(new Set(products.map(p => p.category_name).filter(Boolean) as string[]))]
@@ -255,7 +317,6 @@ export default function ProductGrid({ initialProducts }: { initialProducts: Stor
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Cinzel:wght@400&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
         @keyframes pgShimmer { from{background-position:200% center} to{background-position:-200% center} }
-        @keyframes pgSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         .pg-cat-pill { cursor:pointer; transition:all 0.3s ease; background:transparent; border:none; }
         .pg-cat-pill:hover { background:rgba(201,168,76,0.12)!important; color:#C9A84C!important; border-color:#C9A84C!important; }
       `}</style>

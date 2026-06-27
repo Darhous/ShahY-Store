@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
+import { useCart } from "@/contexts/CartContext"
 
 const WA = "201015835455"
 
@@ -27,7 +29,9 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0, gx: 50, gy: 50 })
   const [hovered, setHovered] = useState(false)
   const [shimmer, setShimmer] = useState(false)
+  const [adding, setAdding] = useState(false)
   const raf = useRef<number>(0)
+  const { addItem } = useCart()
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -47,6 +51,24 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
   }
   const onLeave = () => { setHovered(false); setTilt({ x: 0, y: 0, gx: 50, gy: 50 }) }
 
+  const handleAddToCart = () => {
+    setAdding(true)
+    addItem({
+      id: product.id,
+      slug: product.slug,
+      name_ar: product.name_ar,
+      price: product.price,
+      image: images[0]?.url ?? null,
+      quality_tier: product.quality_tier,
+    })
+    toast.success("تمت الإضافة للسلة!", {
+      description: product.name_ar,
+      duration: 2500,
+      action: { label: "عرض السلة", onClick: () => window.location.href = "/cart" },
+    })
+    setTimeout(() => setAdding(false), 700)
+  }
+
   const activeImg = images[activeIdx]
   const qColor = QUALITY_COLORS[product.quality_tier] ?? "#4a4a4a"
   const waText = encodeURIComponent(`السلام عليكم، أريد الاستفسار عن: ${product.name_ar}\nالسعر: ${product.price.toLocaleString("ar-EG")} ج.م`)
@@ -59,6 +81,8 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
         @keyframes pdShimmer { from{background-position:200% center} to{background-position:-200% center} }
         .pd-thumb { cursor:pointer; border-radius:8px; overflow:hidden; transition:all 0.25s ease; }
         .pd-thumb:hover { border-color:rgba(201,168,76,0.6)!important; }
+        .pd-cart-btn:hover { background:linear-gradient(135deg,#B89440,#D4B060)!important; transform:translateY(-1px); box-shadow:0 12px 40px rgba(201,168,76,0.35)!important; }
+        .pd-wa-btn:hover { background:rgba(37,160,85,0.25)!important; border-color:rgba(37,160,85,0.6)!important; transform:translateY(-1px); }
       `}</style>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 40px 80px" }}>
@@ -76,7 +100,6 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
 
           {/* ── Left: Image gallery ── */}
           <div style={{ flex: "1 1 420px", minWidth: 320 }}>
-            {/* Main image with 3D tilt */}
             <div
               onMouseMove={onMove} onMouseEnter={onEnter} onMouseLeave={onLeave}
               style={{
@@ -88,18 +111,14 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
                   ? "0 32px 80px rgba(201,168,76,0.2),0 12px 40px rgba(0,0,0,0.8)"
                   : "0 8px 40px rgba(0,0,0,0.6)",
                 border: `1px solid ${hovered ? "rgba(201,168,76,0.3)" : "rgba(201,168,76,0.08)"}`,
-                willChange: "transform",
-                cursor: "pointer",
-                background: "#111009",
+                willChange: "transform", cursor: "pointer", background: "#111009",
               }}
             >
-              {/* Gold light follow */}
               <div style={{
                 position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none",
                 background: `radial-gradient(ellipse 240px 200px at ${tilt.gx}% ${tilt.gy}%,rgba(201,168,76,0.1) 0%,transparent 70%)`,
                 opacity: hovered ? 1 : 0, transition: "opacity 0.3s",
               }} />
-              {/* Shimmer sweep */}
               <div style={{
                 position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none",
                 background: "linear-gradient(105deg,transparent 25%,rgba(240,216,130,0.15) 50%,transparent 75%)",
@@ -124,7 +143,6 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
                 }}>👜</div>
               )}
 
-              {/* Quality badge */}
               <div style={{
                 position: "absolute", top: 16, right: 16, zIndex: 5,
                 background: qColor, color: "#fff",
@@ -133,7 +151,6 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
               }}>{QUALITY_LABELS[product.quality_tier] ?? product.quality_tier}</div>
             </div>
 
-            {/* Thumbnails */}
             {images.length > 1 && (
               <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
                 {images.map((img, i) => (
@@ -147,10 +164,7 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
                     <img src={img.url} alt={img.alt_ar ?? product.name_ar}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     {i === activeIdx && (
-                      <div style={{
-                        position: "absolute", inset: 0,
-                        background: "rgba(201,168,76,0.12)",
-                      }} />
+                      <div style={{ position: "absolute", inset: 0, background: "rgba(201,168,76,0.12)" }} />
                     )}
                   </div>
                 ))}
@@ -160,21 +174,16 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
 
           {/* ── Right: Product info ── */}
           <div style={{ flex: "1 1 360px", minWidth: 300, paddingTop: 8 }}>
-            {/* Category */}
             <div style={{
               fontFamily: "Cinzel,serif", fontSize: 10, letterSpacing: "4px",
               color: "#C9A84C", textTransform: "uppercase", opacity: 0.8, marginBottom: 12,
-            }}>
-              ✦ &nbsp; {product.category_name ?? ""}
-            </div>
+            }}>✦ &nbsp; {product.category_name ?? ""}</div>
 
-            {/* Name */}
             <h1 style={{
               fontFamily: "Tajawal,sans-serif", fontSize: "clamp(26px,4vw,38px)",
               fontWeight: 800, color: "#F5EFE0", lineHeight: 1.3, margin: "0 0 20px",
             }}>{product.name_ar}</h1>
 
-            {/* Price */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 24 }}>
               <span style={{
                 fontFamily: "Tajawal,sans-serif", fontSize: 36, fontWeight: 900, color: "#C9A84C",
@@ -199,10 +208,8 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
               )}
             </div>
 
-            {/* Gold divider */}
             <div style={{ height: 1, background: "linear-gradient(90deg,#C9A84C44,transparent)", marginBottom: 24 }} />
 
-            {/* Description */}
             {product.description_ar && (
               <div style={{ marginBottom: 28 }}>
                 <h3 style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, fontWeight: 700, color: "#C9A84C", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 12 }}>
@@ -217,7 +224,6 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
               </div>
             )}
 
-            {/* Quality info */}
             <div style={{
               background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.12)",
               borderRadius: 12, padding: "16px 20px", marginBottom: 28,
@@ -233,44 +239,56 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
               </p>
             </div>
 
-            {/* CTA */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <a href={waHref} target="_blank" rel="noopener noreferrer"
+            {/* Dual CTAs */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+              {/* Add to cart — primary */}
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="pd-cart-btn"
                 style={{
+                  flex: 1,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  background: "linear-gradient(135deg,#1a6c3a,#25a055)",
-                  color: "#fff", fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 16,
-                  padding: "15px 24px", borderRadius: 10, textDecoration: "none",
-                  boxShadow: "0 8px 32px rgba(37,160,85,0.3)",
-                  transition: "all 0.3s ease",
+                  background: adding
+                    ? "linear-gradient(135deg,#C9A84C,#F0D882)"
+                    : "linear-gradient(135deg,#C9A84C,#D4B060)",
+                  color: "#0A0806",
+                  fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 16,
+                  padding: "15px 20px", borderRadius: 10, border: "none", cursor: "pointer",
+                  boxShadow: "0 8px 32px rgba(201,168,76,0.25)",
+                  transition: "all 0.3s cubic-bezier(0.2,0,0.2,1)",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 12px 40px rgba(37,160,85,0.45)")}
-                onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 8px 32px rgba(37,160,85,0.3)")}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                {adding ? "✓ تمت الإضافة!" : "أضف للسلة"}
+              </button>
+
+              {/* WhatsApp — secondary */}
+              <a href={waHref} target="_blank" rel="noopener noreferrer"
+                className="pd-wa-btn"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  background: "rgba(37,160,85,0.12)",
+                  border: "1px solid rgba(37,160,85,0.35)",
+                  color: "#25D366",
+                  fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 15,
+                  padding: "15px 20px", borderRadius: 10, textDecoration: "none",
+                  transition: "all 0.3s ease", whiteSpace: "nowrap",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
                 </svg>
-                اطلب عبر واتساب
-              </a>
-
-              <a href={`https://wa.me/${WA}?text=${encodeURIComponent(`السلام عليكم، لدي استفسار عن: ${product.name_ar}`)}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                  background: "transparent", border: "1px solid rgba(201,168,76,0.25)",
-                  color: "#F5EFE0", fontFamily: "Tajawal,sans-serif", fontWeight: 400, fontSize: 14,
-                  padding: "12px 24px", borderRadius: 10, textDecoration: "none",
-                  opacity: 0.7, transition: "all 0.3s ease",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.5)" }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = "0.7"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.25)" }}
-              >
-                استفسر عن المنتج
+                واتساب
               </a>
             </div>
 
             {/* Trust signals */}
-            <div style={{ display: "flex", gap: 20, marginTop: 28, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 20, marginTop: 24, flexWrap: "wrap" }}>
               {[
                 { icon: "🚚", text: "توصيل لكل محافظات مصر" },
                 { icon: "✅", text: "جودة مضمونة" },

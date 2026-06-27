@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
+import { CartProvider } from "@/contexts/CartContext";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={GeistSans.className}>
-        {children}
+        <CartProvider>
+          {children}
+        </CartProvider>
         <Toaster position="bottom-left" richColors />
       </body>
     </html>

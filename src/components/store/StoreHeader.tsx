@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useCart } from "@/contexts/CartContext"
 
 export default function StoreHeader() {
   const [scrolled, setScrolled] = useState(false)
+  const { count } = useCart()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -14,7 +16,13 @@ export default function StoreHeader() {
 
   return (
     <>
-    <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cinzel:wght@400&family=Tajawal:wght@400;700&display=swap');`}</style>
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cinzel:wght@400&family=Tajawal:wght@400;700&display=swap');
+      .sh-cart-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; border-radius:8px; transition:background 0.2s; display:flex; align-items:center; }
+      .sh-cart-btn:hover { background:rgba(201,168,76,0.1); }
+      .sh-cart-badge { position:absolute; top:-2px; left:-2px; min-width:16px; height:16px; border-radius:8px; background:#7B1C2E; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px; font-family:Tajawal,sans-serif; animation:badgePop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+      @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+    `}</style>
     <header style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 9000,
       background: scrolled ? "rgba(10,8,6,0.92)" : "transparent",
@@ -54,7 +62,7 @@ export default function StoreHeader() {
       </Link>
 
       {/* Nav links */}
-      <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
+      <nav style={{ display: "flex", alignItems: "center", gap: 20 }}>
         <a href="/#products" style={{
           fontFamily: "Tajawal, sans-serif", fontSize: 13, color: "#F5EFE0",
           opacity: 0.6, textDecoration: "none", transition: "opacity 0.2s",
@@ -72,6 +80,18 @@ export default function StoreHeader() {
           onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
           onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
         >تواصل معنا</a>
+
+        {/* Cart icon */}
+        <Link href="/cart" className="sh-cart-btn" aria-label="السلة">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          {count > 0 && (
+            <span className="sh-cart-badge">{count > 99 ? "99+" : count}</span>
+          )}
+        </Link>
 
         <Link href="/admin/dashboard" style={{
           fontFamily: "Tajawal, sans-serif", fontSize: 12, fontWeight: 700,

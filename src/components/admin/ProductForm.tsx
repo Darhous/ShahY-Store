@@ -229,8 +229,8 @@ export default function ProductForm({ categories, product }: { categories: Categ
     router.refresh();
   }
 
-  function autoSlug(name: string) {
-    return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+  function randomSlug() {
+    return "p-" + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
   }
 
   return (
@@ -243,18 +243,13 @@ export default function ProductForm({ categories, product }: { categories: Categ
             <div>
               <label className={labelCls}>اسم المنتج *</label>
               <input name="name_ar" required defaultValue={product?.name_ar} placeholder="مثال: شنطة جلد طبيعي"
-                onChange={e => {
-                  if (!isEdit) {
-                    const slugEl = e.currentTarget.form?.elements.namedItem("slug") as HTMLInputElement;
-                    if (slugEl) slugEl.value = autoSlug(e.currentTarget.value);
-                  }
-                }}
+                onChange={() => {}}
                 className={inputCls}
               />
             </div>
             <div>
               <label className={labelCls}>Slug (URL) *</label>
-              <input name="slug" required defaultValue={product?.slug} placeholder="leather-handbag" className={inputCls} />
+              <input name="slug" required defaultValue={product?.slug ?? randomSlug()} placeholder="p-ab12cd34" className={inputCls} />
             </div>
           </div>
 
