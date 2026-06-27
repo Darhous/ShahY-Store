@@ -4,6 +4,7 @@ import { db } from "@/lib/db/drizzle/connection"
 import { products, productImages, categories } from "@/lib/db/drizzle/schema"
 import { eq, and, asc, ne } from "drizzle-orm"
 import ProductDetail from "@/components/store/ProductDetail"
+import ReviewsSection from "@/components/store/ReviewsSection"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
 import FloatingWA from "@/components/store/FloatingWA"
@@ -111,6 +112,9 @@ export default async function ProductPage({ params }: Props) {
     <>
       <StoreHeader />
       <ProductDetail product={product} images={imgs} related={relatedWithImages} />
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}>
+        <ReviewsSection productId={product.id} />
+      </div>
       <StoreFooter />
       <FloatingWA />
     </>

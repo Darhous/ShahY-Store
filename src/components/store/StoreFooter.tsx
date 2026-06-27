@@ -95,8 +95,20 @@ export default function StoreFooter() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <a href="/#products" className="sf-link">المنتجات</a>
               <a href="/cart" className="sf-link">سلة الشراء</a>
+              <a href="/about" className="sf-link">عن ShahY</a>
               <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
                 target="_blank" rel="noopener noreferrer" className="sf-link">تواصل معنا</a>
+            </div>
+          </div>
+
+          {/* Policy column */}
+          <div style={{ flex: "0 0 160px" }}>
+            <h4 style={{ fontFamily: "Tajawal, sans-serif", fontSize: 12, fontWeight: 700, color: "#C9A84C", letterSpacing: "3px", textTransform: "uppercase", marginBottom: 20 }}>
+              سياساتنا
+            </h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <a href="/returns" className="sf-link">الاسترجاع والاستبدال</a>
+              <a href="/privacy" className="sf-link">سياسة الخصوصية</a>
             </div>
           </div>
         </div>

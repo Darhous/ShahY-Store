@@ -8,6 +8,7 @@ const NAV = [
   { href: "/admin/dashboard", label: "الداشبورد", icon: "📊" },
   { href: "/admin/products", label: "المنتجات", icon: "📦" },
   { href: "/admin/orders", label: "الطلبات", icon: "🧾" },
+  { href: "/admin/reviews", label: "التقييمات", icon: "⭐" },
   { href: "/admin/categories", label: "الأقسام", icon: "🏷️" },
   { href: "/admin/shipping", label: "الشحن", icon: "🚚" },
   { href: "/admin/discounts", label: "الخصومات", icon: "🎁" },
