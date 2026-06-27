@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useCart } from "@/contexts/CartContext"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
+import FloatingWA from "@/components/store/FloatingWA"
 
 const WA = "201015835455"
 
@@ -213,6 +214,7 @@ export default function CartPage() {
         </div>
       </main>
       <StoreFooter />
+      <FloatingWA />
     </>
   )
 }

@@ -6,6 +6,7 @@ import LoadingIntro from "@/components/store/LoadingIntro"
 import ProductGrid, { type StoreProduct } from "@/components/store/ProductGrid"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
+import FloatingWA from "@/components/store/FloatingWA"
 
 export const metadata: Metadata = {
   title: "ShahY Store — إكسسوارات فاخرة مستوردة",
@@ -167,6 +168,7 @@ export default async function StorePage() {
         <ProductGrid initialProducts={initialProducts} />
       </div>
       <StoreFooter />
+      <FloatingWA />
     </>
   )
 }

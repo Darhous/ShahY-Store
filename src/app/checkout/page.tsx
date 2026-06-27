@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { useCart } from "@/contexts/CartContext"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
+import FloatingWA from "@/components/store/FloatingWA"
 
 const GOVERNORATES: { name: string; fee: number }[] = [
   { name: "القاهرة", fee: 40 },
@@ -290,6 +291,7 @@ export default function CheckoutPage() {
         </div>
       </main>
       <StoreFooter />
+      <FloatingWA />
     </>
   )
 }
