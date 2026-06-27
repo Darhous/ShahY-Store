@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/drizzle/connection";
-import { orders, orderItems } from "@/lib/db/drizzle/schema";
-import { nanoid } from "@/lib/nanoid";
+import { orders, orderItems, discountCodes } from "@/lib/db/drizzle/schema";
+import { eq, sql } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -61,6 +61,12 @@ export async function POST(request: NextRequest) {
         unit_price: String(item.unit_price),
       }))
     );
+  }
+
+  if (discount_code) {
+    await db.update(discountCodes)
+      .set({ used_count: sql`used_count + 1` })
+      .where(eq(discountCodes.code, discount_code.toUpperCase().trim()))
   }
 
   return NextResponse.json({ order_number: order.order_number, id: order.id }, { status: 201 });

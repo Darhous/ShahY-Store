@@ -48,9 +48,27 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState("")
   const [notes, setNotes] = useState("")
   const [loading, setLoading] = useState(false)
+  const [discountCode, setDiscountCode] = useState("")
+  const [appliedDiscount, setAppliedDiscount] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null)
+  const [discountLoading, setDiscountLoading] = useState(false)
 
   const shippingFee = GOVERNORATES.find(g => g.name === governorate)?.fee ?? 0
-  const orderTotal = total + shippingFee
+  const discountAmount = appliedDiscount?.discount ?? 0
+  const orderTotal = total + shippingFee - discountAmount
+
+  async function applyDiscount() {
+    if (!discountCode.trim()) return
+    setDiscountLoading(true)
+    try {
+      const res = await fetch(`/api/discounts/validate?code=${encodeURIComponent(discountCode)}&total=${total}`)
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error || "كود غير صحيح"); return }
+      setAppliedDiscount(data)
+      toast.success(`تم تطبيق الخصم: ${data.discount.toLocaleString("ar-EG")} ج.م`)
+    } finally {
+      setDiscountLoading(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -79,6 +97,8 @@ export default function CheckoutPage() {
           shipping_cost: shippingFee,
           total: orderTotal,
           method: "cod",
+          discount_code: appliedDiscount?.code ?? null,
+          discount_amount: discountAmount,
         }),
       })
 
@@ -207,6 +227,43 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Discount code */}
+              <div style={{
+                background: "linear-gradient(145deg,#0E0C09,#111009)",
+                border: "1px solid rgba(201,168,76,0.1)", borderRadius: 16, padding: "20px",
+              }}>
+                <h2 style={{ fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 15, color: "#F5EFE0", marginBottom: 14 }}>
+                  🎁 كود الخصم
+                </h2>
+                {appliedDiscount ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, padding: "12px 16px" }}>
+                    <div>
+                      <span style={{ fontFamily: "monospace", fontSize: 13, fontWeight: 700, color: "#4ade80", letterSpacing: "1px" }}>{appliedDiscount.code}</span>
+                      <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#4ade80", marginRight: 10 }}>
+                        خصم {appliedDiscount.discount.toLocaleString("ar-EG")} ج.م
+                      </span>
+                    </div>
+                    <button type="button" onClick={() => { setAppliedDiscount(null); setDiscountCode("") }}
+                      style={{ background: "transparent", border: "none", color: "rgba(239,68,68,0.6)", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input className="co-input" placeholder="أدخل كود الخصم" dir="ltr"
+                      value={discountCode} onChange={e => setDiscountCode(e.target.value.toUpperCase())}
+                      onKeyDown={e => e.key === "Enter" && (e.preventDefault(), applyDiscount())}
+                      style={{ flex: 1, letterSpacing: "1px" }} />
+                    <button type="button" onClick={applyDiscount} disabled={discountLoading || !discountCode.trim()}
+                      style={{
+                        padding: "0 20px", background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)",
+                        borderRadius: 10, color: "#C9A84C", fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
+                        cursor: discountLoading ? "wait" : "pointer", whiteSpace: "nowrap", opacity: !discountCode.trim() ? 0.4 : 1,
+                      }}>
+                      {discountLoading ? "..." : "تطبيق"}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button type="submit" disabled={loading} className="co-submit"
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
@@ -258,12 +315,20 @@ export default function CheckoutPage() {
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.5 }}>المنتجات</span>
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", fontWeight: 700 }}>{total.toLocaleString("ar-EG")} ج.م</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: appliedDiscount ? 8 : 16 }}>
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.5 }}>الشحن</span>
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: shippingFee > 0 ? "#C9A84C" : "#555", fontWeight: 700 }}>
                     {shippingFee > 0 ? `${shippingFee} ج.م` : "اختر المحافظة"}
                   </span>
                 </div>
+                {appliedDiscount && (
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                    <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#4ade80", opacity: 0.85 }}>خصم ({appliedDiscount.code})</span>
+                    <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#4ade80", fontWeight: 700 }}>
+                      -{discountAmount.toLocaleString("ar-EG")} ج.م
+                    </span>
+                  </div>
+                )}
 
                 <div style={{ height: 1, background: "linear-gradient(90deg,#C9A84C44,transparent)", marginBottom: 16 }} />
 
