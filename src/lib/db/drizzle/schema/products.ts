@@ -3,50 +3,61 @@ import { sql } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import {
   pgTable,
-  bigserial,
-  varchar,
+  uuid,
   text,
-  decimal,
+  numeric,
+  boolean,
+  integer,
   timestamp,
-  bigint,
-  unique,
   index,
   check,
   pgEnum,
   pgPolicy,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { anonRole } from "drizzle-orm/supabase";
+import { categories } from "./categories";
 
-// Enums
-export const productCategoryEnum = pgEnum("product_category", [
-  "t-shirts",
-  "pants",
-  "sweatshirts",
+export const qualityTierEnum = pgEnum("quality_tier", [
+  "hi_copy",
+  "mirror",
+  "original",
 ]);
 
-export const sizesEnum = pgEnum("sizes", ["XS", "S", "M", "L", "XL", "XXL"]);
+export const productStatusEnum = pgEnum("product_status", [
+  "active",
+  "draft",
+  "archived",
+]);
 
-export const ProductCategoryZod = z.enum(["t-shirts", "pants", "sweatshirts"]);
-export const ProductSizeZod = z.enum(["XS", "S", "M", "L", "XL", "XXL"]);
+export const QualityTierZod = z.enum(["hi_copy", "mirror", "original"]);
+export const ProductStatusZod = z.enum(["active", "draft", "archived"]);
 
-// Tables
-export const productsItems = pgTable(
-  "products_items",
+export const products = pgTable(
+  "products",
   {
-    id: bigserial("id", { mode: "number" }).primaryKey(),
-    name: varchar("name", { length: 255 }).notNull(),
-    description: text("description").notNull(),
-    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-    category: productCategoryEnum("category").notNull(),
-    img: varchar("img", { length: 500 }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    name_ar: text("name_ar").notNull(),
+    slug: text("slug").notNull().unique(),
+    description_ar: text("description_ar"),
+    category_id: uuid("category_id").notNull(),
+    quality_tier: qualityTierEnum("quality_tier").notNull(),
+    price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+    compare_at_price: numeric("compare_at_price", { precision: 10, scale: 2 }),
+    is_featured: boolean("is_featured").notNull().default(false),
+    status: productStatusEnum("status").notNull().default("draft"),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
-    index("idx_products_category").on(table.category),
-    index("idx_products_name").on(table.name),
-    index("idx_products_created_at").on(table.createdAt),
-    index("idx_products_updated_at").on(table.updatedAt),
+    foreignKey({
+      columns: [table.category_id],
+      foreignColumns: [categories.id],
+      name: "products_category_id_fkey",
+    }).onDelete("restrict"),
+    index("idx_products_category_id").on(table.category_id),
+    index("idx_products_status").on(table.status),
+    index("idx_products_featured").on(table.is_featured),
     check("price_positive", sql`price > 0`),
     pgPolicy("Backend can manage products", {
       as: "permissive",
@@ -55,36 +66,36 @@ export const productsItems = pgTable(
       using: sql`current_setting('request.jwt.claim.role', true) is null`,
       withCheck: sql`current_setting('request.jwt.claim.role', true) is null`,
     }),
-    pgPolicy("Anyone can view products", {
+    pgPolicy("Anyone can view active products", {
       as: "permissive",
       for: "select",
       to: anonRole,
-      using: sql`true`,
+      using: sql`status = 'active'`,
     }),
   ]
 ).enableRLS();
 
-export const productsVariants = pgTable(
-  "products_variants",
+export const productVariants = pgTable(
+  "product_variants",
   {
-    id: bigserial("id", { mode: "number" }).primaryKey(),
-    productId: bigint("product_id", { mode: "number" })
-      .notNull()
-      .references(() => productsItems.id, { onDelete: "cascade" }),
-    stripeId: varchar("stripe_id", { length: 255 }).notNull().unique(),
-    color: varchar("color", { length: 100 }).notNull(),
-    sizes: sizesEnum("sizes").array().notNull(),
-    images: text("images").array().notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    product_id: uuid("product_id").notNull(),
+    color_ar: text("color_ar"),
+    size: text("size"),
+    sku: text("sku"),
+    stock: integer("stock").notNull().default(0),
+    price_override: numeric("price_override", { precision: 10, scale: 2 }),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
-    unique("product_color_unique").on(table.productId, table.color),
-    index("idx_variants_product_id").on(table.productId),
-    index("idx_variants_stripe_id").on(table.stripeId),
-    index("idx_variants_color").on(table.color),
-    index("idx_variants_created_at").on(table.createdAt),
-    index("idx_variants_updated_at").on(table.updatedAt),
+    foreignKey({
+      columns: [table.product_id],
+      foreignColumns: [products.id],
+      name: "product_variants_product_id_fkey",
+    }).onDelete("cascade"),
+    index("idx_variants_product_id").on(table.product_id),
+    check("stock_non_negative", sql`stock >= 0`),
     pgPolicy("Backend can manage variants", {
       as: "permissive",
       for: "all",
@@ -101,65 +112,89 @@ export const productsVariants = pgTable(
   ]
 ).enableRLS();
 
-// Zod Schemas
-export const selectProductSchema = createSelectSchema(productsItems, {
+export const productImages = pgTable(
+  "product_images",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    product_id: uuid("product_id").notNull(),
+    variant_id: uuid("variant_id"),
+    url: text("url").notNull(),
+    alt_ar: text("alt_ar"),
+    sort_order: integer("sort_order").notNull().default(0),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.product_id],
+      foreignColumns: [products.id],
+      name: "product_images_product_id_fkey",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [table.variant_id],
+      foreignColumns: [productVariants.id],
+      name: "product_images_variant_id_fkey",
+    }).onDelete("set null"),
+    index("idx_images_product_id").on(table.product_id),
+    pgPolicy("Backend can manage images", {
+      as: "permissive",
+      for: "all",
+      to: "public",
+      using: sql`current_setting('request.jwt.claim.role', true) is null`,
+      withCheck: sql`current_setting('request.jwt.claim.role', true) is null`,
+    }),
+    pgPolicy("Anyone can view images", {
+      as: "permissive",
+      for: "select",
+      to: anonRole,
+      using: sql`true`,
+    }),
+  ]
+).enableRLS();
+
+// Zod schemas
+export const selectProductSchema = createSelectSchema(products, {
   price: z.coerce.number(),
-  createdAt: z.coerce.string(),
-  updatedAt: z.coerce.string(),
+  compare_at_price: z.coerce.number().nullable(),
+  created_at: z.coerce.string(),
+  updated_at: z.coerce.string(),
 });
 
-export const insertProductSchema = createInsertSchema(productsItems, {
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  price: z.coerce.number().positive("Price must be greater than 0"),
-  img: z.string().url("Must be a valid URL"),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertProductSchema = createInsertSchema(products, {
+  name_ar: z.string().min(1),
+  slug: z.string().min(1),
+  price: z.coerce.number().positive(),
+  compare_at_price: z.coerce.number().positive().nullable().optional(),
+}).omit({ id: true, created_at: true, updated_at: true });
 
 export const updateProductSchema = selectProductSchema
-  .omit({ createdAt: true })
   .partial()
   .required({ id: true });
 
-export const selectVariantSchema = createSelectSchema(productsVariants, {
-  createdAt: z.coerce.string(),
-  updatedAt: z.coerce.string(),
+export const selectVariantSchema = createSelectSchema(productVariants, {
+  price_override: z.coerce.number().nullable(),
+  created_at: z.coerce.string(),
+  updated_at: z.coerce.string(),
 });
 
-export const insertVariantSchema = createInsertSchema(productsVariants, {
-  stripeId: z.string().min(1, "Stripe ID is required"),
-  color: z.string().min(1, "Color is required"),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertVariantSchema = createInsertSchema(productVariants, {
+  stock: z.number().int().min(0),
+  price_override: z.coerce.number().positive().nullable().optional(),
+}).omit({ id: true, created_at: true, updated_at: true });
+
+export const selectImageSchema = createSelectSchema(productImages, {
+  created_at: z.coerce.string(),
 });
 
-export const productWithVariantsSchema = selectProductSchema.extend({
-  variants: z.array(selectVariantSchema),
-});
+export const insertImageSchema = createInsertSchema(productImages, {
+  url: z.string().url(),
+}).omit({ id: true, created_at: true });
 
-export const variantWithProductSchema = selectVariantSchema.extend({
-  product: selectProductSchema,
-});
-
-export const createProductWithVariantsSchema = insertProductSchema.extend({
-  variants: z.array(insertVariantSchema.omit({ productId: true })),
-});
-
-// Types
 export type Product = z.infer<typeof selectProductSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
 export type ProductVariant = z.infer<typeof selectVariantSchema>;
 export type InsertProductVariant = z.infer<typeof insertVariantSchema>;
-export type ProductWithVariants = z.infer<typeof productWithVariantsSchema>;
-export type VariantWithProduct = z.infer<typeof variantWithProductSchema>;
-export type CreateProductWithVariants = z.infer<
-  typeof createProductWithVariantsSchema
->;
-export type ProductCategory = z.infer<typeof ProductCategoryZod>;
-export type ProductSize = z.infer<typeof ProductSizeZod>;
+export type ProductImage = z.infer<typeof selectImageSchema>;
+export type InsertProductImage = z.infer<typeof insertImageSchema>;
+export type QualityTier = z.infer<typeof QualityTierZod>;
+export type ProductStatus = z.infer<typeof ProductStatusZod>;

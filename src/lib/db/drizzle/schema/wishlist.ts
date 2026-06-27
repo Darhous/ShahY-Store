@@ -3,9 +3,8 @@ import { sql } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import {
   pgTable,
-  bigserial,
+  uuid,
   text,
-  bigint,
   timestamp,
   unique,
   index,
@@ -13,76 +12,58 @@ import {
   foreignKey,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
-import { productWithVariantsSchema, productsItems } from "./products";
+import { products } from "./products";
 
 export const wishlist = pgTable(
   "wishlist",
   {
-    id: bigserial("id", { mode: "number" }).primaryKey(),
-    userId: text("user_id").notNull(),
-    productId: bigint("product_id", { mode: "number" }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    user_id: text("user_id").notNull(),
+    product_id: uuid("product_id").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => [
-    unique("wishlist_user_product_unique").on(table.userId, table.productId),
+    unique("wishlist_user_product_unique").on(table.user_id, table.product_id),
     foreignKey({
-      columns: [table.userId],
+      columns: [table.user_id],
       foreignColumns: [users.id],
       name: "wishlist_user_id_fkey",
-    }).onDelete("cascade").onUpdate("cascade"),
+    }).onDelete("cascade"),
     foreignKey({
-      columns: [table.productId],
-      foreignColumns: [productsItems.id],
+      columns: [table.product_id],
+      foreignColumns: [products.id],
       name: "wishlist_product_id_fkey",
-    }).onDelete("cascade").onUpdate("cascade"),
-    index("idx_wishlist_user_id").on(table.userId),
-    index("idx_wishlist_product_id").on(table.productId),
-    index("idx_wishlist_updated_at").on(table.updatedAt),
-    index("idx_wishlist_user_product").on(table.userId, table.productId),
-    pgPolicy("Users can view own wishlist items", {
+    }).onDelete("cascade"),
+    index("idx_wishlist_user_id").on(table.user_id),
+    index("idx_wishlist_product_id").on(table.product_id),
+    pgPolicy("Users can manage own wishlist", {
       as: "permissive",
-      for: "select",
+      for: "all",
       to: "public",
       using: sql`app.current_user_id() = user_id`,
-    }),
-    pgPolicy("Users can insert own wishlist items", {
-      as: "permissive",
-      for: "insert",
-      to: "public",
       withCheck: sql`app.current_user_id() = user_id`,
     }),
-    pgPolicy("Users can delete own wishlist items", {
+    pgPolicy("Backend can manage all wishlists", {
       as: "permissive",
-      for: "delete",
+      for: "all",
       to: "public",
-      using: sql`app.current_user_id() = user_id`,
+      using: sql`current_setting('request.jwt.claim.role', true) is null`,
+      withCheck: sql`current_setting('request.jwt.claim.role', true) is null`,
     }),
   ]
 ).enableRLS();
 
-// Zod Schemas
 export const selectWishlistItemSchema = createSelectSchema(wishlist, {
-  createdAt: z.coerce.string(),
-  updatedAt: z.coerce.string(),
+  created_at: z.coerce.string(),
 });
 
 export const insertWishlistItemSchema = createInsertSchema(wishlist).omit({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  created_at: true,
 });
 
-export const addToWishlistSchema = insertWishlistItemSchema.omit({ userId: true });
+export const addToWishlistSchema = insertWishlistItemSchema.omit({ user_id: true });
 
-export const wishlistItemWithProductSchema = selectWishlistItemSchema.extend({
-  product: productWithVariantsSchema,
-});
-
-// Types
 export type WishlistItem = z.infer<typeof selectWishlistItemSchema>;
 export type InsertWishlistItem = z.infer<typeof insertWishlistItemSchema>;
 export type AddToWishlistInput = z.infer<typeof addToWishlistSchema>;
-export type WishlistItemWithProduct = z.infer<
-  typeof wishlistItemWithProductSchema
->;

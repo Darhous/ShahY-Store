@@ -1,4 +1,4 @@
-// Users
+// Users (Better Auth managed)
 export {
   users,
   selectUserSchema,
@@ -9,33 +9,127 @@ export {
   type UpdateUser,
 } from "./users";
 
+// Categories
+export {
+  categories,
+  selectCategorySchema,
+  insertCategorySchema,
+  type Category,
+  type InsertCategory,
+} from "./categories";
+
 // Products
 export {
-  productCategoryEnum,
-  sizesEnum,
-  ProductCategoryZod,
-  ProductSizeZod,
-  productsItems,
-  productsVariants,
+  qualityTierEnum,
+  productStatusEnum,
+  QualityTierZod,
+  ProductStatusZod,
+  products,
+  productVariants,
+  productImages,
   selectProductSchema,
   insertProductSchema,
   updateProductSchema,
   selectVariantSchema,
   insertVariantSchema,
-  productWithVariantsSchema,
-  variantWithProductSchema,
-  createProductWithVariantsSchema,
+  selectImageSchema,
+  insertImageSchema,
   type Product,
   type InsertProduct,
   type UpdateProduct,
   type ProductVariant,
   type InsertProductVariant,
-  type ProductWithVariants,
-  type VariantWithProduct,
-  type CreateProductWithVariants,
-  type ProductCategory,
-  type ProductSize,
+  type ProductImage,
+  type InsertProductImage,
+  type QualityTier,
+  type ProductStatus,
 } from "./products";
+
+// Customers
+export {
+  customers,
+  selectCustomerSchema,
+  insertCustomerSchema,
+  type Customer,
+  type InsertCustomer,
+} from "./customers";
+
+// Orders
+export {
+  orderStatusEnum,
+  orderMethodEnum,
+  OrderStatusZod,
+  OrderMethodZod,
+  orders,
+  orderItems,
+  selectOrderSchema,
+  insertOrderSchema,
+  selectOrderItemSchema,
+  insertOrderItemSchema,
+  type Order,
+  type InsertOrder,
+  type OrderItem,
+  type InsertOrderItem,
+  type OrderStatus,
+  type OrderMethod,
+} from "./orders";
+
+// Admins
+export {
+  adminRoleEnum,
+  admins,
+  selectAdminSchema,
+  insertAdminSchema,
+  type Admin,
+  type InsertAdmin,
+  type AdminRole,
+} from "./admins";
+
+// Shipping
+export {
+  shippingZones,
+  selectShippingZoneSchema,
+  insertShippingZoneSchema,
+  type ShippingZone,
+  type InsertShippingZone,
+} from "./shipping";
+
+// Discounts
+export {
+  discountTypeEnum,
+  discountCodes,
+  selectDiscountCodeSchema,
+  insertDiscountCodeSchema,
+  type DiscountCode,
+  type InsertDiscountCode,
+} from "./discounts";
+
+// Reviews
+export {
+  reviews,
+  selectReviewSchema,
+  insertReviewSchema,
+  type Review,
+  type InsertReview,
+} from "./reviews";
+
+// Banners
+export {
+  banners,
+  selectBannerSchema,
+  insertBannerSchema,
+  type Banner,
+  type InsertBanner,
+} from "./banners";
+
+// Settings
+export {
+  settings,
+  selectSettingSchema,
+  insertSettingSchema,
+  type Setting,
+  type InsertSetting,
+} from "./settings";
 
 // Cart
 export {
@@ -44,43 +138,11 @@ export {
   insertCartItemSchema,
   updateCartItemSchema,
   addToCartSchema,
-  minimalCartItemSchema,
-  cartItemWithDetailsSchema,
   type CartItem,
   type InsertCartItem,
   type UpdateCartItem,
   type AddToCartInput,
-  type MinimalCartItem,
-  type CartItemWithDetails,
 } from "./cart";
-
-// Orders
-export {
-  orderItems,
-  customerInfo,
-  orderProducts,
-  AddressSchema,
-  InsertAddressSchema,
-  selectOrderItemSchema,
-  insertOrderItemSchema,
-  createOrderItemInputSchema,
-  selectCustomerInfoSchema,
-  insertCustomerInfoSchema,
-  selectOrderProductSchema,
-  insertOrderProductSchema,
-  orderProductWithDetailsSchema,
-  orderWithDetailsSchema,
-  type Address,
-  type OrderItem,
-  type InsertOrderItem,
-  type CreateOrderItemInput,
-  type CustomerInfo,
-  type InsertCustomerInfo,
-  type OrderProduct,
-  type InsertOrderProduct,
-  type OrderProductWithDetails,
-  type OrderWithDetails,
-} from "./orders";
 
 // Wishlist
 export {
@@ -88,21 +150,22 @@ export {
   selectWishlistItemSchema,
   insertWishlistItemSchema,
   addToWishlistSchema,
-  wishlistItemWithProductSchema,
   type WishlistItem,
   type InsertWishlistItem,
   type AddToWishlistInput,
-  type WishlistItemWithProduct,
 } from "./wishlist";
 
 // Relations
 export {
   usersRelations,
-  productsItemsRelations,
-  productsVariantsRelations,
-  cartItemsRelations,
+  categoriesRelations,
+  productsRelations,
+  productVariantsRelations,
+  productImagesRelations,
+  customersRelations,
+  ordersRelations,
   orderItemsRelations,
-  customerInfoRelations,
-  orderProductsRelations,
+  cartItemsRelations,
   wishlistRelations,
+  reviewsRelations,
 } from "./relations";

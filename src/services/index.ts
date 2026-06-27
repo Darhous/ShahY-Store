@@ -1,5 +1,2 @@
-export * from "./cart.service";
-export * from "./products.service";
-export * from "./orders.service";
-export * from "./wishlist.service";
-export * from "./stripe.service";
+// Services index — ShahY Store
+// Add service exports here as needed

@@ -1,54 +1,33 @@
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { EditProductForm } from "@/components/admin";
-import { getProductById } from "@/services/products.service";
-import { Skeleton } from "@/components/ui/skeleton";
+import { db } from "@/lib/db/drizzle/connection";
+import { products, categories } from "@/lib/db/drizzle/schema";
+import { eq } from "drizzle-orm";
+import ProductForm from "@/components/admin/ProductForm";
 
-interface EditProductPageProps {
-  params: Promise<{ id: string }>;
-}
-
-async function DynamicEditProductContent({
+export default async function EditProductPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const productId = parseInt(id, 10);
 
-  if (isNaN(productId)) {
-    notFound();
-  }
+  const rows = await db.select().from(products).where(eq(products.id, id)).limit(1);
+  if (!rows[0]) notFound();
 
-  const product = await getProductById(productId);
+  const cats = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.is_active, true))
+    .orderBy(categories.sort_order);
 
-  if (!product) {
-    notFound();
-  }
-
-  return <EditProductForm product={product} />;
-}
-
-function EditProductSkeleton() {
   return (
-    <div className="space-y-6 p-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-10 w-32" />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-[#F5EFE0]">تعديل المنتج</h1>
+        <p className="text-[#F5EFE0]/40 text-sm mt-1">{rows[0].name_ar}</p>
       </div>
+      <ProductForm categories={cats} product={rows[0]} />
     </div>
-  );
-}
-
-export default async function EditProductPage({
-  params,
-}: EditProductPageProps) {
-  return (
-    <Suspense fallback={<EditProductSkeleton />}>
-      <DynamicEditProductContent params={params} />
-    </Suspense>
   );
 }

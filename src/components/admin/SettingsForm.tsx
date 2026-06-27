@@ -1,0 +1,82 @@
+"use client";
+import { useState } from "react";
+import { toast } from "sonner";
+
+export default function SettingsForm({ settings }: { settings: Record<string, string> }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const form = e.currentTarget;
+    const keys = ["whatsapp_number", "store_name_ar", "store_tagline_ar", "instagram_url", "facebook_url", "tiktok_url"];
+    const updates = keys.map((key) => ({
+      key,
+      value: (form.elements.namedItem(key) as HTMLInputElement)?.value || "",
+    }));
+
+    const res = await fetch("/api/admin/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ settings: updates }),
+    });
+    setLoading(false);
+    if (res.ok) toast.success("تم حفظ الإعدادات");
+    else toast.error("فشل الحفظ");
+  }
+
+  const inputCls = "w-full bg-[#1A1310] border border-[#C9A84C]/20 rounded-lg px-4 py-2.5 text-[#F5EFE0] text-sm placeholder:text-[#F5EFE0]/20 focus:outline-none focus:border-[#C9A84C]/60 transition-colors";
+  const labelCls = "block text-sm text-[#F5EFE0]/60 mb-1.5";
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+        <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3">معلومات المتجر</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>اسم المتجر</label>
+            <input name="store_name_ar" defaultValue={settings.store_name_ar || "شاهي"} className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>رقم الواتساب</label>
+            <input name="whatsapp_number" defaultValue={settings.whatsapp_number || "+201030002331"} className={inputCls} />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>الشعار الفرعي</label>
+          <input name="store_tagline_ar" defaultValue={settings.store_tagline_ar} className={inputCls} />
+        </div>
+      </div>
+
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+        <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3">روابط السوشيال</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>إنستاجرام</label>
+            <input name="instagram_url" defaultValue={settings.instagram_url} placeholder="https://instagram.com/..." className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>فيسبوك</label>
+            <input name="facebook_url" defaultValue={settings.facebook_url} placeholder="https://facebook.com/..." className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>تيك توك</label>
+            <input name="tiktok_url" defaultValue={settings.tiktok_url} placeholder="https://tiktok.com/@..." className={inputCls} />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-2.5 bg-[#C9A84C] hover:bg-[#B89440] disabled:opacity-50 text-[#0A0806] font-bold text-sm rounded-lg transition-colors"
+        >
+          {loading ? "جاري الحفظ..." : "حفظ الإعدادات"}
+        </button>
+      </div>
+    </form>
+  );
+}

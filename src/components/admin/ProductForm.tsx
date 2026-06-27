@@ -1,270 +1,230 @@
 "use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import type { Category } from "@/lib/db/drizzle/schema";
 
-import { useState, useRef } from "react";
-import { useProductMutation } from "@/hooks/product/mutations/useProductMutation";
-import { Button } from "@/components/ui/button";
-import LoadingButton from "@/components/ui/loadingButton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { FiCheck, FiX, FiPackage, FiImage, FiLayers } from "react-icons/fi";
-import { BasicInfo, type BasicInfoRef } from "./BasicInfo";
-import { MainImage, type MainImageRef } from "./MainImage";
-import { VariantsSection, type VariantsSectionRef } from "./VariantsSection";
-import type { ProductWithVariants } from "@/lib/db/drizzle/schema";
-import type { ProductFormData } from "@/types/admin";
+type ProductRow = {
+  id: string;
+  name_ar: string;
+  slug: string;
+  description_ar: string | null;
+  category_id: string;
+  quality_tier: "hi_copy" | "mirror" | "original";
+  price: string | number;
+  compare_at_price: string | number | null;
+  status: "active" | "draft" | "archived";
+  is_featured: boolean;
+};
 
-export type { ProductFormData };
+const QUALITY_OPTIONS = [
+  { value: "hi_copy", label: "هاي كوبي" },
+  { value: "mirror", label: "ميرو" },
+  { value: "original", label: "أورجنال" },
+];
 
-interface FormState {
-  success: boolean;
-  message: string;
-  errors?: Record<string, string[]>;
-}
+const STATUS_OPTIONS = [
+  { value: "active", label: "نشط" },
+  { value: "draft", label: "مسودة" },
+  { value: "archived", label: "مؤرشف" },
+];
 
-interface ProductFormProps {
-  mode: "create" | "edit";
-  initialData?: ProductFormData;
-  onSuccess?: (product: ProductWithVariants) => void;
-}
+export default function ProductForm({
+  categories,
+  product,
+}: {
+  categories: Category[];
+  product?: ProductRow;
+}) {
+  const router = useRouter();
+  const isEdit = !!product;
+  const [loading, setLoading] = useState(false);
 
-export function ProductForm({
-  mode,
-  initialData,
-  onSuccess,
-}: ProductFormProps) {
-  const { createAsync, updateAsync, isPending, isUpdatePending } =
-    useProductMutation();
-  const [state, setState] = useState<FormState>({
-    success: false,
-    message: "",
-    errors: undefined,
-  });
-
-  const basicInfoRef = useRef<BasicInfoRef>(null!);
-  const mainImageRef = useRef<MainImageRef>(null!);
-  const variantsSectionRef = useRef<VariantsSectionRef>(null!);
-
-  const isLoading = mode === "create" ? isPending : isUpdatePending;
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoading(true);
 
-    const formData = new FormData();
+    const form = e.currentTarget;
+    const getValue = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)?.value;
+    const getChecked = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement)?.checked;
 
-    if (mode === "edit" && initialData?.id) {
-      formData.append("id", initialData.id.toString());
-    }
+    const compare_at = getValue("compare_at_price");
+    const data = {
+      name_ar: getValue("name_ar"),
+      slug: getValue("slug"),
+      description_ar: getValue("description_ar"),
+      category_id: getValue("category_id"),
+      quality_tier: getValue("quality_tier"),
+      price: getValue("price"),
+      compare_at_price: compare_at || null,
+      status: getValue("status"),
+      is_featured: getChecked("is_featured"),
+    };
 
-    formData.append("name", basicInfoRef.current.name);
-    formData.append("description", basicInfoRef.current.description);
-    formData.append("price", basicInfoRef.current.price);
-    formData.append("category", basicInfoRef.current.category);
+    const url = isEdit ? `/api/admin/products/${product!.id}` : "/api/admin/products";
+    const method = isEdit ? "PATCH" : "POST";
 
-    // Handle main image
-    if (mainImageRef.current.hasNewImage && mainImageRef.current.file) {
-      formData.append("mainImage", mainImageRef.current.file);
-    } else if (mainImageRef.current.existingUrl) {
-      formData.append("existingMainImage", mainImageRef.current.existingUrl);
-    }
-
-    const variantsData = variantsSectionRef.current.getVariants();
-    const imagesData = variantsSectionRef.current.getImages();
-
-    variantsData.forEach((variant, index) => {
-      const variantImages = imagesData[`variant_${index}`] || [];
-      variantImages.forEach((image, imgIndex) => {
-        formData.append(`variant_${index}_image_${imgIndex}`, image);
-      });
-      formData.append(
-        `variant_${index}_imageCount`,
-        variantImages.length.toString(),
-      );
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
 
-    // Include variant data with existing images info for edit mode
-    const variantsForSubmit = variantsData.map((v) => ({
-      id: v.id,
-      color: v.color,
-      stripe_id: v.stripe_id,
-      sizes: v.sizes,
-      imageCount: v.imageCount,
-      existingImages: v.existingImages,
-      removedImages: v.removedImages,
-    }));
-
-    formData.append("variants", JSON.stringify(variantsForSubmit));
-
-    try {
-      const result =
-        mode === "create"
-          ? await createAsync(formData)
-          : await updateAsync(formData);
-
-      setState({
-        success: result.success,
-        message: result.message,
-        errors: result.errors,
-      });
-
-      if (result.success && result.data && onSuccess) {
-        onSuccess(result.data);
-      }
-    } catch (error) {
-      setState({
-        success: false,
-        message: "An unexpected error occurred",
-        errors: undefined,
-      });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      toast.error(err.error || "حدث خطأ");
+      setLoading(false);
+      return;
     }
-  };
 
-  const handleReset = () => {
-    basicInfoRef.current.reset();
-    mainImageRef.current.reset();
-    variantsSectionRef.current.reset();
-    setState({ success: false, message: "", errors: undefined });
-  };
+    toast.success(isEdit ? "تم تحديث المنتج" : "تم إضافة المنتج");
+    router.push("/admin/products");
+    router.refresh();
+  }
 
-  const title = mode === "create" ? "Create Product" : "Edit Product";
-  const subtitle =
-    mode === "create"
-      ? "Add a new product with variants and images to your store"
-      : "Update product information, variants and images";
-  const submitButtonText =
-    mode === "create" ? "Create Product" : "Update Product";
+  function autoSlug(name: string) {
+    return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-3xl mx-auto p-6 md:p-8 space-y-6"
-    >
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-color-primary">
-          {title}
-        </h1>
-        <p className="text-color-tertiary">{subtitle}</p>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+        <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3">
+          المعلومات الأساسية
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>اسم المنتج *</label>
+            <input
+              name="name_ar"
+              required
+              defaultValue={product?.name_ar}
+              placeholder="مثال: شنطة جلد طبيعي"
+              onChange={(e) => {
+                if (!isEdit) {
+                  const slugEl = e.currentTarget.form?.elements.namedItem("slug") as HTMLInputElement;
+                  if (slugEl) slugEl.value = autoSlug(e.currentTarget.value);
+                }
+              }}
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Slug (URL) *</label>
+            <input
+              name="slug"
+              required
+              defaultValue={product?.slug}
+              placeholder="leather-handbag"
+              className={inputCls}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>الوصف</label>
+          <textarea
+            name="description_ar"
+            defaultValue={product?.description_ar || ""}
+            rows={3}
+            placeholder="وصف المنتج..."
+            className={`${inputCls} resize-none`}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>القسم *</label>
+            <select name="category_id" required defaultValue={product?.category_id} className={inputCls}>
+              <option value="">اختر قسم</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name_ar}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>درجة الجودة *</label>
+            <select name="quality_tier" required defaultValue={product?.quality_tier || "hi_copy"} className={inputCls}>
+              {QUALITY_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>الحالة</label>
+            <select name="status" defaultValue={product?.status || "draft"} className={inputCls}>
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>السعر (جنيه) *</label>
+            <input
+              name="price"
+              type="number"
+              required
+              min="1"
+              step="0.01"
+              defaultValue={product?.price ? String(product.price) : ""}
+              placeholder="1200"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>السعر قبل الخصم (اختياري)</label>
+            <input
+              name="compare_at_price"
+              type="number"
+              min="1"
+              step="0.01"
+              defaultValue={product?.compare_at_price ? String(product.compare_at_price) : ""}
+              placeholder="1600"
+              className={inputCls}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="is_featured"
+            id="is_featured"
+            defaultChecked={product?.is_featured}
+            className="w-4 h-4 accent-[#C9A84C]"
+          />
+          <label htmlFor="is_featured" className="text-sm text-[#F5EFE0]/60">
+            منتج مميّز (يظهر في الصفحة الرئيسية)
+          </label>
+        </div>
       </div>
 
-      <Separator />
-
-      {/* Alert Message */}
-      {state.message && (
-        <Alert variant={state.success ? "success" : "destructive"}>
-          {state.success ? (
-            <FiCheck className="h-4 w-4" />
-          ) : (
-            <FiX className="h-4 w-4" />
-          )}
-          <AlertTitle>{state.success ? "Success" : "Error"}</AlertTitle>
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Basic Information Card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/10">
-              <FiPackage className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Basic Information</CardTitle>
-              <CardDescription>
-                Product name, description, price and category
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <BasicInfo
-            ref={basicInfoRef}
-            errors={state.errors}
-            initialData={initialData?.basicInfo}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Main Image Card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/10">
-              <FiImage className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Main Image</CardTitle>
-              <CardDescription>
-                Primary product image displayed in listings
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <MainImage
-            ref={mainImageRef}
-            errors={state.errors}
-            initialImageUrl={initialData?.mainImageUrl}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Variants Card */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/10">
-              <FiLayers className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">Product Variants</CardTitle>
-              <CardDescription>
-                Add color variations with sizes and images
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <VariantsSection
-            ref={variantsSectionRef}
-            initialVariants={initialData?.variants}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons */}
-      <Card className="border-dashed">
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              type="reset"
-              onClick={handleReset}
-              variant="outline"
-              className="flex-1"
-              size="lg"
-            >
-              <FiX className="mr-2 h-4 w-4" />
-              {mode === "create" ? "Clear Form" : "Reset Changes"}
-            </Button>
-            <LoadingButton
-              loading={isLoading}
-              className="flex-1 bg-white text-black hover:bg-white/90"
-              size="lg"
-              icon={<FiCheck className="h-4 w-4" />}
-              iconPosition="left"
-            >
-              {submitButtonText}
-            </LoadingButton>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex gap-3 justify-end">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="px-5 py-2.5 text-sm text-[#F5EFE0]/50 hover:text-[#F5EFE0] border border-[#C9A84C]/20 rounded-lg transition-colors"
+        >
+          إلغاء
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-2.5 bg-[#C9A84C] hover:bg-[#B89440] disabled:opacity-50 text-[#0A0806] font-bold text-sm rounded-lg transition-colors"
+        >
+          {loading ? "جاري الحفظ..." : isEdit ? "حفظ التعديلات" : "إضافة المنتج"}
+        </button>
+      </div>
     </form>
   );
 }
+
+const labelCls = "block text-sm text-[#F5EFE0]/60 mb-1.5";
+const inputCls =
+  "w-full bg-[#1A1310] border border-[#C9A84C]/20 rounded-lg px-4 py-2.5 text-[#F5EFE0] text-sm placeholder:text-[#F5EFE0]/20 focus:outline-none focus:border-[#C9A84C]/60 transition-colors";
