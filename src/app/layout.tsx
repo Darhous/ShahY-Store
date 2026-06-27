@@ -4,8 +4,8 @@ import { Toaster } from "sonner";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "شاهي — لوحة الإدارة",
-  description: "لوحة تحكم متجر شاهي للمنتجات الفاخرة",
+  title: "ShahY Store — إكسسوارات فاخرة مستوردة",
+  description: "أرقى الشنط والمحافظ والشوزات النسائية المستوردة — ShahY Store",
 };
 
 export default function RootLayout({

@@ -1,0 +1,294 @@
+"use client"
+
+import { useCallback, useEffect, useRef, useState } from "react"
+
+const WA = "201030002331"
+
+const QUALITY_LABELS: Record<string, string> = {
+  hi_copy:  "نسخة عالية",
+  mirror:   "ميرور",
+  original: "أصلي",
+}
+const QUALITY_COLORS: Record<string, string> = {
+  hi_copy:  "#4a4a4a",
+  mirror:   "#7B1C2E",
+  original: "#C9A84C",
+}
+
+export interface StoreProduct {
+  id: string
+  slug: string
+  name_ar: string
+  description_ar: string | null
+  price: number
+  compare_at_price: number | null
+  quality_tier: string
+  category_name: string | null
+  is_featured: boolean
+  image: { url: string; alt_ar: string | null } | null
+}
+
+// ── Reveal on scroll ────────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === "undefined") { setVisible(true); return }
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold: 0.06, rootMargin: "0px 0px -30px 0px" }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return { ref, visible }
+}
+
+// ── Single product card ──────────────────────────────────────────────────────
+function ProductCard({ product, index }: { product: StoreProduct; index: number }) {
+  const { ref, visible } = useReveal()
+  const [tilt, setTilt]     = useState({ x: 0, y: 0, gx: 50, gy: 50 })
+  const [hovered, setHovered] = useState(false)
+  const [shimmer, setShimmer] = useState(false)
+  const raf = useRef<number>(0)
+
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    const nx = (e.clientX - r.left) / r.width
+    const ny = (e.clientY - r.top)  / r.height
+    cancelAnimationFrame(raf.current)
+    raf.current = requestAnimationFrame(() =>
+      setTilt({ x: (ny - 0.5) * -16, y: (nx - 0.5) * 16, gx: nx * 100, gy: ny * 100 })
+    )
+  }, [])
+
+  const onEnter = () => {
+    setHovered(true)
+    setShimmer(false)
+    setTimeout(() => setShimmer(true), 20)
+    setTimeout(() => setShimmer(false), 700)
+  }
+  const onLeave = () => { setHovered(false); setTilt({ x: 0, y: 0, gx: 50, gy: 50 }) }
+
+  const waText = encodeURIComponent(`السلام عليكم، أريد الاستفسار عن: ${product.name_ar} (${product.price.toLocaleString("ar-EG")} ج.م)`)
+  const waHref = `https://wa.me/${WA}?text=${waText}`
+  const qColor = QUALITY_COLORS[product.quality_tier] ?? "#4a4a4a"
+  const delay  = `${index * 0.07}s`
+
+  const entryTransform = visible
+    ? `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${hovered ? 1.03 : 1})`
+    : `perspective(800px) rotateX(-4deg) rotateY(${index % 2 === 0 ? 3 : -3}deg) translateY(50px) scale(0.95)`
+
+  return (
+    <div ref={ref} style={{ width: 290 }}>
+      <div
+        onMouseMove={onMove} onMouseEnter={onEnter} onMouseLeave={onLeave}
+        style={{
+          background: "linear-gradient(145deg,#111009 0%,#0D0B08 100%)",
+          border: `1px solid ${hovered ? "#C9A84C55" : "#1e1c18"}`,
+          borderRadius: 16, overflow: "hidden", position: "relative",
+          opacity: visible ? 1 : 0, transform: entryTransform,
+          transition: `
+            opacity 0.65s ease ${delay},
+            transform ${hovered ? "0.1s" : "0.65s"} cubic-bezier(0.2,0,0.2,1) ${visible && !hovered ? delay : "0s"},
+            border-color 0.3s ease, box-shadow 0.3s ease
+          `,
+          boxShadow: hovered
+            ? "0 24px 64px rgba(201,168,76,0.18),0 8px 28px rgba(0,0,0,0.7),inset 0 1px 0 rgba(201,168,76,0.1)"
+            : "0 4px 24px rgba(0,0,0,0.5)",
+          willChange: "transform, box-shadow", cursor: "pointer",
+        }}
+      >
+        {/* Gold light follow */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none",
+          background: `radial-gradient(ellipse 180px 160px at ${tilt.gx}% ${tilt.gy}%,rgba(201,168,76,0.12) 0%,transparent 70%)`,
+          opacity: hovered ? 1 : 0, transition: "opacity 0.3s",
+        }} />
+
+        {/* Shimmer sweep */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none",
+          background: "linear-gradient(105deg,transparent 30%,rgba(240,216,130,0.18) 50%,transparent 70%)",
+          transform: `translateX(${shimmer ? "120%" : "-120%"})`,
+          transition: shimmer ? "transform 0.55s cubic-bezier(0.4,0,0.2,1)" : "none",
+        }} />
+
+        {/* Image */}
+        <div style={{ position: "relative", overflow: "hidden", paddingBottom: "100%" }}>
+          {product.image?.url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={product.image.url} alt={product.image.alt_ar ?? product.name_ar}
+              style={{
+                position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+                transform: hovered ? "scale(1.09)" : "scale(1)",
+                transition: "transform 0.65s cubic-bezier(0.2,0,0.2,1)",
+                filter: hovered ? "brightness(1.08) saturate(1.1)" : "brightness(1)",
+              }} />
+          ) : (
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(135deg,#1a1510 0%,#2a2015 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 52, opacity: 0.3,
+            }}>👜</div>
+          )}
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 1,
+            background: "linear-gradient(to bottom,transparent 55%,rgba(10,8,6,0.55) 100%)",
+          }} />
+          <div style={{
+            position: "absolute", top: 12, right: 12, zIndex: 2,
+            background: qColor, color: "#fff",
+            fontSize: 10, fontFamily: "Tajawal, sans-serif", fontWeight: 700,
+            padding: "3px 10px", borderRadius: 20,
+          }}>
+            {QUALITY_LABELS[product.quality_tier] ?? product.quality_tier}
+          </div>
+          {product.is_featured && (
+            <div style={{
+              position: "absolute", top: 12, left: 12, zIndex: 2,
+              background: "rgba(10,8,6,0.85)", backdropFilter: "blur(4px)",
+              color: "#C9A84C", fontSize: 13, padding: "3px 8px", borderRadius: 20,
+              border: "1px solid rgba(201,168,76,0.3)",
+            }}>⭐</div>
+          )}
+        </div>
+
+        {/* Card content */}
+        <div style={{ padding: "18px 18px 14px", direction: "rtl", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ fontSize: 10, color: "#C9A84C", fontFamily: "Tajawal,sans-serif", letterSpacing: "2px", opacity: 0.85, textTransform: "uppercase" }}>
+            {product.category_name}
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#F5EFE0", fontFamily: "Tajawal,sans-serif", lineHeight: 1.4 }}>
+            {product.name_ar}
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 2 }}>
+            <span style={{ fontSize: 22, fontWeight: 900, color: "#C9A84C", fontFamily: "Tajawal,sans-serif" }}>
+              {product.price.toLocaleString("ar-EG")} ج.م
+            </span>
+            {product.compare_at_price && (
+              <span style={{ fontSize: 13, color: "#444", fontFamily: "Tajawal,sans-serif", textDecoration: "line-through" }}>
+                {product.compare_at_price.toLocaleString("ar-EG")}
+              </span>
+            )}
+          </div>
+          <div style={{ height: 1, margin: "8px 0", background: "linear-gradient(90deg,#C9A84C44,transparent)" }} />
+          <a href={waHref} target="_blank" rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              background: hovered ? "linear-gradient(135deg,#C9A84C,#F0D882)" : "linear-gradient(135deg,#7B1C2E,#9B2C3E)",
+              color: hovered ? "#0A0806" : "#F5EFE0",
+              fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
+              padding: "11px 16px", borderRadius: 8, textDecoration: "none",
+              transition: "all 0.35s cubic-bezier(0.2,0,0.2,1)", letterSpacing: "0.05em",
+            }}>
+            <span style={{ fontSize: 17 }}>📱</span>
+            اطلب عبر واتساب
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Section header ───────────────────────────────────────────────────────────
+function SectionHeader() {
+  const { ref, visible } = useReveal()
+  return (
+    <div ref={ref} style={{ textAlign: "center", marginBottom: 56 }}>
+      <div style={{
+        fontFamily: "Cinzel,serif", fontSize: 10, letterSpacing: "6px",
+        color: "#C9A84C", textTransform: "uppercase",
+        opacity: visible ? 0.7 : 0, transform: visible ? "translateY(0)" : "translateY(12px)",
+        transition: "all 0.7s ease", marginBottom: 16,
+      }}>✦ &nbsp; luxury collection &nbsp; ✦</div>
+
+      <div style={{
+        fontFamily: "Playfair Display,serif", fontSize: "clamp(32px,4vw,46px)", fontWeight: 700,
+        background: "linear-gradient(135deg,#A07030,#C9A84C,#F0D882,#C9A84C,#A07030)",
+        backgroundSize: "300% auto", WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent", backgroundClip: "text",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0) rotate(0deg)" : "translateY(30px) rotate(-1.5deg)",
+        filter: visible ? "blur(0)" : "blur(4px)",
+        transition: "all 0.8s cubic-bezier(0.2,0,0.2,1) 0.1s", marginBottom: 8,
+        animation: visible ? "pgShimmer 6s linear 1s infinite" : "none",
+      }}>
+        تشكيلتنا الفاخرة
+      </div>
+
+      <div style={{
+        fontFamily: "Cormorant Garamond,serif", fontStyle: "italic",
+        fontSize: 15, color: "#F5EFE0",
+        opacity: visible ? 0.5 : 0, transform: visible ? "translateY(0)" : "translateY(12px)",
+        transition: "all 0.7s ease 0.25s", marginBottom: 20, letterSpacing: "1px",
+      }}>
+        أرقى الإكسسوارات المستوردة — Curated Luxury
+      </div>
+
+      <div style={{
+        height: 1.5,
+        background: "linear-gradient(90deg,transparent,#C9A84C 20%,#F0D882 50%,#C9A84C 80%,transparent)",
+        margin: "0 auto",
+        width: visible ? 200 : 0, transition: "width 0.9s cubic-bezier(0.2,0,0.2,1) 0.35s",
+      }} />
+    </div>
+  )
+}
+
+// ── Main export ──────────────────────────────────────────────────────────────
+export default function ProductGrid({ initialProducts }: { initialProducts: StoreProduct[] }) {
+  const [products, setProducts] = useState<StoreProduct[]>(initialProducts)
+  const [activeCategory, setActiveCategory] = useState("الكل")
+
+  const categories = ["الكل", ...Array.from(new Set(products.map(p => p.category_name).filter(Boolean) as string[]))]
+  const filtered = activeCategory === "الكل" ? products : products.filter(p => p.category_name === activeCategory)
+
+  return (
+    <section style={{ background: "#0A0806", padding: "96px 40px 80px", direction: "rtl" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Cinzel:wght@400&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
+        @keyframes pgShimmer { from{background-position:200% center} to{background-position:-200% center} }
+        @keyframes pgSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .pg-cat-pill { cursor:pointer; transition:all 0.3s ease; background:transparent; border:none; }
+        .pg-cat-pill:hover { background:rgba(201,168,76,0.12)!important; color:#C9A84C!important; border-color:#C9A84C!important; }
+      `}</style>
+
+      <SectionHeader />
+
+      {/* Category filter */}
+      {categories.length > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 52, flexWrap: "wrap" }}>
+          {categories.map(cat => (
+            <button key={cat} className="pg-cat-pill"
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                fontFamily: "Tajawal,sans-serif", fontSize: 13, fontWeight: 700,
+                padding: "8px 24px", borderRadius: 30, cursor: "pointer",
+                border: `1px solid ${activeCategory === cat ? "#C9A84C" : "#252018"}`,
+                background: activeCategory === cat ? "#C9A84C" : "transparent",
+                color: activeCategory === cat ? "#0A0806" : "#555",
+              }}>
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Grid */}
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 24, maxWidth: 1340, margin: "0 auto" }}>
+        {filtered.map((p, i) => <ProductCard key={p.slug} product={p} index={i} />)}
+      </div>
+
+      {/* Footer credit */}
+      <div style={{ textAlign: "center", marginTop: 80, paddingTop: 40, borderTop: "1px solid #151210" }}>
+        <div style={{ fontFamily: "Cinzel,serif", fontSize: 8, letterSpacing: "4px", color: "#2a2520", textTransform: "uppercase" }}>
+          ShahY Store · by Shahenda Souliman · designed by Ahmed Darhous
+        </div>
+      </div>
+    </section>
+  )
+}
