@@ -53,7 +53,7 @@ export default async function OrderDetailPage({ params }: Props) {
             })}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <a href={`https://wa.me/${waPhone}?text=${waMsg}`}
             target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#25D366] border border-[#25D366]/30 rounded-lg hover:bg-[#25D366]/10 transition-colors">
@@ -62,6 +62,13 @@ export default async function OrderDetailPage({ params }: Props) {
             </svg>
             واتساب
           </a>
+          {order.status === "delivered" && (
+            <a href={`https://wa.me/${waPhone}?text=${encodeURIComponent(`السلام عليكم ${order.customer_name} 🌟\nنأمل أن طلبك رقم ${order.order_number} من ShahY Store قد وصلك بسلامة.\nنودّ سماع رأيك — هل يمكنك تقييم تجربتك معنا؟ رأيك يهمنا جداً 💛`)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#C9A84C] border border-[#C9A84C]/30 rounded-lg hover:bg-[#C9A84C]/10 transition-colors">
+              ⭐ اطلب تقييم
+            </a>
+          )}
           <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_COLORS[order.status]}`}>
             {STATUS_LABELS[order.status]}
           </span>

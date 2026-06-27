@@ -94,6 +94,11 @@ export default function StoreFooter() {
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <a href="/#products" className="sf-link">المنتجات</a>
+              <a href="/sale" className="sf-link">
+                <span style={{ color: "#7B1C2E", fontWeight: 700, fontSize: 10, background: "rgba(123,28,46,0.12)", padding: "1px 5px", borderRadius: 4 }}>SALE</span>
+                العروض
+              </a>
+              <a href="/track" className="sf-link">تتبّع طلبك</a>
               <a href="/cart" className="sf-link">سلة الشراء</a>
               <a href="/about" className="sf-link">عن ShahY</a>
               <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}

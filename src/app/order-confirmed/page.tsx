@@ -33,27 +33,48 @@ function ConfirmContent() {
       )}
       <div style={{
         background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.12)",
-        borderRadius: 14, padding: "24px 28px", maxWidth: 420, margin: "0 auto 40px",
+        borderRadius: 14, padding: "24px 28px", maxWidth: 420, margin: "0 auto 32px",
       }}>
         <p style={{ fontFamily: "Tajawal,sans-serif", fontSize: 15, color: "#F5EFE0", opacity: 0.6, lineHeight: 1.9, margin: 0 }}>
           سنتواصل معك قريباً على رقمك لتأكيد الطلب وتحديد موعد التوصيل.
-          إذا لم تتلقَّ ردًّا خلال ساعة، يمكنك التواصل معنا مباشرةً على واتساب.
+          يمكنكِ أيضاً إخطارنا بطلبك مباشرةً عبر واتساب لأسرع استجابة.
         </p>
       </div>
-      <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-        <a href={`https://wa.me/201015835455?text=${encodeURIComponent(`السلام عليكم، أريد الاستفسار عن طلبي رقم ${orderNumber}`)}`}
-          target="_blank" rel="noopener noreferrer"
-          style={{
-            fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
-            padding: "12px 28px", borderRadius: 8, textDecoration: "none",
-            background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.35)",
-            color: "#25D366",
-          }}>
-          📱 تواصل على واتساب
-        </a>
+
+      {/* Primary CTA: notify admin via WA */}
+      {orderNumber && (
+        <div style={{ maxWidth: 380, margin: "0 auto 16px" }}>
+          <a href={`https://wa.me/201015835455?text=${encodeURIComponent(`🛍️ طلب جديد على ShahY Store\n\nرقم الطلب: ${orderNumber}\n\nأرجو تأكيد استلام الطلب. شكراً 💛`)}`}
+            target="_blank" rel="noopener noreferrer"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+              width: "100%",
+              fontFamily: "Tajawal,sans-serif", fontWeight: 800, fontSize: 15,
+              padding: "14px 28px", borderRadius: 10, textDecoration: "none",
+              background: "linear-gradient(135deg,rgba(37,211,102,0.15),rgba(37,211,102,0.08))",
+              border: "1px solid rgba(37,211,102,0.4)", color: "#25D366",
+              boxShadow: "0 4px 20px rgba(37,211,102,0.1)",
+            }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
+            </svg>
+            أبلغي الأدمن بطلبك
+          </a>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <Link href={`/track${orderNumber ? `?n=${encodeURIComponent(orderNumber)}` : ""}`} style={{
+          fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
+          padding: "11px 24px", borderRadius: 8, textDecoration: "none",
+          background: "transparent", color: "#C9A84C",
+          border: "1px solid rgba(201,168,76,0.3)",
+        }}>
+          🔍 تتبّع طلبك
+        </Link>
         <Link href="/" style={{
           fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
-          padding: "12px 28px", borderRadius: 8, textDecoration: "none",
+          padding: "11px 24px", borderRadius: 8, textDecoration: "none",
           background: "linear-gradient(135deg,#C9A84C,#F0D882)", color: "#0A0806",
         }}>
           متابعة التسوق

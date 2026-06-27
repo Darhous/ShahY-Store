@@ -71,6 +71,22 @@ export default function StoreHeader() {
           onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
         >المنتجات</a>
 
+        <a href="/sale" style={{
+          fontFamily: "Tajawal, sans-serif", fontSize: 13, color: "#E8756A",
+          opacity: 0.8, textDecoration: "none", transition: "opacity 0.2s", fontWeight: 700,
+        }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "0.8")}
+        >العروض</a>
+
+        <a href="/track" style={{
+          fontFamily: "Tajawal, sans-serif", fontSize: 13, color: "#F5EFE0",
+          opacity: 0.6, textDecoration: "none", transition: "opacity 0.2s",
+        }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
+        >تتبّع طلبك</a>
+
         <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
           target="_blank" rel="noopener noreferrer"
           style={{
