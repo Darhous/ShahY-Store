@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/categories", label: "الأقسام", icon: "🏷️" },
   { href: "/admin/shipping", label: "الشحن", icon: "🚚" },
   { href: "/admin/discounts", label: "الخصومات", icon: "🎁" },
+  { href: "/admin/admins", label: "الصلاحيات", icon: "👥" },
   { href: "/admin/settings", label: "الإعدادات", icon: "⚙️" },
 ];
 

@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 import { db } from "@/lib/db/drizzle/connection";
-import { orders, products, customers } from "@/lib/db/drizzle/schema";
-import { eq, count, sum, desc } from "drizzle-orm";
+import { orders, products } from "@/lib/db/drizzle/schema";
+import { eq, count, sum, desc, sql } from "drizzle-orm";
+import RevenueChart from "@/components/admin/RevenueChart";
 
 async function getStats() {
   const [totalOrders] = await db.select({ count: count() }).from(orders);
@@ -24,12 +25,42 @@ async function getStats() {
     .orderBy(desc(orders.created_at))
     .limit(5);
 
+  const revenueRows = await db.execute(sql`
+    SELECT
+      DATE_TRUNC('day', created_at)::date AS day,
+      SUM(total::numeric)::float AS revenue,
+      COUNT(*)::int AS orders
+    FROM orders
+    WHERE created_at >= NOW() - INTERVAL '30 days'
+      AND status != 'cancelled'
+    GROUP BY 1
+    ORDER BY 1
+  `);
+
+  const revenueByDay = (() => {
+    const map = new Map<string, { revenue: number; orders: number }>();
+    const rows = Array.isArray(revenueRows) ? revenueRows : (revenueRows as { rows: unknown[] }).rows ?? []
+    for (const row of rows as { day: string; revenue: number; orders: number }[]) {
+      const d = new Date(row.day).toISOString().slice(0, 10);
+      map.set(d, { revenue: row.revenue, orders: row.orders });
+    }
+    const result: { day: string; revenue: number; orders: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      result.push({ day: key, ...(map.get(key) ?? { revenue: 0, orders: 0 }) });
+    }
+    return result;
+  })();
+
   return {
     totalOrders: totalOrders.count,
     pendingOrders: pendingOrders.count,
     totalProducts: totalProducts.count,
     totalRevenue: Number(totalRevenue.sum || 0),
     recentOrders,
+    revenueByDay,
   };
 }
 
@@ -51,6 +82,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default async function DashboardPage() {
   const stats = await getStats();
+  const totalChartRevenue = stats.revenueByDay.reduce((s, d) => s + d.revenue, 0);
 
   return (
     <div className="space-y-8">
@@ -61,22 +93,9 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label="إجمالي الطلبات"
-          value={stats.totalOrders.toString()}
-          icon="🧾"
-        />
-        <StatCard
-          label="طلبات معلّقة"
-          value={stats.pendingOrders.toString()}
-          icon="⏳"
-          highlight
-        />
-        <StatCard
-          label="منتجات نشطة"
-          value={stats.totalProducts.toString()}
-          icon="📦"
-        />
+        <StatCard label="إجمالي الطلبات" value={stats.totalOrders.toString()} icon="🧾" />
+        <StatCard label="طلبات معلّقة" value={stats.pendingOrders.toString()} icon="⏳" highlight />
+        <StatCard label="منتجات نشطة" value={stats.totalProducts.toString()} icon="📦" />
         <StatCard
           label="إجمالي المبيعات"
           value={`${stats.totalRevenue.toLocaleString("ar-EG")} ج`}
@@ -84,40 +103,51 @@ export default async function DashboardPage() {
         />
       </div>
 
+      {/* Revenue Chart */}
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#C9A84C]/10">
+          <div>
+            <h2 className="font-semibold text-[#F5EFE0]">الإيرادات — آخر 30 يوم</h2>
+            <p className="text-xs text-[#F5EFE0]/30 mt-0.5">
+              إجمالي: {totalChartRevenue.toLocaleString("ar-EG")} ج.م
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-sm" style={{ background: "linear-gradient(135deg,#C9A84C,#F0D882)" }} />
+            <span className="text-xs text-[#F5EFE0]/40">إيرادات الطلبات المسلّمة</span>
+          </div>
+        </div>
+        <div className="p-6">
+          <RevenueChart data={stats.revenueByDay} />
+        </div>
+      </div>
+
       {/* Recent Orders */}
       <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#C9A84C]/10">
           <h2 className="font-semibold text-[#F5EFE0]">آخر الطلبات</h2>
-          <a href="/admin/orders" className="text-xs text-[#C9A84C] hover:underline">
-            عرض الكل ←
-          </a>
+          <a href="/admin/orders" className="text-xs text-[#C9A84C] hover:underline">عرض الكل ←</a>
         </div>
         <div className="divide-y divide-[#C9A84C]/5">
           {stats.recentOrders.length === 0 ? (
-            <p className="text-center text-[#F5EFE0]/30 py-8 text-sm">
-              لا توجد طلبات بعد
-            </p>
+            <p className="text-center text-[#F5EFE0]/30 py-8 text-sm">لا توجد طلبات بعد</p>
           ) : (
             stats.recentOrders.map((order) => (
-              <div
-                key={order.id}
-                className="flex items-center justify-between px-6 py-3"
-              >
+              <a key={order.id} href={`/admin/orders/${order.id}`}
+                className="flex items-center justify-between px-6 py-3 hover:bg-[#C9A84C]/5 transition-colors no-underline">
                 <div>
                   <p className="text-sm text-[#F5EFE0]">{order.customer_name}</p>
                   <p className="text-xs text-[#F5EFE0]/40">{order.order_number}</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status]}`}
-                  >
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status]}`}>
                     {STATUS_LABELS[order.status]}
                   </span>
                   <span className="text-sm text-[#C9A84C] font-medium">
                     {Number(order.total).toLocaleString("ar-EG")} ج
                   </span>
                 </div>
-              </div>
+              </a>
             ))
           )}
         </div>
@@ -126,25 +156,11 @@ export default async function DashboardPage() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  icon: string;
-  highlight?: boolean;
+function StatCard({ label, value, icon, highlight }: {
+  label: string; value: string; icon: string; highlight?: boolean;
 }) {
   return (
-    <div
-      className={`rounded-xl border p-5 ${
-        highlight
-          ? "bg-[#C9A84C]/10 border-[#C9A84C]/30"
-          : "bg-[#0A0806] border-[#C9A84C]/10"
-      }`}
-    >
+    <div className={`rounded-xl border p-5 ${highlight ? "bg-[#C9A84C]/10 border-[#C9A84C]/30" : "bg-[#0A0806] border-[#C9A84C]/10"}`}>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg">{icon}</span>
         <span className="text-xs text-[#F5EFE0]/40">{label}</span>
