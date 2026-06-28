@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
 import { db } from "@/lib/db/drizzle/connection"
-import { products, productImages, categories, settings } from "@/lib/db/drizzle/schema"
-import { eq, and } from "drizzle-orm"
+import { products, productImages, categories, settings, productVariants, banners } from "@/lib/db/drizzle/schema"
+import { eq, and, gt } from "drizzle-orm"
 import LoadingIntro from "@/components/store/LoadingIntro"
 import ProductGrid, { type StoreProduct } from "@/components/store/ProductGrid"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
 import FloatingWA from "@/components/store/FloatingWA"
 import HeroSection from "@/components/store/HeroSection"
+import BannersCarousel from "@/components/store/BannersCarousel"
 
 export const metadata: Metadata = {
   title: "ShahY Store — إكسسوارات فاخرة مستوردة",
@@ -65,8 +66,39 @@ async function getHeroWords(): Promise<string[]> {
   return []
 }
 
+async function getActiveBanners() {
+  try {
+    return await db
+      .select({ id: banners.id, image_url: banners.image_url, title_ar: banners.title_ar, link: banners.link })
+      .from(banners)
+      .where(eq(banners.is_active, true))
+      .orderBy(banners.sort_order)
+  } catch { return [] }
+}
+
+async function getLowStockMap(): Promise<Record<string, number>> {
+  try {
+    const rows = await db
+      .select({ product_id: productVariants.product_id, stock: productVariants.stock })
+      .from(productVariants)
+      .where(gt(productVariants.stock, 0))
+    const map: Record<string, number> = {}
+    for (const r of rows) {
+      map[r.product_id] = (map[r.product_id] ?? 0) + r.stock
+    }
+    return map
+  } catch { return {} }
+}
+
 export default async function StorePage() {
-  const [initialProducts, heroWords] = await Promise.all([getProducts(), getHeroWords()])
+  const [initialProducts, heroWords, activeBanners, lowStockMap] = await Promise.all([
+    getProducts(), getHeroWords(), getActiveBanners(), getLowStockMap(),
+  ])
+
+  const productsWithStock = initialProducts.map(p => ({
+    ...p,
+    total_stock: lowStockMap[p.id] ?? null,
+  }))
 
   return (
     <>
@@ -81,9 +113,11 @@ export default async function StorePage() {
       <LoadingIntro />
       <HeroSection words={heroWords} />
 
+      {activeBanners.length > 0 && <BannersCarousel banners={activeBanners} />}
+
       {/* Products */}
       <div id="products">
-        <ProductGrid initialProducts={initialProducts} />
+        <ProductGrid initialProducts={productsWithStock} />
       </div>
       <StoreFooter />
       <FloatingWA />

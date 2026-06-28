@@ -29,6 +29,7 @@ export interface StoreProduct {
   category_name: string | null
   is_featured: boolean
   image: { url: string; alt_ar: string | null } | null
+  total_stock?: number | null
 }
 
 // ── Reveal on scroll ────────────────────────────────────────────────────────
@@ -175,6 +176,27 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
               color: "#C9A84C", fontSize: 13, padding: "3px 8px", borderRadius: 20,
               border: "1px solid rgba(201,168,76,0.3)",
             }}>⭐</div>
+          )}
+          {product.compare_at_price && product.compare_at_price > product.price && (
+            <div style={{
+              position: "absolute", bottom: 12, right: 12, zIndex: 2,
+              background: "#7B1C2E", color: "#fff",
+              fontSize: 10, fontFamily: "Tajawal,sans-serif", fontWeight: 700,
+              padding: "3px 8px", borderRadius: 20,
+            }}>
+              {Math.round((1 - product.price / product.compare_at_price) * 100)}% خصم
+            </div>
+          )}
+          {product.total_stock != null && product.total_stock > 0 && product.total_stock <= 5 && (
+            <div style={{
+              position: "absolute", bottom: 12, left: 12, zIndex: 2,
+              background: "rgba(10,8,6,0.88)", backdropFilter: "blur(4px)",
+              border: "1px solid rgba(240,100,80,0.5)",
+              color: "#F06450", fontSize: 10, fontFamily: "Tajawal,sans-serif", fontWeight: 700,
+              padding: "3px 9px", borderRadius: 20,
+            }}>
+              آخر {product.total_stock} قطع!
+            </div>
           )}
         </div>
 

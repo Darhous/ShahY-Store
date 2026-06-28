@@ -9,7 +9,12 @@ export default function StoreHeader() {
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [wlCount, setWlCount] = useState(0)
+  const [announcement, setAnnouncement] = useState<{ text: string; active: boolean } | null>(null)
   const { count } = useCart()
+
+  useEffect(() => {
+    fetch("/api/announcement").then(r => r.json()).then(setAnnouncement).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -27,6 +32,8 @@ export default function StoreHeader() {
     return () => { window.removeEventListener("storage", syncWl); window.removeEventListener("shahy-wl-change", syncWl) }
   }, [])
 
+  const showAnnouncement = announcement?.active && !!announcement.text
+
   return (
     <>
     <style>{`
@@ -35,16 +42,32 @@ export default function StoreHeader() {
       .sh-icon-btn:hover { background:rgba(201,168,76,0.1); }
       .sh-badge { position:absolute; top:-2px; left:-2px; min-width:16px; height:16px; border-radius:8px; background:#7B1C2E; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px; font-family:Tajawal,sans-serif; animation:badgePop 0.25s cubic-bezier(0.34,1.56,0.64,1); }
       @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+      @keyframes announceFade { from{opacity:0;transform:translateY(-100%)} to{opacity:1;transform:translateY(0)} }
     `}</style>
 
     {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
 
+    {/* Announcement bar */}
+    {showAnnouncement && (
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 9001,
+        background: "linear-gradient(135deg, #7B1C2E, #9B2E42)",
+        borderBottom: "1px solid rgba(201,168,76,0.2)",
+        padding: "8px 24px", textAlign: "center",
+        animation: "announceFade 0.4s ease both",
+      }}>
+        <span style={{ fontFamily: "Tajawal, sans-serif", fontSize: 13, fontWeight: 700, color: "#F5EFE0", letterSpacing: "0.3px" }}>
+          ✦ &nbsp; {announcement.text} &nbsp; ✦
+        </span>
+      </div>
+    )}
+
     <header style={{
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 9000,
+      position: "fixed", top: showAnnouncement ? 36 : 0, left: 0, right: 0, zIndex: 9000,
       background: scrolled ? "rgba(10,8,6,0.92)" : "transparent",
       backdropFilter: scrolled ? "blur(12px)" : "none",
       borderBottom: scrolled ? "1px solid rgba(201,168,76,0.12)" : "1px solid transparent",
-      transition: "all 0.4s cubic-bezier(0.2,0,0.2,1)",
+      transition: "top 0.3s ease, background 0.4s cubic-bezier(0.2,0,0.2,1), backdrop-filter 0.4s cubic-bezier(0.2,0,0.2,1), border-color 0.4s cubic-bezier(0.2,0,0.2,1)",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       padding: "0 40px", height: 64,
     }}>

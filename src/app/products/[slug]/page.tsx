@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { db } from "@/lib/db/drizzle/connection"
-import { products, productImages, categories } from "@/lib/db/drizzle/schema"
+import { products, productImages, categories, productVariants } from "@/lib/db/drizzle/schema"
 import { eq, and, asc, ne } from "drizzle-orm"
 import ProductDetail from "@/components/store/ProductDetail"
 import ReviewsSection from "@/components/store/ReviewsSection"
@@ -68,7 +68,7 @@ export default async function ProductPage({ params }: Props) {
     compare_at_price: rows[0].compare_at_price ? Number(rows[0].compare_at_price) : null,
   }
 
-  const [imgs, relatedRows] = await Promise.all([
+  const [imgs, relatedRows, variantRows] = await Promise.all([
     db.select({ id: productImages.id, url: productImages.url, alt_ar: productImages.alt_ar, sort_order: productImages.sort_order })
       .from(productImages)
       .where(eq(productImages.product_id, product.id))
@@ -88,6 +88,17 @@ export default async function ProductPage({ params }: Props) {
         ))
         .limit(4)
       : Promise.resolve([]),
+
+    db.select({
+      id: productVariants.id,
+      color_ar: productVariants.color_ar,
+      size: productVariants.size,
+      stock: productVariants.stock,
+      price_override: productVariants.price_override,
+    })
+      .from(productVariants)
+      .where(eq(productVariants.product_id, product.id))
+      .orderBy(asc(productVariants.size), asc(productVariants.color_ar)),
   ])
 
   const related = relatedRows.map(r => ({
@@ -111,7 +122,12 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <StoreHeader />
-      <ProductDetail product={product} images={imgs} related={relatedWithImages} />
+      <ProductDetail
+        product={product}
+        images={imgs}
+        related={relatedWithImages}
+        variants={variantRows.map(v => ({ ...v, price_override: v.price_override ? Number(v.price_override) : null }))}
+      />
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}>
         <ReviewsSection productId={product.id} />
       </div>

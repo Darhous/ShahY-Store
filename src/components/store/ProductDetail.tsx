@@ -25,6 +25,11 @@ interface RelatedProduct {
   image: { url: string; alt_ar: string | null } | null
 }
 
+interface Variant {
+  id: string; color_ar: string | null; size: string | null
+  stock: number; price_override: number | null
+}
+
 interface ProductDetailProps {
   product: {
     id: string; slug: string; name_ar: string; description_ar: string | null
@@ -33,17 +38,24 @@ interface ProductDetailProps {
   }
   images: { id: string; url: string; alt_ar: string | null; sort_order: number }[]
   related?: RelatedProduct[]
+  variants?: Variant[]
 }
 
-export default function ProductDetail({ product, images, related = [] }: ProductDetailProps) {
+export default function ProductDetail({ product, images, related = [], variants = [] }: ProductDetailProps) {
   const [activeIdx, setActiveIdx] = useState(0)
   const [tilt, setTilt] = useState({ x: 0, y: 0, gx: 50, gy: 50 })
   const [hovered, setHovered] = useState(false)
   const [shimmer, setShimmer] = useState(false)
   const [adding, setAdding] = useState(false)
   const [wishlisted, setWishlisted] = useState(false)
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null)
   const raf = useRef<number>(0)
   const { addItem } = useCart()
+
+  const sizes = Array.from(new Set(variants.filter(v => v.size).map(v => v.size!)))
+  const colors = Array.from(new Set(variants.filter(v => v.color_ar).map(v => v.color_ar!)))
+  const effectivePrice = selectedVariant?.price_override ?? product.price
+  const hasVariants = variants.length > 0
 
   useEffect(() => {
     try {
@@ -124,7 +136,15 @@ export default function ProductDetail({ product, images, related = [] }: Product
 
   const activeImg = images[activeIdx]
   const qColor = QUALITY_COLORS[product.quality_tier] ?? "#4a4a4a"
-  const waText = encodeURIComponent(`السلام عليكم، أريد الاستفسار عن: ${product.name_ar}\nالسعر: ${product.price.toLocaleString("ar-EG")} ج.م`)
+  const variantDesc = selectedVariant
+    ? [selectedVariant.color_ar, selectedVariant.size].filter(Boolean).join(" — ")
+    : ""
+  const waText = encodeURIComponent(
+    `السلام عليكم، أريد الطلب:\n` +
+    `المنتج: ${product.name_ar}\n` +
+    (variantDesc ? `المواصفات: ${variantDesc}\n` : "") +
+    `السعر: ${effectivePrice.toLocaleString("ar-EG")} ج.م`
+  )
   const waHref = `https://wa.me/${WA}?text=${waText}`
 
   return (
@@ -237,7 +257,7 @@ export default function ProductDetail({ product, images, related = [] }: Product
                 background: "linear-gradient(135deg,#C9A84C,#F0D882)",
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                 animation: "pdShimmer 6s linear infinite", backgroundSize: "300% auto",
-              }}>{product.price.toLocaleString("ar-EG")} ج.م</span>
+              }}>{effectivePrice.toLocaleString("ar-EG")} ج.م</span>
               {product.compare_at_price && (
                 <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 18, color: "#555", textDecoration: "line-through" }}>
                   {product.compare_at_price.toLocaleString("ar-EG")} ج.م
@@ -268,6 +288,77 @@ export default function ProductDetail({ product, images, related = [] }: Product
               </div>
               <p style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.5, margin: 0 }}>{QUALITY_DESC[product.quality_tier] ?? ""}</p>
             </div>
+
+            {/* ── Variants selector ── */}
+            {hasVariants && (
+              <div style={{ marginBottom: 24 }}>
+                {sizes.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#C9A84C", letterSpacing: "2px", marginBottom: 10 }}>
+                      المقاس {selectedVariant?.size ? `— ${selectedVariant.size}` : ""}
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {sizes.map(s => {
+                        const v = variants.find(v => v.size === s && (!selectedVariant?.color_ar || v.color_ar === selectedVariant.color_ar))
+                          ?? variants.find(v => v.size === s)
+                        const outOfStock = v ? v.stock === 0 : false
+                        const active = selectedVariant?.size === s
+                        return (
+                          <button key={s} onClick={() => !outOfStock && setSelectedVariant(v ?? null)}
+                            disabled={outOfStock}
+                            style={{
+                              fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 14,
+                              padding: "8px 18px", borderRadius: 8, cursor: outOfStock ? "not-allowed" : "pointer",
+                              border: `2px solid ${active ? "#C9A84C" : "rgba(201,168,76,0.2)"}`,
+                              background: active ? "rgba(201,168,76,0.12)" : "transparent",
+                              color: outOfStock ? "#333" : active ? "#C9A84C" : "#F5EFE0",
+                              opacity: outOfStock ? 0.4 : 1,
+                              transition: "all 0.2s ease",
+                              textDecoration: outOfStock ? "line-through" : "none",
+                            }}>
+                            {s}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                {colors.length > 0 && (
+                  <div>
+                    <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#C9A84C", letterSpacing: "2px", marginBottom: 10 }}>
+                      اللون {selectedVariant?.color_ar ? `— ${selectedVariant.color_ar}` : ""}
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {colors.map(c => {
+                        const v = variants.find(v => v.color_ar === c && (!selectedVariant?.size || v.size === selectedVariant.size))
+                          ?? variants.find(v => v.color_ar === c)
+                        const outOfStock = v ? v.stock === 0 : false
+                        const active = selectedVariant?.color_ar === c
+                        return (
+                          <button key={c} onClick={() => !outOfStock && setSelectedVariant(v ?? null)}
+                            disabled={outOfStock}
+                            style={{
+                              fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 13,
+                              padding: "7px 16px", borderRadius: 8, cursor: outOfStock ? "not-allowed" : "pointer",
+                              border: `2px solid ${active ? "#C9A84C" : "rgba(201,168,76,0.2)"}`,
+                              background: active ? "rgba(201,168,76,0.12)" : "transparent",
+                              color: outOfStock ? "#333" : active ? "#C9A84C" : "#F5EFE0",
+                              opacity: outOfStock ? 0.4 : 1, transition: "all 0.2s ease",
+                            }}>
+                            {c}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
+                  <div style={{ marginTop: 10, fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#F06450", fontWeight: 700 }}>
+                    ⚠ آخر {selectedVariant.stock} قطع فقط!
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Dual CTAs */}
             <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
