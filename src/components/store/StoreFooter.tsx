@@ -1,3 +1,4 @@
+"use client"
 export default function StoreFooter() {
   return (
     <footer style={{
@@ -130,7 +131,6 @@ export default function StoreFooter() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <a href="/faq" className="sf-link">الأسئلة الشائعة</a>
               <a href="/track" className="sf-link">تتبّع طلبك</a>
-              <a href="/guide" className="sf-link">دليل الاستخدام</a>
               <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد المساعدة")}`}
                 target="_blank" rel="noopener noreferrer" className="sf-link">
                 دعم واتساب
@@ -216,9 +216,23 @@ export default function StoreFooter() {
             </a>
           </div>
 
-          <p style={{ fontFamily: "Cinzel, serif", fontSize: 7, letterSpacing: "4px", color: "#1c1914", textTransform: "uppercase", marginTop: 4 }}>
-            © 2025 ShahY Store — All rights reserved
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+            <p style={{ fontFamily: "Cinzel, serif", fontSize: 7, letterSpacing: "4px", color: "#1c1914", textTransform: "uppercase" }}>
+              © 2025 ShahY Store — All rights reserved
+            </p>
+            {/* Hidden admin entry — not for public eyes */}
+            <a href="/admin/login" title="." style={{
+              opacity: 0.06, fontSize: 9, color: "#C9A84C",
+              textDecoration: "none", lineHeight: 1, transition: "opacity 0.3s",
+            }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = "0.35")}
+              onMouseLeave={e => (e.currentTarget.style.opacity = "0.06")}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

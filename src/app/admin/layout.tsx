@@ -15,6 +15,7 @@ const NAV = [
   { href: "/admin/banners", label: "البانرات", icon: "🖼️" },
   { href: "/admin/admins", label: "الصلاحيات", icon: "👥" },
   { href: "/admin/settings", label: "الإعدادات", icon: "⚙️" },
+  { href: "/admin/guide", label: "دليل الأدمن", icon: "📖" },
 ];
 
 export default function AdminLayout({
