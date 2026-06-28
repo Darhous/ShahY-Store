@@ -300,15 +300,19 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
             </button>
 
             {/* WhatsApp */}
-            <a href={waHref} target="_blank" rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
+            <button
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                window.open(waHref, "_blank", "noopener,noreferrer")
+              }}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                 background: "rgba(37,160,85,0.15)",
                 border: "1px solid rgba(37,160,85,0.35)",
                 color: "#25D366",
                 fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 12,
-                padding: "10px 12px", borderRadius: 8, textDecoration: "none",
+                padding: "10px 12px", borderRadius: 8, cursor: "pointer",
                 transition: "all 0.25s ease", whiteSpace: "nowrap",
               }}
               onMouseEnter={e => {
@@ -324,7 +328,7 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
                 <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
               </svg>
               واتساب
-            </a>
+            </button>
           </div>
         </div>
       </div>
