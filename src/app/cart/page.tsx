@@ -156,7 +156,7 @@ export default function CartPage() {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
                     <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 14, color: "#F5EFE0", opacity: 0.5 }}>الشحن</span>
-                    <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#C9A84C", opacity: 0.8 }}>يُحسب عند الشراء</span>
+                    <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#C9A84C", opacity: 0.8 }}>2-5 أيام — يُحسب بعد تأكيد العنوان</span>
                   </div>
 
                   <div style={{ height: 1, background: "linear-gradient(90deg,#C9A84C44,transparent)", marginBottom: 20 }} />
@@ -215,6 +215,38 @@ export default function CartPage() {
       </main>
       <StoreFooter />
       <FloatingWA />
+
+      {/* Mobile sticky checkout bar */}
+      {items.length > 0 && (
+        <div style={{
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200,
+          background: "rgba(10,8,6,0.97)", backdropFilter: "blur(12px)",
+          borderTop: "1px solid rgba(201,168,76,0.15)",
+          padding: "12px 20px 16px",
+          display: "none",
+        }} className="cart-mobile-bar">
+          <style>{`
+            @media (max-width: 768px) { .cart-mobile-bar { display: block !important; } }
+          `}</style>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "rgba(245,239,224,0.5)" }}>
+              المجموع ({count} منتج)
+            </span>
+            <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 17, fontWeight: 900, color: "#C9A84C" }}>
+              {total.toLocaleString("ar-EG")} ج.م
+            </span>
+          </div>
+          <Link href="/checkout" style={{
+            display: "block", textAlign: "center",
+            fontFamily: "Tajawal,sans-serif", fontWeight: 700, fontSize: 15,
+            padding: "14px", borderRadius: 10, textDecoration: "none",
+            background: "linear-gradient(135deg, #C9A84C, #F0D882)", color: "#0A0806",
+            boxShadow: "0 4px 20px rgba(201,168,76,0.25)",
+          }}>
+            إتمام الطلب ←
+          </Link>
+        </div>
+      )}
     </>
   )
 }

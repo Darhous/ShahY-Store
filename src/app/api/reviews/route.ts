@@ -5,6 +5,18 @@ import { eq, and, desc } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   const productId = req.nextUrl.searchParams.get("product_id")
+  const featured  = req.nextUrl.searchParams.get("featured")
+
+  if (featured === "true") {
+    const rows = await db
+      .select()
+      .from(reviews)
+      .where(and(eq(reviews.is_approved, true)))
+      .orderBy(desc(reviews.rating), desc(reviews.created_at))
+      .limit(8)
+    return NextResponse.json(rows)
+  }
+
   if (!productId) return NextResponse.json([], { status: 200 })
 
   const rows = await db

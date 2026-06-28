@@ -13,6 +13,7 @@ import BannersCarousel from "@/components/store/BannersCarousel"
 import FlashDeals from "@/components/store/FlashDeals"
 import TrustSection from "@/components/store/TrustSection"
 import CategoriesStrip from "@/components/store/CategoriesStrip"
+import HomeReviews from "@/components/store/HomeReviews"
 
 export const metadata: Metadata = {
   title: "ShahY Store — إكسسوارات فاخرة مستوردة",
@@ -188,6 +189,9 @@ export default async function StorePage() {
       <div id="products">
         <ProductGrid initialProducts={productsWithStock} />
       </div>
+
+      <HomeReviews />
+
       <StoreFooter />
       <FloatingWA />
     </>

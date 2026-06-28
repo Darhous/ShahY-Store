@@ -121,6 +121,48 @@ export default function StoreFooter() {
               <a href="/privacy" className="sf-link">سياسة الخصوصية</a>
             </div>
           </div>
+
+          {/* Help column */}
+          <div style={{ flex: "0 0 160px" }}>
+            <h4 style={{ fontFamily: "Tajawal, sans-serif", fontSize: 12, fontWeight: 700, color: "#C9A84C", letterSpacing: "3px", textTransform: "uppercase", marginBottom: 20 }}>
+              خدمة العملاء
+            </h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <a href="/faq" className="sf-link">الأسئلة الشائعة</a>
+              <a href="/track" className="sf-link">تتبّع طلبك</a>
+              <a href="/guide" className="sf-link">دليل الاستخدام</a>
+              <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد المساعدة")}`}
+                target="_blank" rel="noopener noreferrer" className="sf-link">
+                دعم واتساب
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment methods */}
+        <div style={{
+          borderTop: "1px solid #151210", paddingTop: 24, marginBottom: 28,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap",
+        }}>
+          <span style={{ fontFamily: "Tajawal, sans-serif", fontSize: 11, color: "rgba(245,239,224,0.2)", letterSpacing: "1px" }}>
+            الدفع المتاح:
+          </span>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 8, padding: "6px 14px",
+            fontFamily: "Tajawal, sans-serif", fontSize: 12, color: "rgba(245,239,224,0.35)",
+          }}>
+            💵 الدفع عند الاستلام (كاش)
+          </div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "rgba(37,160,85,0.05)", border: "1px solid rgba(37,160,85,0.12)",
+            borderRadius: 8, padding: "6px 14px",
+            fontFamily: "Tajawal, sans-serif", fontSize: 12, color: "rgba(37,160,85,0.5)",
+          }}>
+            📱 تحويل إنستاباي
+          </div>
         </div>
 
         {/* ── Designer bottom strip ── */}
