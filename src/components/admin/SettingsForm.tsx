@@ -41,7 +41,7 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
           </div>
           <div>
             <label className={labelCls}>رقم الواتساب</label>
-            <input name="whatsapp_number" defaultValue={settings.whatsapp_number || "+201030002331"} className={inputCls} />
+            <input name="whatsapp_number" defaultValue={settings.whatsapp_number || "+201015835455"} className={inputCls} />
           </div>
         </div>
 

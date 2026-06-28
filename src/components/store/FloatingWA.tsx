@@ -1,11 +1,19 @@
 "use client"
 
-import { useState } from "react"
-
-const WA = "201015835455"
+import { useEffect, useState } from "react"
 
 export default function FloatingWA() {
   const [hovered, setHovered] = useState(false)
+  const [waNum, setWaNum]     = useState("201015835455")
+
+  useEffect(() => {
+    fetch("/api/store-config")
+      .then(r => r.json())
+      .then(d => { if (d.whatsapp_number) setWaNum(d.whatsapp_number.replace(/\D/g, "")) })
+      .catch(() => {})
+  }, [])
+
+  const href = `https://wa.me/${waNum}?text=${encodeURIComponent("السلام عليكم 👋 أريد الاستفسار عن منتجاتكم")}`
 
   return (
     <>
@@ -36,10 +44,7 @@ export default function FloatingWA() {
         }
       `}</style>
 
-      <a
-        href={`https://wa.me/${WA}?text=${encodeURIComponent("السلام عليكم 👋 أريد الاستفسار عن منتجاتكم")}`}
-        target="_blank"
-        rel="noopener noreferrer"
+      <a href={href} target="_blank" rel="noopener noreferrer"
         className="wa-fab"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

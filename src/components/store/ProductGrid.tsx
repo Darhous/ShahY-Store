@@ -103,8 +103,8 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
     : `perspective(800px) rotateX(-4deg) rotateY(${index % 2 === 0 ? 3 : -3}deg) translateY(50px) scale(0.95)`
 
   return (
-    <Link href={`/products/${product.slug}`} style={{ textDecoration: "none", display: "block", width: 290 }}>
-    <div ref={ref} style={{ width: 290 }}>
+    <Link href={`/products/${product.slug}`} className="shahy-card-wrap" style={{ textDecoration: "none", display: "block" }}>
+    <div ref={ref}>
       <div
         onMouseMove={onMove} onMouseEnter={onEnter} onMouseLeave={onLeave}
         style={{
@@ -437,7 +437,13 @@ export default function ProductGrid({ initialProducts }: { initialProducts: Stor
       </div>
 
       {/* Grid */}
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 24, maxWidth: 1340, margin: "0 auto" }}>
+      <style>{`
+        .shahy-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:24px; max-width:1340px; margin:0 auto; }
+        .shahy-card-wrap { width:290px; }
+        @media (max-width:680px) { .shahy-grid { gap:12px; } .shahy-card-wrap { width:calc(50% - 6px); } }
+        @media (max-width:380px) { .shahy-card-wrap { width:100%; max-width:340px; } }
+      `}</style>
+      <div className="shahy-grid">
         {filtered.map((p, i) => <ProductCard key={p.slug} product={p} index={i} />)}
       </div>
 

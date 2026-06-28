@@ -175,6 +175,151 @@ function ImageManager({ productId }: { productId: string }) {
   );
 }
 
+// ── Variants manager ─────────────────────────────────────────────────────────
+type VariantRow = { id: string; color_ar: string | null; size: string | null; sku: string | null; stock: number; price_override: string | null }
+type NewVariant  = { color_ar: string; size: string; sku: string; stock: string; price_override: string }
+
+function VariantsManager({ productId }: { productId: string }) {
+  const [variants, setVariants] = useState<VariantRow[]>([])
+  const [adding, setAdding]     = useState(false)
+  const [editId, setEditId]     = useState<string | null>(null)
+  const [editData, setEditData] = useState<Partial<NewVariant>>({})
+  const [form, setForm]         = useState<NewVariant>({ color_ar: "", size: "", sku: "", stock: "0", price_override: "" })
+
+  const load = useCallback(async () => {
+    const r = await fetch(`/api/admin/products/${productId}/variants`)
+    if (r.ok) setVariants(await r.json())
+  }, [productId])
+
+  useEffect(() => { load() }, [load])
+
+  async function addVariant() {
+    setAdding(true)
+    const r = await fetch(`/api/admin/products/${productId}/variants`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, stock: Number(form.stock), price_override: form.price_override || null }),
+    })
+    setAdding(false)
+    if (!r.ok) { toast.error("فشل الإضافة"); return }
+    toast.success("تمت إضافة المتغيّر")
+    setForm({ color_ar: "", size: "", sku: "", stock: "0", price_override: "" })
+    load()
+  }
+
+  async function saveEdit(id: string) {
+    const r = await fetch(`/api/admin/products/${productId}/variants/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...editData,
+        stock: editData.stock !== undefined ? Number(editData.stock) : undefined,
+        price_override: editData.price_override !== undefined ? (editData.price_override || null) : undefined,
+      }),
+    })
+    if (!r.ok) { toast.error("فشل الحفظ"); return }
+    toast.success("تم التحديث")
+    setEditId(null)
+    setEditData({})
+    load()
+  }
+
+  async function deleteVariant(id: string) {
+    if (!confirm("حذف هذا المتغيّر؟")) return
+    await fetch(`/api/admin/products/${productId}/variants/${id}`, { method: "DELETE" })
+    toast.success("تم الحذف")
+    load()
+  }
+
+  return (
+    <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+      <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3">
+        متغيّرات المنتج
+        <span className="ml-2 text-xs font-normal text-[#F5EFE0]/30">(مقاسات، ألوان، مخزون)</span>
+      </h2>
+
+      {/* Variants table */}
+      {variants.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-right">
+            <thead>
+              <tr className="text-[#F5EFE0]/40 text-xs uppercase tracking-widest border-b border-[#C9A84C]/10">
+                <th className="pb-2 font-normal">اللون</th>
+                <th className="pb-2 font-normal">المقاس</th>
+                <th className="pb-2 font-normal">SKU</th>
+                <th className="pb-2 font-normal">المخزون</th>
+                <th className="pb-2 font-normal">سعر خاص</th>
+                <th className="pb-2 font-normal"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#C9A84C]/05">
+              {variants.map(v => (
+                <tr key={v.id} className="text-[#F5EFE0]/80">
+                  {editId === v.id ? (
+                    <>
+                      <td className="py-2 pr-0 pl-2">
+                        <input value={editData.color_ar ?? v.color_ar ?? ""} onChange={e => setEditData(d => ({ ...d, color_ar: e.target.value }))} className={inputCls + " py-1 text-xs"} placeholder="اللون" />
+                      </td>
+                      <td className="py-2 px-2">
+                        <input value={editData.size ?? v.size ?? ""} onChange={e => setEditData(d => ({ ...d, size: e.target.value }))} className={inputCls + " py-1 text-xs"} placeholder="M / XL" />
+                      </td>
+                      <td className="py-2 px-2">
+                        <input value={editData.sku ?? v.sku ?? ""} onChange={e => setEditData(d => ({ ...d, sku: e.target.value }))} className={inputCls + " py-1 text-xs"} placeholder="SKU" />
+                      </td>
+                      <td className="py-2 px-2">
+                        <input type="number" min="0" value={editData.stock ?? String(v.stock)} onChange={e => setEditData(d => ({ ...d, stock: e.target.value }))} className={inputCls + " py-1 text-xs w-20"} />
+                      </td>
+                      <td className="py-2 px-2">
+                        <input type="number" min="0" step="0.01" value={editData.price_override ?? v.price_override ?? ""} onChange={e => setEditData(d => ({ ...d, price_override: e.target.value }))} className={inputCls + " py-1 text-xs w-24"} placeholder="اتركه فارغاً" />
+                      </td>
+                      <td className="py-2 text-left whitespace-nowrap space-x-2 space-x-reverse">
+                        <button type="button" onClick={() => saveEdit(v.id)} className="text-xs text-[#C9A84C] hover:underline">حفظ</button>
+                        <button type="button" onClick={() => { setEditId(null); setEditData({}) }} className="text-xs text-[#F5EFE0]/30 hover:text-[#F5EFE0]/60 mr-2">إلغاء</button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="py-2">{v.color_ar || <span className="text-[#F5EFE0]/20">—</span>}</td>
+                      <td className="py-2 px-2">{v.size || <span className="text-[#F5EFE0]/20">—</span>}</td>
+                      <td className="py-2 px-2 text-[#F5EFE0]/40 font-mono text-xs">{v.sku || "—"}</td>
+                      <td className="py-2 px-2">
+                        <span className={`font-bold ${v.stock === 0 ? "text-red-400" : v.stock < 5 ? "text-yellow-400" : "text-green-400"}`}>{v.stock}</span>
+                      </td>
+                      <td className="py-2 px-2">{v.price_override ? `${Number(v.price_override).toLocaleString("ar-EG")} ج` : <span className="text-[#F5EFE0]/20">السعر الأساسي</span>}</td>
+                      <td className="py-2 text-left whitespace-nowrap space-x-2 space-x-reverse">
+                        <button type="button" onClick={() => { setEditId(v.id); setEditData({}) }} className="text-xs text-[#C9A84C]/70 hover:text-[#C9A84C]">تعديل</button>
+                        <button type="button" onClick={() => deleteVariant(v.id)} className="text-xs text-red-400/60 hover:text-red-400 mr-2">حذف</button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm text-[#F5EFE0]/30">لا توجد متغيّرات — أضف مقاسات أو ألوان أدناه</p>
+      )}
+
+      {/* Add variant row */}
+      <div className="space-y-3 pt-3 border-t border-[#C9A84C]/10">
+        <p className="text-xs text-[#F5EFE0]/40 font-semibold uppercase tracking-widest">إضافة متغيّر</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <input placeholder="اللون" value={form.color_ar} onChange={e => setForm(f => ({ ...f, color_ar: e.target.value }))} className={inputCls + " py-2 text-xs"} />
+          <input placeholder="المقاس (M, XL…)" value={form.size} onChange={e => setForm(f => ({ ...f, size: e.target.value }))} className={inputCls + " py-2 text-xs"} />
+          <input placeholder="SKU (اختياري)" value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} className={inputCls + " py-2 text-xs"} />
+          <input type="number" min="0" placeholder="المخزون" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} className={inputCls + " py-2 text-xs"} />
+          <input type="number" min="0" step="0.01" placeholder="سعر خاص (اختياري)" value={form.price_override} onChange={e => setForm(f => ({ ...f, price_override: e.target.value }))} className={inputCls + " py-2 text-xs"} />
+        </div>
+        <button type="button" disabled={adding} onClick={addVariant}
+          className="px-4 py-2 bg-[#C9A84C] hover:bg-[#B89440] disabled:opacity-40 text-[#0A0806] font-bold text-sm rounded-lg transition-colors">
+          {adding ? "..." : "+ إضافة متغيّر"}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Main form ────────────────────────────────────────────────────────────────
 export default function ProductForm({ categories, product }: { categories: Category[]; product?: ProductRow }) {
   const router  = useRouter();
@@ -328,6 +473,9 @@ export default function ProductForm({ categories, product }: { categories: Categ
 
       {/* Image manager — only when editing */}
       {isEdit && <ImageManager productId={product!.id} />}
+
+      {/* Variants manager — only when editing */}
+      {isEdit && <VariantsManager productId={product!.id} />}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-export default function LoadingIntro({ duration = 5200 }: { duration?: number }) {
+export default function LoadingIntro({ duration = 2800 }: { duration?: number }) {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in")
 
   function skip() {
@@ -11,9 +11,12 @@ export default function LoadingIntro({ duration = 5200 }: { duration?: number })
   }
 
   useEffect(() => {
-    if (sessionStorage.getItem("shahy-intro")) { setPhase("gone"); return }
+    try { if (sessionStorage.getItem("shahy-intro")) { setPhase("gone"); return } } catch {}
     const t1 = setTimeout(() => setPhase("out"), duration)
-    const t2 = setTimeout(() => { setPhase("gone"); sessionStorage.setItem("shahy-intro", "1") }, duration + 900)
+    const t2 = setTimeout(() => {
+      setPhase("gone")
+      try { sessionStorage.setItem("shahy-intro", "1") } catch {}
+    }, duration + 700)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [duration])
 

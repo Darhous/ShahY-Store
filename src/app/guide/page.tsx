@@ -443,6 +443,7 @@ export default function GuidePage() {
           [12, "نصائح وتنبيهات مهمة", "tips"],
           [13, "معلومات الدعم الفني", "support"],
           [14, "عروض الفلاش ⚡", "flash-deals"],
+          [15, "متغيّرات المنتج", "variants"],
         ].map(([n, title, id]) => (
           <a key={id as string} href={`#${id}`} className="g-toc-item">
             <span className="g-toc-num">{n}.</span>
@@ -1294,6 +1295,64 @@ export default function GuidePage() {
           <div className="g-tip-body">
             <strong>بدون عداد</strong>
             لو اتركتي خانة "تاريخ الانتهاء" فارغة، هيظهر القسم بدون عداد — مفيد للعروض المستمرة.
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          15. VARIANTS
+      ══════════════════════════════════════════ */}
+      <div className="g-section" id="variants">
+        <div className="g-section-title">
+          <div className="g-num">15</div>
+          <h2>متغيّرات المنتج</h2>
+        </div>
+        <p style={{ color: "rgba(245,239,224,0.65)", lineHeight: 1.85, marginBottom: 28 }}>
+          كل منتج ممكن يكون له أكتر من متغيّر (مقاس، لون، ستوك). المتغيّرات بتظهر للعميلة في صفحة المنتج وبتخليها تختار قبل الشراء.
+        </p>
+
+        <div className="g-subsection-title">كيف تضيفي متغيّر؟</div>
+        <div className="g-steps">
+          <div className="g-step">
+            <div className="g-step-num">1</div>
+            <div className="g-step-body">
+              <strong>افتحي المنتج للتعديل</strong>
+              <p>من <code>المنتجات</code> في لوحة التحكم، اضغطي ✏️ تعديل على أي منتج.</p>
+            </div>
+          </div>
+          <div className="g-step">
+            <div className="g-step-num">2</div>
+            <div className="g-step-body">
+              <strong>انزلي لقسم "متغيّرات المنتج"</strong>
+              <p>في أسفل صفحة التعديل هتلاقي جدول المتغيّرات بعد إدارة الصور مباشرةً.</p>
+            </div>
+          </div>
+          <div className="g-step">
+            <div className="g-step-num">3</div>
+            <div className="g-step-body">
+              <strong>ادخلي تفاصيل المتغيّر</strong>
+              <p>اكتبي اللون (اختياري) والمقاس (مثل M أو XL) والمخزون. السعر الخاص اختياري — لو اتركتيه فارغاً هيستخدم السعر الأساسي للمنتج.</p>
+            </div>
+          </div>
+          <div className="g-step">
+            <div className="g-step-num">4</div>
+            <div className="g-step-body">
+              <strong>اضغطي "+ إضافة متغيّر"</strong>
+              <p>المتغيّر هيظهر فوراً في الجدول. ممكن تضيفي كمية متغيّرات عدد ما تحبي.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="g-subsection-title" style={{ marginTop: 32 }}>تعديل الستوك</div>
+        <p style={{ color: "rgba(245,239,224,0.65)", lineHeight: 1.85, marginBottom: 20 }}>
+          اضغطي "تعديل" جنب أي متغيّر عشان تغيّري الستوك أو السعر أو المقاس. لون الستوك بيتغيّر تلقائياً: <span style={{ color: "#f87171" }}>أحمر = نفد</span> / <span style={{ color: "#facc15" }}>أصفر = قليل (&lt;5)</span> / <span style={{ color: "#4ade80" }}>أخضر = متوفر</span>.
+        </p>
+
+        <div className="g-tip">
+          <span className="g-tip-icon">📦</span>
+          <div className="g-tip-body">
+            <strong>لو منتج مافيهوش متغيّرات</strong>
+            المتغيّرات اختيارية — لو مضفتيش أي متغيّر، العميلة بتكمّل الشراء بدون اختيار مقاس أو لون. مفيدة بس للمنتجات اللي عندها أكتر من نوع.
           </div>
         </div>
       </div>
