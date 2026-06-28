@@ -1,9 +1,13 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { useCart } from "@/contexts/CartContext"
+import { saveRecentlyViewed } from "./RecentlyViewed"
+import RecentlyViewed from "./RecentlyViewed"
+
+const WL_KEY = "shahy-wishlist"
 
 const WA = "201015835455"
 
@@ -37,8 +41,44 @@ export default function ProductDetail({ product, images, related = [] }: Product
   const [hovered, setHovered] = useState(false)
   const [shimmer, setShimmer] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [wishlisted, setWishlisted] = useState(false)
   const raf = useRef<number>(0)
   const { addItem } = useCart()
+
+  useEffect(() => {
+    try {
+      const wl = JSON.parse(localStorage.getItem(WL_KEY) ?? "[]")
+      setWishlisted(wl.some((i: { id: string }) => i.id === product.id))
+    } catch {}
+    saveRecentlyViewed({ id: product.id, slug: product.slug, name_ar: product.name_ar, price: product.price, image: images[0]?.url ?? null })
+  }, [product.id, product.slug, product.name_ar, product.price, images])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (images.length <= 1) return
+      if (e.key === "ArrowRight") setActiveIdx(i => (i + 1) % images.length)
+      if (e.key === "ArrowLeft") setActiveIdx(i => (i - 1 + images.length) % images.length)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [images.length])
+
+  function toggleWishlist() {
+    try {
+      const wl = JSON.parse(localStorage.getItem(WL_KEY) ?? "[]")
+      let next
+      if (wishlisted) {
+        next = wl.filter((i: { id: string }) => i.id !== product.id)
+        toast("تم الإزالة من قائمة الأمنيات")
+      } else {
+        next = [{ id: product.id, slug: product.slug, name_ar: product.name_ar, price: product.price, quality_tier: product.quality_tier, image: images[0]?.url ?? null }, ...wl]
+        toast.success("تمت الإضافة لقائمة الأمنيات 🤍")
+      }
+      localStorage.setItem(WL_KEY, JSON.stringify(next))
+      setWishlisted(!wishlisted)
+      window.dispatchEvent(new Event("shahy-wl-change"))
+    } catch {}
+  }
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -154,6 +194,18 @@ export default function ProductDetail({ product, images, related = [] }: Product
               <div style={{ position: "absolute", top: 16, right: 16, zIndex: 5, background: qColor, color: "#fff", fontFamily: "Tajawal,sans-serif", fontSize: 11, fontWeight: 700, padding: "4px 14px", borderRadius: 20 }}>
                 {QUALITY_LABELS[product.quality_tier] ?? product.quality_tier}
               </div>
+              {/* Arrow navigation */}
+              {images.length > 1 && (
+                <>
+                  <button onClick={() => setActiveIdx(i => (i - 1 + images.length) % images.length)}
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", zIndex: 6, background: "rgba(10,8,6,0.6)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#C9A84C", fontSize: 16 }}>‹</button>
+                  <button onClick={() => setActiveIdx(i => (i + 1) % images.length)}
+                    style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", zIndex: 6, background: "rgba(10,8,6,0.6)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#C9A84C", fontSize: 16 }}>›</button>
+                  <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", zIndex: 6, display: "flex", gap: 5 }}>
+                    {images.map((_, i) => <div key={i} style={{ width: i === activeIdx ? 18 : 6, height: 6, borderRadius: 3, background: i === activeIdx ? "#C9A84C" : "rgba(245,239,224,0.3)", transition: "all 0.3s" }} />)}
+                  </div>
+                </>
+              )}
             </div>
 
             {images.length > 1 && (
@@ -248,21 +300,37 @@ export default function ProductDetail({ product, images, related = [] }: Product
               </a>
             </div>
 
-            {/* Share button */}
-            <button onClick={handleShare} className="pd-share-btn"
-              style={{
-                width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                background: "transparent", border: "1px solid rgba(201,168,76,0.15)",
-                color: "#F5EFE0", fontFamily: "Tajawal,sans-serif", fontSize: 13, opacity: 0.55,
-                padding: "11px 20px", borderRadius: 10, cursor: "pointer",
-                transition: "all 0.25s ease",
-              }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              شارك المنتج
-            </button>
+            {/* Wishlist + Share */}
+            <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+              <button onClick={toggleWishlist}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  background: wishlisted ? "rgba(201,168,76,0.1)" : "transparent",
+                  border: `1px solid ${wishlisted ? "rgba(201,168,76,0.4)" : "rgba(201,168,76,0.15)"}`,
+                  color: wishlisted ? "#C9A84C" : "#F5EFE0", opacity: wishlisted ? 1 : 0.55,
+                  fontFamily: "Tajawal,sans-serif", fontSize: 13,
+                  padding: "11px 20px", borderRadius: 10, cursor: "pointer", transition: "all 0.25s ease",
+                }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill={wishlisted ? "#C9A84C" : "none"} stroke={wishlisted ? "#C9A84C" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                {wishlisted ? "في قائمتكِ" : "أضف للأمنيات"}
+              </button>
+
+              <button onClick={handleShare} className="pd-share-btn"
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  background: "transparent", border: "1px solid rgba(201,168,76,0.15)",
+                  color: "#F5EFE0", fontFamily: "Tajawal,sans-serif", fontSize: 13, opacity: 0.55,
+                  padding: "11px 20px", borderRadius: 10, cursor: "pointer", transition: "all 0.25s ease",
+                }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                شارك
+              </button>
+            </div>
 
             {/* Trust signals */}
             <div style={{ display: "flex", gap: 20, marginTop: 24, flexWrap: "wrap" }}>
@@ -317,6 +385,8 @@ export default function ProductDetail({ product, images, related = [] }: Product
             </div>
           </div>
         )}
+        {/* Recently Viewed */}
+        <RecentlyViewed excludeId={product.id} />
       </div>
     </div>
   )

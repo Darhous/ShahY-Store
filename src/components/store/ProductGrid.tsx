@@ -305,12 +305,35 @@ function SectionHeader() {
 }
 
 // ── Main export ──────────────────────────────────────────────────────────────
+const QUALITY_FILTER = [
+  { key: "الكل", label: "الكل" },
+  { key: "hi_copy", label: "هاي كوبي" },
+  { key: "mirror", label: "ميرور" },
+  { key: "original", label: "أورجنال" },
+]
+const PRICE_RANGES = [
+  { key: "الكل", label: "كل الأسعار", min: 0, max: Infinity },
+  { key: "500", label: "أقل من 500", min: 0, max: 500 },
+  { key: "1000", label: "500 — 1000", min: 500, max: 1000 },
+  { key: "2000", label: "1000 — 2000", min: 1000, max: 2000 },
+  { key: "2001", label: "أكثر من 2000", min: 2000, max: Infinity },
+]
+
 export default function ProductGrid({ initialProducts }: { initialProducts: StoreProduct[] }) {
   const [products] = useState<StoreProduct[]>(initialProducts)
   const [activeCategory, setActiveCategory] = useState("الكل")
+  const [activeQuality, setActiveQuality] = useState("الكل")
+  const [activePriceKey, setActivePriceKey] = useState("الكل")
 
   const categories = ["الكل", ...Array.from(new Set(products.map(p => p.category_name).filter(Boolean) as string[]))]
-  const filtered = activeCategory === "الكل" ? products : products.filter(p => p.category_name === activeCategory)
+
+  const priceRange = PRICE_RANGES.find(r => r.key === activePriceKey) ?? PRICE_RANGES[0]
+  const filtered = products.filter(p => {
+    if (activeCategory !== "الكل" && p.category_name !== activeCategory) return false
+    if (activeQuality !== "الكل" && p.quality_tier !== activeQuality) return false
+    if (p.price < priceRange.min || p.price > priceRange.max) return false
+    return true
+  })
 
   return (
     <section style={{ background: "#0A0806", padding: "96px 40px 80px", direction: "rtl" }}>
@@ -323,24 +346,73 @@ export default function ProductGrid({ initialProducts }: { initialProducts: Stor
 
       <SectionHeader />
 
-      {/* Category filter */}
-      {categories.length > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 52, flexWrap: "wrap" }}>
-          {categories.map(cat => (
-            <button key={cat} className="pg-cat-pill"
-              onClick={() => setActiveCategory(cat)}
+      {/* Filters */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", marginBottom: 48 }}>
+        {/* Category */}
+        {categories.length > 1 && (
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+            {categories.map(cat => (
+              <button key={cat} className="pg-cat-pill"
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  fontFamily: "Tajawal,sans-serif", fontSize: 13, fontWeight: 700,
+                  padding: "7px 20px", borderRadius: 30, cursor: "pointer",
+                  border: `1px solid ${activeCategory === cat ? "#C9A84C" : "#252018"}`,
+                  background: activeCategory === cat ? "#C9A84C" : "transparent",
+                  color: activeCategory === cat ? "#0A0806" : "#555",
+                }}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Quality + Price row */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+          {QUALITY_FILTER.map(q => (
+            <button key={q.key} className="pg-cat-pill"
+              onClick={() => setActiveQuality(q.key)}
               style={{
-                fontFamily: "Tajawal,sans-serif", fontSize: 13, fontWeight: 700,
-                padding: "8px 24px", borderRadius: 30, cursor: "pointer",
-                border: `1px solid ${activeCategory === cat ? "#C9A84C" : "#252018"}`,
-                background: activeCategory === cat ? "#C9A84C" : "transparent",
-                color: activeCategory === cat ? "#0A0806" : "#555",
+                fontFamily: "Tajawal,sans-serif", fontSize: 12, fontWeight: 700,
+                padding: "5px 14px", borderRadius: 20, cursor: "pointer",
+                border: `1px solid ${activeQuality === q.key ? "#7B1C2E" : "#1e1a14"}`,
+                background: activeQuality === q.key ? "#7B1C2E" : "transparent",
+                color: activeQuality === q.key ? "#F5EFE0" : "#444",
               }}>
-              {cat}
+              {q.label}
+            </button>
+          ))}
+
+          <div style={{ width: 1, background: "#252018", margin: "0 4px" }} />
+
+          {PRICE_RANGES.map(r => (
+            <button key={r.key} className="pg-cat-pill"
+              onClick={() => setActivePriceKey(r.key)}
+              style={{
+                fontFamily: "Tajawal,sans-serif", fontSize: 12, fontWeight: 700,
+                padding: "5px 14px", borderRadius: 20, cursor: "pointer",
+                border: `1px solid ${activePriceKey === r.key ? "rgba(201,168,76,0.5)" : "#1e1a14"}`,
+                background: activePriceKey === r.key ? "rgba(201,168,76,0.12)" : "transparent",
+                color: activePriceKey === r.key ? "#C9A84C" : "#444",
+              }}>
+              {r.label}
             </button>
           ))}
         </div>
-      )}
+
+        {/* Active filter count */}
+        {(activeCategory !== "الكل" || activeQuality !== "الكل" || activePriceKey !== "الكل") && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "rgba(245,239,224,0.35)" }}>
+              {filtered.length} منتج
+            </span>
+            <button onClick={() => { setActiveCategory("الكل"); setActiveQuality("الكل"); setActivePriceKey("الكل") }}
+              style={{ fontFamily: "Tajawal,sans-serif", fontSize: 11, color: "#C9A84C", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", padding: "3px 10px", borderRadius: 12, cursor: "pointer" }}>
+              مسح الفلاتر ✕
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Grid */}
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 24, maxWidth: 1340, margin: "0 auto" }}>

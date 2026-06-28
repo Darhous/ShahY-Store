@@ -99,6 +99,7 @@ export default function StoreFooter() {
                 العروض
               </a>
               <a href="/track" className="sf-link">تتبّع طلبك</a>
+              <a href="/wishlist" className="sf-link">قائمة الأمنيات</a>
               <a href="/cart" className="sf-link">سلة الشراء</a>
               <a href="/about" className="sf-link">عن ShahY</a>
               <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
