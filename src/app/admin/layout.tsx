@@ -26,7 +26,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  if (pathname === "/admin/login") {
+  if (pathname === "/admin/login" || pathname === "/admin/guide/print") {
     return <>{children}</>;
   }
 

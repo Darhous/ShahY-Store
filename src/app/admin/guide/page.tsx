@@ -573,11 +573,57 @@ export default function AdminGuidePage() {
         .guide-step-item:hover { background: rgba(201,168,76,0.04); border-radius: 6px; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .guide-detail { animation: fadeIn 0.3s ease; }
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; color: black !important; }
-        }
+        .guide-dl-btn { transition: all 0.2s; }
+        .guide-dl-btn:hover { opacity: 0.85; transform: translateY(-1px); }
       `}</style>
+
+      {/* ── Download bar ────────────────────────────────────── */}
+      <div style={{
+        display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap",
+        padding: "14px 18px", marginBottom: 28,
+        background: "rgba(201,168,76,0.04)",
+        border: "1px solid rgba(201,168,76,0.15)", borderRadius: 12,
+      }}>
+        <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "rgba(245,239,224,0.4)", marginLeft: "auto" }}>
+          📥 تحميل الدليل
+        </span>
+        <a
+          href="/admin/guide/print"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="guide-dl-btn"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 7,
+            padding: "8px 18px", borderRadius: 8, textDecoration: "none",
+            background: "linear-gradient(135deg,#C9A84C,#F0D882)",
+            color: "#0A0806", fontFamily: "Tajawal,sans-serif",
+            fontSize: 13, fontWeight: 700,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          طباعة الدليل / PDF
+        </a>
+        <a
+          href="/shahy-store-context.md"
+          download="shahy-store-context.md"
+          className="guide-dl-btn"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 7,
+            padding: "8px 18px", borderRadius: 8, textDecoration: "none",
+            background: "rgba(245,239,224,0.06)",
+            border: "1px solid rgba(245,239,224,0.15)",
+            color: "rgba(245,239,224,0.7)", fontFamily: "Tajawal,sans-serif",
+            fontSize: 13, fontWeight: 600,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          ملف السياق للـ AI
+        </a>
+      </div>
 
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ marginBottom: 40 }}>
