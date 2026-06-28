@@ -9,6 +9,7 @@
 | Field | Value |
 |---|---|
 | Project Name | ShahY Store (شاهي ستور) |
+| GitHub Repo | https://github.com/Darhous/ShahY-Store |
 | Live URL | https://shah-y-store.vercel.app |
 | Admin Panel | https://shah-y-store.vercel.app/admin/login |
 | Admin Guide | https://shah-y-store.vercel.app/admin/guide |

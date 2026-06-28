@@ -155,6 +155,16 @@ export default function StoreHeader() {
           {count > 0 && <span className="sh-badge">{count > 99 ? "99+" : count}</span>}
         </Link>
 
+        {/* Hidden admin entry — barely visible, intentional */}
+        <a href="/admin/login" title="." style={{ opacity: 0.05, color: "#C9A84C", lineHeight: 1, transition: "opacity 0.35s", display: "flex", textDecoration: "none" }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "0.3")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "0.05")}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </a>
+
       </nav>
 
       {/* Mobile right icons + hamburger */}
