@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -9,35 +9,7 @@ import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
 import FloatingWA from "@/components/store/FloatingWA"
 
-const GOVERNORATES: { name: string; fee: number }[] = [
-  { name: "القاهرة", fee: 40 },
-  { name: "الجيزة", fee: 40 },
-  { name: "الإسكندرية", fee: 50 },
-  { name: "القليوبية", fee: 45 },
-  { name: "الشرقية", fee: 55 },
-  { name: "الغربية", fee: 55 },
-  { name: "المنوفية", fee: 55 },
-  { name: "البحيرة", fee: 60 },
-  { name: "الدقهلية", fee: 60 },
-  { name: "كفر الشيخ", fee: 60 },
-  { name: "دمياط", fee: 65 },
-  { name: "بورسعيد", fee: 65 },
-  { name: "الإسماعيلية", fee: 65 },
-  { name: "السويس", fee: 65 },
-  { name: "شمال سيناء", fee: 80 },
-  { name: "جنوب سيناء", fee: 80 },
-  { name: "الفيوم", fee: 65 },
-  { name: "بني سويف", fee: 65 },
-  { name: "المنيا", fee: 70 },
-  { name: "أسيوط", fee: 75 },
-  { name: "سوهاج", fee: 75 },
-  { name: "قنا", fee: 80 },
-  { name: "الأقصر", fee: 80 },
-  { name: "أسوان", fee: 85 },
-  { name: "البحر الأحمر", fee: 85 },
-  { name: "الوادي الجديد", fee: 90 },
-  { name: "مطروح", fee: 90 },
-]
+interface ShippingZone { id: string; governorate_ar: string; cost: number }
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -51,8 +23,16 @@ export default function CheckoutPage() {
   const [discountCode, setDiscountCode] = useState("")
   const [appliedDiscount, setAppliedDiscount] = useState<{ id: string; code: string; type: string; value: number; discount: number } | null>(null)
   const [discountLoading, setDiscountLoading] = useState(false)
+  const [zones, setZones] = useState<ShippingZone[]>([])
+  const [zonesLoading, setZonesLoading] = useState(true)
 
-  const shippingFee = GOVERNORATES.find(g => g.name === governorate)?.fee ?? 0
+  useEffect(() => {
+    fetch("/api/shipping").then(r => r.json()).then(data => {
+      setZones(data.map((z: ShippingZone) => ({ ...z, cost: Number(z.cost) })))
+    }).catch(() => {}).finally(() => setZonesLoading(false))
+  }, [])
+
+  const shippingFee = zones.find(z => z.governorate_ar === governorate)?.cost ?? 0
   const discountAmount = appliedDiscount?.discount ?? 0
   const orderTotal = total + shippingFee - discountAmount
 
@@ -160,7 +140,6 @@ export default function CheckoutPage() {
       <main style={{ background: "#0A0806", minHeight: "100vh", paddingTop: 80, direction: "rtl" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px 80px" }}>
 
-          {/* Header */}
           <div style={{ marginBottom: 40 }}>
             <div style={{ fontFamily: "Cinzel,serif", fontSize: 10, letterSpacing: "6px", color: "#C9A84C", opacity: 0.7, marginBottom: 12 }}>
               ✦ &nbsp; CHECKOUT &nbsp; ✦
@@ -178,7 +157,6 @@ export default function CheckoutPage() {
 
           <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "flex-start" }}>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} style={{ flex: "1 1 460px", display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{
                 background: "linear-gradient(145deg,#0E0C09,#111009)",
@@ -203,12 +181,21 @@ export default function CheckoutPage() {
 
                   <div>
                     <label style={{ display: "block", fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.55, marginBottom: 8 }}>المحافظة *</label>
-                    <select className="co-input" required value={governorate} onChange={e => setGovernorate(e.target.value)}>
-                      <option value="">اختر المحافظة</option>
-                      {GOVERNORATES.map(g => (
-                        <option key={g.name} value={g.name}>{g.name} — شحن {g.fee} ج.م</option>
-                      ))}
-                    </select>
+                    {zonesLoading ? (
+                      <div className="co-input" style={{ opacity: 0.4, display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(201,168,76,0.3)", borderTopColor: "#C9A84C", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                        جاري تحميل أسعار الشحن...
+                      </div>
+                    ) : (
+                      <select className="co-input" required value={governorate} onChange={e => setGovernorate(e.target.value)}>
+                        <option value="">اختر المحافظة</option>
+                        {zones.map(z => (
+                          <option key={z.id} value={z.governorate_ar}>
+                            {z.governorate_ar} — شحن {z.cost === 0 ? "مجاني" : `${z.cost} ج.م`}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
 
                   <div>
@@ -227,7 +214,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Discount code */}
               <div style={{
                 background: "linear-gradient(145deg,#0E0C09,#111009)",
                 border: "1px solid rgba(201,168,76,0.1)", borderRadius: 16, padding: "20px",
@@ -285,7 +271,6 @@ export default function CheckoutPage() {
               <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
             </form>
 
-            {/* Order summary */}
             <div style={{ flex: "0 0 280px", minWidth: 240, position: "sticky", top: 88 }}>
               <div style={{
                 background: "linear-gradient(145deg,#0E0C09,#111009)",
@@ -318,7 +303,7 @@ export default function CheckoutPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: appliedDiscount ? 8 : 16 }}>
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.5 }}>الشحن</span>
                   <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: shippingFee > 0 ? "#C9A84C" : "#555", fontWeight: 700 }}>
-                    {shippingFee > 0 ? `${shippingFee} ج.م` : "اختر المحافظة"}
+                    {governorate ? (shippingFee === 0 ? "مجاني" : `${shippingFee} ج.م`) : "اختر المحافظة"}
                   </span>
                 </div>
                 {appliedDiscount && (

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { db } from "@/lib/db/drizzle/connection";
-import { orders, products } from "@/lib/db/drizzle/schema";
+import { orders, products, customers } from "@/lib/db/drizzle/schema";
 import { eq, count, sum, desc, sql } from "drizzle-orm";
 import RevenueChart from "@/components/admin/RevenueChart";
 
@@ -54,13 +54,28 @@ async function getStats() {
     return result;
   })();
 
+  const topProductsRows = await db.execute(sql`
+    SELECT p.name_ar, COUNT(oi.id)::int AS orders
+    FROM order_items oi
+    JOIN products p ON p.id = oi.product_id
+    GROUP BY p.id, p.name_ar
+    ORDER BY orders DESC
+    LIMIT 5
+  `)
+
+  const [totalCustomers] = await db.select({ count: count() }).from(customers)
+
+  const topProducts = (Array.isArray(topProductsRows) ? topProductsRows : (topProductsRows as { rows: unknown[] }).rows ?? []) as { name_ar: string; orders: number }[]
+
   return {
     totalOrders: totalOrders.count,
     pendingOrders: pendingOrders.count,
     totalProducts: totalProducts.count,
     totalRevenue: Number(totalRevenue.sum || 0),
+    totalCustomers: totalCustomers.count,
     recentOrders,
     revenueByDay,
+    topProducts,
   };
 }
 
@@ -92,7 +107,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard label="إجمالي الطلبات" value={stats.totalOrders.toString()} icon="🧾" />
         <StatCard label="طلبات معلّقة" value={stats.pendingOrders.toString()} icon="⏳" highlight />
         <StatCard label="منتجات نشطة" value={stats.totalProducts.toString()} icon="📦" />
@@ -101,6 +116,7 @@ export default async function DashboardPage() {
           value={`${stats.totalRevenue.toLocaleString("ar-EG")} ج`}
           icon="💰"
         />
+        <StatCard label="العملاء" value={stats.totalCustomers.toString()} icon="🧑‍💼" />
       </div>
 
       {/* Revenue Chart */}
@@ -152,6 +168,25 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
+      {/* Top Products */}
+      {stats.topProducts.length > 0 && (
+        <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#C9A84C]/10">
+            <h2 className="font-semibold text-[#F5EFE0]">الأكثر مبيعاً</h2>
+          </div>
+          <div className="divide-y divide-[#C9A84C]/5">
+            {stats.topProducts.map((p, i) => (
+              <div key={i} className="flex items-center justify-between px-6 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-[#C9A84C]/40 w-5">{i + 1}</span>
+                  <span className="text-sm text-[#F5EFE0]">{p.name_ar}</span>
+                </div>
+                <span className="text-xs font-bold text-[#C9A84C] bg-[#C9A84C]/10 px-2 py-1 rounded-full">{p.orders} طلب</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

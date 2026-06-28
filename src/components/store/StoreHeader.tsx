@@ -145,6 +145,14 @@ export default function StoreHeader() {
           {wlCount > 0 && <span className="sh-badge">{wlCount}</span>}
         </Link>
 
+        {/* Account */}
+        <Link href="/account" className="sh-icon-btn" aria-label="حسابي">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </Link>
+
         {/* Cart */}
         <Link href="/cart" className="sh-icon-btn" aria-label="السلة">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -206,6 +214,7 @@ export default function StoreHeader() {
           { href: "/wishlist",  label: "المفضلة" },
           { href: "/cart",      label: "السلة" },
           { href: "/track",     label: "تتبّع طلبك" },
+          { href: "/account",   label: "حسابي" },
         ].map(({ href, label, color }) => (
           <Link key={href} href={href} onClick={() => setMenuOpen(false)} style={{
             fontFamily: "Tajawal, sans-serif", fontSize: 28, fontWeight: 700,
