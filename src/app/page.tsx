@@ -11,6 +11,8 @@ import FloatingWA from "@/components/store/FloatingWA"
 import HeroSection from "@/components/store/HeroSection"
 import BannersCarousel from "@/components/store/BannersCarousel"
 import FlashDeals from "@/components/store/FlashDeals"
+import TrustSection from "@/components/store/TrustSection"
+import CategoriesStrip from "@/components/store/CategoriesStrip"
 
 export const metadata: Metadata = {
   title: "ShahY Store — إكسسوارات فاخرة مستوردة",
@@ -125,6 +127,15 @@ async function getFlashDeals(): Promise<FlashDeal[]> {
   } catch { return [] }
 }
 
+async function getCategories() {
+  try {
+    return await db
+      .select({ id: categories.id, name_ar: categories.name_ar, slug: categories.slug })
+      .from(categories)
+      .orderBy(categories.sort_order)
+  } catch { return [] }
+}
+
 async function getLowStockMap(): Promise<Record<string, number>> {
   try {
     const rows = await db
@@ -140,9 +151,9 @@ async function getLowStockMap(): Promise<Record<string, number>> {
 }
 
 export default async function StorePage() {
-  const [initialProducts, heroWords, activeBanners, lowStockMap, flashSettings, flashDeals] = await Promise.all([
+  const [initialProducts, heroWords, activeBanners, lowStockMap, flashSettings, flashDeals, storeCategories] = await Promise.all([
     getProducts(), getHeroWords(), getActiveBanners(), getLowStockMap(),
-    getFlashDealsSettings(), getFlashDeals(),
+    getFlashDealsSettings(), getFlashDeals(), getCategories(),
   ])
 
   const productsWithStock = initialProducts.map(p => ({
@@ -162,6 +173,10 @@ export default async function StorePage() {
 
       <LoadingIntro />
       <HeroSection words={heroWords} />
+
+      <TrustSection />
+
+      {storeCategories.length > 0 && <CategoriesStrip categories={storeCategories} />}
 
       {flashSettings.active && flashDeals.length > 0 && (
         <FlashDeals deals={flashDeals} title={flashSettings.title} endsAt={flashSettings.endsAt} />

@@ -20,6 +20,9 @@ interface CartContextType {
   clearCart: () => void
   count: number
   total: number
+  isCartOpen: boolean
+  openCart: () => void
+  closeCart: () => void
 }
 
 const CartContext = createContext<CartContextType | null>(null)
@@ -28,6 +31,9 @@ const STORAGE_KEY = "shahy-cart"
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const openCart = useCallback(() => setIsCartOpen(true), [])
+  const closeCart = useCallback(() => setIsCartOpen(false), [])
 
   useEffect(() => {
     try {
@@ -78,7 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0)
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, count, total }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQty, clearCart, count, total, isCartOpen, openCart, closeCart }}>
       {children}
     </CartContext.Provider>
   )

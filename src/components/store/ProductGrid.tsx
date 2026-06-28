@@ -50,6 +50,31 @@ function useReveal() {
 }
 
 // ── Single product card ──────────────────────────────────────────────────────
+const WL_KEY = "shahy-wishlist"
+function useWishlist(productId: string) {
+  const [inWl, setInWl] = useState(false)
+  useEffect(() => {
+    try {
+      const wl: { id: string }[] = JSON.parse(localStorage.getItem(WL_KEY) ?? "[]")
+      setInWl(wl.some(i => i.id === productId))
+    } catch {}
+  }, [productId])
+
+  const toggle = useCallback((e: React.MouseEvent, product: StoreProduct) => {
+    e.preventDefault(); e.stopPropagation()
+    try {
+      const wl: StoreProduct[] = JSON.parse(localStorage.getItem(WL_KEY) ?? "[]")
+      const exists = wl.some(i => i.id === product.id)
+      const next = exists ? wl.filter(i => i.id !== product.id) : [...wl, product]
+      localStorage.setItem(WL_KEY, JSON.stringify(next))
+      setInWl(!exists)
+      window.dispatchEvent(new Event("shahy-wl-change"))
+    } catch {}
+  }, [])
+
+  return { inWl, toggle }
+}
+
 function ProductCard({ product, index }: { product: StoreProduct; index: number }) {
   const { ref, visible } = useReveal()
   const [tilt, setTilt]     = useState({ x: 0, y: 0, gx: 50, gy: 50 })
@@ -57,7 +82,8 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
   const [shimmer, setShimmer] = useState(false)
   const [adding, setAdding]   = useState(false)
   const raf = useRef<number>(0)
-  const { addItem } = useCart()
+  const { addItem, openCart } = useCart()
+  const { inWl, toggle: toggleWl } = useWishlist(product.id)
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -89,6 +115,7 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
       image: product.image?.url ?? null,
       quality_tier: product.quality_tier,
     })
+    openCart()
     toast.success(`تمت الإضافة: ${product.name_ar}`, { duration: 2000 })
     setTimeout(() => setAdding(false), 600)
   }
@@ -170,11 +197,35 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
           }}>
             {QUALITY_LABELS[product.quality_tier] ?? product.quality_tier}
           </div>
+
+          {/* Wishlist heart */}
+          <button
+            onClick={e => toggleWl(e, product)}
+            aria-label={inWl ? "إزالة من المفضلة" : "إضافة للمفضلة"}
+            style={{
+              position: "absolute", top: 10, left: 10, zIndex: 5,
+              width: 32, height: 32, borderRadius: "50%",
+              background: "rgba(10,8,6,0.8)", backdropFilter: "blur(6px)",
+              border: inWl ? "1px solid rgba(220,60,80,0.5)" : "1px solid rgba(201,168,76,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", transition: "all 0.25s ease",
+              transform: hovered ? "scale(1)" : "scale(0.9)",
+              opacity: hovered || inWl ? 1 : 0.65,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24"
+              fill={inWl ? "#dc3c50" : "none"}
+              stroke={inWl ? "#dc3c50" : "rgba(245,239,224,0.7)"}
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+
           {product.is_featured && (
             <div style={{
-              position: "absolute", top: 12, left: 12, zIndex: 2,
+              position: "absolute", top: 48, left: 10, zIndex: 2,
               background: "rgba(10,8,6,0.85)", backdropFilter: "blur(4px)",
-              color: "#C9A84C", fontSize: 13, padding: "3px 8px", borderRadius: 20,
+              color: "#C9A84C", fontSize: 12, padding: "2px 7px", borderRadius: 20,
               border: "1px solid rgba(201,168,76,0.3)",
             }}>⭐</div>
           )}

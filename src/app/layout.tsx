@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/contexts/CartContext";
 import ScrollToTop from "@/components/store/ScrollToTop";
+import CartDrawer from "@/components/store/CartDrawer";
 import "@/styles/globals.css";
 
 const SITE_URL = "https://shah-y-store.vercel.app"
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           {children}
           <ScrollToTop />
+          <CartDrawer />
         </CartProvider>
         <Toaster position="bottom-left" richColors />
       </body>

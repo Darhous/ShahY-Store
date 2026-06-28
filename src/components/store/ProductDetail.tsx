@@ -425,11 +425,24 @@ export default function ProductDetail({ product, images, related = [], variants 
             </div>
 
             {/* Trust signals */}
-            <div style={{ display: "flex", gap: 20, marginTop: 24, flexWrap: "wrap" }}>
-              {[{ icon: "🚚", text: "توصيل لكل محافظات مصر" }, { icon: "✅", text: "جودة مضمونة" }, { icon: "💬", text: "دعم فوري على واتساب" }].map(({ icon, text }) => (
-                <div key={text} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 14 }}>{icon}</span>
-                  <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#F5EFE0", opacity: 0.4 }}>{text}</span>
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { icon: "🚚", title: "شحن سريع", desc: "خلال 2-5 أيام لكل محافظات مصر" },
+                { icon: "🔄", title: "استبدال واسترجاع", desc: "خلال 7 أيام من تاريخ الاستلام" },
+                { icon: "💬", title: "دعم فوري", desc: "تواصلي معنا على واتساب في أي وقت" },
+              ].map(({ icon, title, desc }) => (
+                <div key={title} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "10px 14px",
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(201,168,76,0.07)",
+                  borderRadius: 10,
+                }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+                  <div>
+                    <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, fontWeight: 700, color: "#F5EFE0" }}>{title}</div>
+                    <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 11, color: "rgba(245,239,224,0.38)" }}>{desc}</div>
+                  </div>
                 </div>
               ))}
             </div>
