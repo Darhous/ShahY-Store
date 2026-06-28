@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 import { db } from "@/lib/db/drizzle/connection"
 import { products, productImages, categories, settings, productVariants, banners } from "@/lib/db/drizzle/schema"

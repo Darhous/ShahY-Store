@@ -7,7 +7,10 @@ export default function LoadingIntro({ duration = 2800 }: { duration?: number })
 
   function skip() {
     setPhase("out")
-    setTimeout(() => { setPhase("gone"); sessionStorage.setItem("shahy-intro", "1") }, 900)
+    setTimeout(() => {
+      setPhase("gone")
+      try { sessionStorage.setItem("shahy-intro", "1") } catch {}
+    }, 900)
   }
 
   useEffect(() => {
@@ -49,6 +52,11 @@ export default function LoadingIntro({ duration = 2800 }: { duration?: number })
     <div className="shahy-intro" data-phase={phase}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Cinzel:wght@400&family=Cormorant+Garamond:ital,wght@1,300&display=swap');
+        @keyframes si-auto-dismiss {
+          0%, 78% { opacity: 1; pointer-events: all; }
+          92%      { opacity: 0; pointer-events: none; }
+          100%     { opacity: 0; pointer-events: none; visibility: hidden; }
+        }
         .shahy-intro {
           position: fixed; inset: 0; z-index: 99999;
           background: #0A0806;
@@ -56,8 +64,10 @@ export default function LoadingIntro({ duration = 2800 }: { duration?: number })
           overflow: hidden;
           opacity: 1; transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1);
           pointer-events: all;
+          animation: si-auto-dismiss 5s ease forwards;
         }
-        .shahy-intro[data-phase="out"] { opacity: 0; pointer-events: none; }
+        .shahy-intro[data-phase="out"] { opacity: 0; pointer-events: none; animation: none; }
+        .shahy-intro[data-phase="gone"] { display: none; }
         @keyframes si-draw {
           from { stroke-dashoffset: 2200; opacity: 0; }
           10%  { opacity: 1; }
