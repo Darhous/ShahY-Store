@@ -337,6 +337,105 @@ export default function GuidePage() {
           0%,100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
+
+        /* ── SCREEN MOCKUP ── */
+        .g-screen {
+          background: #0D0B08;
+          border: 1px solid rgba(201,168,76,0.15);
+          border-radius: 10px;
+          overflow: hidden;
+          margin: 20px 0;
+          font-family: 'Tajawal', sans-serif;
+        }
+        .g-screen-bar {
+          background: #161210;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          padding: 8px 14px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .g-screen-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .g-screen-url {
+          flex: 1; background: rgba(255,255,255,0.04); border-radius: 4px;
+          padding: 3px 10px; font-size: 11px; color: rgba(245,239,224,0.25);
+          font-family: monospace; direction: ltr;
+        }
+        .g-screen-body { padding: 20px; }
+        .g-screen-label {
+          font-size: 11px; color: rgba(201,168,76,0.7); font-weight: 700;
+          letter-spacing: 1px; text-transform: uppercase;
+          border-right: 3px solid #C9A84C; padding-right: 10px;
+          margin-bottom: 12px; font-family: 'Tajawal', sans-serif;
+          display: flex; align-items: center; gap: 6px;
+        }
+        .g-screen-field {
+          display: flex; align-items: center; gap: 10px;
+          padding: 9px 14px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 6px; margin-bottom: 8px;
+        }
+        .g-screen-field-label { font-size: 12px; color: rgba(245,239,224,0.4); min-width: 110px; flex-shrink: 0; }
+        .g-screen-field-value { font-size: 13px; color: #F5EFE0; }
+        .g-screen-field-placeholder { font-size: 13px; color: rgba(245,239,224,0.2); font-style: italic; }
+        .g-screen-btn {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 9px 22px; border-radius: 6px; font-size: 13px;
+          font-weight: 700; font-family: 'Tajawal', sans-serif; cursor: default;
+        }
+        .g-screen-btn-gold { background: linear-gradient(135deg,#C9A84C,#F0D882); color: #0A0806; }
+        .g-screen-btn-outline { background: transparent; border: 1px solid rgba(201,168,76,0.3); color: #C9A84C; }
+        .g-screen-caption {
+          font-size: 11px; color: rgba(245,239,224,0.25); text-align: center;
+          margin-top: 6px; font-style: italic; font-family: 'Tajawal', sans-serif;
+        }
+        .g-screen-sidebar {
+          display: flex; gap: 0; min-height: 180px;
+        }
+        .g-screen-nav {
+          width: 180px; flex-shrink: 0;
+          border-left: 1px solid rgba(255,255,255,0.05);
+          padding: 12px 8px; display: flex; flex-direction: column; gap: 2px;
+        }
+        .g-screen-nav-item {
+          padding: 8px 12px; border-radius: 6px; font-size: 12px;
+          font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 8px;
+        }
+        .g-screen-nav-item.active {
+          background: rgba(201,168,76,0.1); color: #C9A84C;
+          border-right: 3px solid #C9A84C; padding-right: 9px;
+        }
+        .g-screen-nav-item.inactive { color: rgba(245,239,224,0.35); }
+        .g-screen-content { flex: 1; padding: 16px; }
+        .g-screen-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .g-screen-table th {
+          text-align: right; padding: 8px 10px;
+          color: rgba(201,168,76,0.6); font-weight: 700;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          font-family: 'Tajawal', sans-serif;
+        }
+        .g-screen-table td {
+          padding: 9px 10px; color: rgba(245,239,224,0.65);
+          border-bottom: 1px solid rgba(255,255,255,0.03);
+          font-family: 'Tajawal', sans-serif;
+        }
+        .g-screen-stock-green { color: #4ade80; font-weight: 700; }
+        .g-screen-stock-yellow { color: #facc15; font-weight: 700; }
+        .g-screen-stock-red { color: #f87171; font-weight: 700; }
+        .g-screen-badge {
+          display: inline-block; padding: 2px 8px; border-radius: 20px;
+          font-size: 10px; font-weight: 700; font-family: 'Tajawal', sans-serif;
+        }
+        .g-screen-badge-active { background: rgba(37,211,102,0.1); color: #25D366; border: 1px solid rgba(37,211,102,0.2); }
+        .g-screen-badge-draft { background: rgba(255,255,255,0.05); color: rgba(245,239,224,0.4); border: 1px solid rgba(255,255,255,0.08); }
+        @media print {
+          .g-screen { background: #f9f5ee !important; border-color: #e0d8c0 !important; }
+          .g-screen-bar { background: #ede8de !important; }
+          .g-screen-nav-item.active { background: #f0e8d0 !important; color: #8B6020 !important; }
+          .g-screen-table th { color: #8B6020 !important; }
+          .g-screen-table td { color: #555 !important; }
+        }
       `}</style>
 
       {/* ── PDF FAB ── */}
@@ -487,6 +586,31 @@ export default function GuidePage() {
           </div>
         </div>
 
+        {/* Screen mockup */}
+        <div className="g-screen">
+          <div className="g-screen-bar">
+            <div className="g-screen-dot" style={{ background: "#f87171" }}/>
+            <div className="g-screen-dot" style={{ background: "#facc15" }}/>
+            <div className="g-screen-dot" style={{ background: "#4ade80" }}/>
+            <div className="g-screen-url">shah-y-store.vercel.app/admin</div>
+          </div>
+          <div className="g-screen-body">
+            <div className="g-screen-label">🖥️ هتشوفي على الشاشة</div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">📧 الإيميل</span>
+              <span className="g-screen-field-placeholder">admin@example.com</span>
+            </div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">🔒 كلمة المرور</span>
+              <span className="g-screen-field-placeholder">••••••••</span>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <span className="g-screen-btn g-screen-btn-gold">تسجيل الدخول →</span>
+            </div>
+          </div>
+        </div>
+        <p className="g-screen-caption">صفحة تسجيل الدخول — أدخلي الإيميل وكلمة المرور ثم اضغطي الزر</p>
+
         <div className="g-tip">
           <span className="g-tip-icon">💡</span>
           <div className="g-tip-body">
@@ -551,6 +675,54 @@ export default function GuidePage() {
         <div className="g-subsection">
           <div className="g-subsection-title">إضافة منتج جديد</div>
 
+          {/* Admin sidebar mockup */}
+          <div className="g-screen">
+            <div className="g-screen-bar">
+              <div className="g-screen-dot" style={{ background: "#f87171" }}/>
+              <div className="g-screen-dot" style={{ background: "#facc15" }}/>
+              <div className="g-screen-dot" style={{ background: "#4ade80" }}/>
+              <div className="g-screen-url">shah-y-store.vercel.app/admin/products</div>
+            </div>
+            <div className="g-screen-sidebar">
+              <div className="g-screen-nav" style={{ direction: "rtl" }}>
+                <div className="g-screen-nav-item inactive">📊 الإحصاءات</div>
+                <div className="g-screen-nav-item active">🛍️ المنتجات</div>
+                <div className="g-screen-nav-item inactive">📦 الطلبات</div>
+                <div className="g-screen-nav-item inactive">🏷️ التصنيفات</div>
+                <div className="g-screen-nav-item inactive">⚙️ الإعدادات</div>
+              </div>
+              <div className="g-screen-content">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span style={{ color: "#F5EFE0", fontWeight: 700, fontSize: 14, fontFamily: "Tajawal" }}>المنتجات</span>
+                  <span className="g-screen-btn g-screen-btn-gold" style={{ fontSize: 11, padding: "5px 14px" }}>+ منتج جديد</span>
+                </div>
+                <table className="g-screen-table">
+                  <thead>
+                    <tr><th>اسم المنتج</th><th>السعر</th><th>الحالة</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>شنطة جلد بني</td>
+                      <td>850 ج</td>
+                      <td><span className="g-screen-badge g-screen-badge-active">نشط</span></td>
+                    </tr>
+                    <tr>
+                      <td>محفظة ميرور ذهبي</td>
+                      <td>490 ج</td>
+                      <td><span className="g-screen-badge g-screen-badge-active">نشط</span></td>
+                    </tr>
+                    <tr>
+                      <td>شوز جلد لبني</td>
+                      <td>1,200 ج</td>
+                      <td><span className="g-screen-badge g-screen-badge-draft">مسودة</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <p className="g-screen-caption">من القايمة الجانبية اضغطي "المنتجات" ← ثم "منتج جديد" في أعلى يمين الصفحة</p>
+
           <div className="g-step">
             <div className="g-step-num">1</div>
             <div className="g-step-body">
@@ -611,11 +783,59 @@ export default function GuidePage() {
             </div>
           </div>
 
+          {/* Product form mockup */}
+          <div className="g-screen">
+            <div className="g-screen-bar">
+              <div className="g-screen-dot" style={{ background: "#f87171" }}/>
+              <div className="g-screen-dot" style={{ background: "#facc15" }}/>
+              <div className="g-screen-dot" style={{ background: "#4ade80" }}/>
+              <div className="g-screen-url">shah-y-store.vercel.app/admin/products/new</div>
+            </div>
+            <div className="g-screen-body">
+              <div className="g-screen-label">📝 نموذج إضافة منتج جديد</div>
+              <div className="g-screen-field">
+                <span className="g-screen-field-label">اسم المنتج</span>
+                <span className="g-screen-field-value">شنطة جلد ليزر بني</span>
+              </div>
+              <div className="g-screen-field">
+                <span className="g-screen-field-label">التصنيف</span>
+                <span className="g-screen-field-value">شنط ◀</span>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                <div className="g-screen-field" style={{ flex: 1, marginBottom: 0 }}>
+                  <span className="g-screen-field-label">السعر</span>
+                  <span className="g-screen-field-value">850 ج</span>
+                </div>
+                <div className="g-screen-field" style={{ flex: 1, marginBottom: 0 }}>
+                  <span className="g-screen-field-label">قبل الخصم</span>
+                  <span className="g-screen-field-placeholder">اختياري</span>
+                </div>
+              </div>
+              <div className="g-screen-field">
+                <span className="g-screen-field-label">درجة الجودة</span>
+                <span className="g-screen-field-value">هاي كوبي ◀</span>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <span className="g-screen-btn g-screen-btn-gold">حفظ المنتج</span>
+                <span className="g-screen-btn g-screen-btn-outline">إلغاء</span>
+              </div>
+            </div>
+          </div>
+          <p className="g-screen-caption">نموذج إضافة منتج — كل الحقول اللي عليها * مطلوبة</p>
+
           <div className="g-tip">
             <span className="g-tip-icon">📸</span>
             <div className="g-tip-body">
               <strong>نصيحة الصور</strong>
-              استخدمي صور بخلفية بيضا أو بيج وإضاءة كويسة — ده بيخلي المنتج يبان أحلى بكتير.
+              استخدمي صور بخلفية بيضا أو بيج وإضاءة كويسة — ده بيخلي المنتج يبان أحلى بكتير. أنسب قياس: 800×800 بيكسل مربع.
+            </div>
+          </div>
+
+          <div className="g-tip">
+            <span className="g-tip-icon">⭐</span>
+            <div className="g-tip-body">
+              <strong>المنتج المميّز</strong>
+              لو فعّلتي خيار "مميّز (Featured)" — المنتج هيظهر في قسم عروض الفلاش لو عليه خصم، وبيظهر كمان في أول الصفحة.
             </div>
           </div>
         </div>
@@ -1025,11 +1245,52 @@ export default function GuidePage() {
           </div>
         ))}
 
+        {/* Settings mockup */}
+        <div className="g-screen">
+          <div className="g-screen-bar">
+            <div className="g-screen-dot" style={{ background: "#f87171" }}/>
+            <div className="g-screen-dot" style={{ background: "#facc15" }}/>
+            <div className="g-screen-dot" style={{ background: "#4ade80" }}/>
+            <div className="g-screen-url">shah-y-store.vercel.app/admin/settings</div>
+          </div>
+          <div className="g-screen-body">
+            <div className="g-screen-label">⚙️ صفحة الإعدادات</div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">اسم المتجر</span>
+              <span className="g-screen-field-value">شاهي ستور</span>
+            </div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">رقم الواتساب</span>
+              <span className="g-screen-field-value" style={{ direction: "ltr" }}>+201015835455</span>
+            </div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">إنستاجرام</span>
+              <span className="g-screen-field-placeholder">https://instagram.com/shah.ystore</span>
+            </div>
+            <div className="g-screen-field">
+              <span className="g-screen-field-label">كلمات الهيرو</span>
+              <span className="g-screen-field-value">شُعوراً, هويّتكِ, قوّتكِ</span>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <span className="g-screen-btn g-screen-btn-gold">حفظ الإعدادات</span>
+            </div>
+          </div>
+        </div>
+        <p className="g-screen-caption">صفحة الإعدادات — بعد أي تعديل اضغطي "حفظ الإعدادات" حتماً</p>
+
         <div className="g-tip">
           <span className="g-tip-icon">📱</span>
           <div className="g-tip-body">
             <strong>رقم الواتساب</strong>
-            اكتبيه بالصيغة الدولية: <code>+201015835455</code> — بدون مسافات.
+            اكتبيه بالصيغة الدولية: <code>+201015835455</code> — بدون مسافات أو أقواس. لو كتبتي غلط، رسائل الطلبات مش هتوصلك.
+          </div>
+        </div>
+
+        <div className="g-tip">
+          <span className="g-tip-icon">🌐</span>
+          <div className="g-tip-body">
+            <strong>كلمات الصفحة الرئيسية</strong>
+            الكلمات الدوارة في الهيرو مفصولة بفواصل — مثلاً: <code>شُعوراً, هويّتكِ, أناقتكِ, قوّتكِ</code>. غيّريهم متى ما حبيتي بدون أي مساعدة تقنية.
           </div>
         </div>
       </div>
@@ -1312,47 +1573,127 @@ export default function GuidePage() {
         </p>
 
         <div className="g-subsection-title">كيف تضيفي متغيّر؟</div>
-        <div className="g-steps">
-          <div className="g-step">
-            <div className="g-step-num">1</div>
-            <div className="g-step-body">
-              <strong>افتحي المنتج للتعديل</strong>
-              <p>من <code>المنتجات</code> في لوحة التحكم، اضغطي ✏️ تعديل على أي منتج.</p>
-            </div>
+
+        <div className="g-step">
+          <div className="g-step-num">1</div>
+          <div className="g-step-body">
+            <strong>افتحي المنتج للتعديل</strong>
+            <p>من <code>المنتجات</code> في لوحة التحكم، اضغطي ✏️ تعديل على أي منتج.</p>
           </div>
-          <div className="g-step">
-            <div className="g-step-num">2</div>
-            <div className="g-step-body">
-              <strong>انزلي لقسم "متغيّرات المنتج"</strong>
-              <p>في أسفل صفحة التعديل هتلاقي جدول المتغيّرات بعد إدارة الصور مباشرةً.</p>
-            </div>
+        </div>
+        <div className="g-step">
+          <div className="g-step-num">2</div>
+          <div className="g-step-body">
+            <strong>انزلي لقسم "متغيّرات المنتج"</strong>
+            <p>في أسفل صفحة التعديل هتلاقي جدول المتغيّرات بعد إدارة الصور مباشرةً.</p>
           </div>
-          <div className="g-step">
-            <div className="g-step-num">3</div>
-            <div className="g-step-body">
-              <strong>ادخلي تفاصيل المتغيّر</strong>
-              <p>اكتبي اللون (اختياري) والمقاس (مثل M أو XL) والمخزون. السعر الخاص اختياري — لو اتركتيه فارغاً هيستخدم السعر الأساسي للمنتج.</p>
-            </div>
+        </div>
+        <div className="g-step">
+          <div className="g-step-num">3</div>
+          <div className="g-step-body">
+            <strong>ادخلي تفاصيل المتغيّر الجديد</strong>
+            <p>في صف الإضافة في أسفل الجدول:</p>
+            <p style={{ marginTop: 6 }}><strong>اللون</strong> — اختياري. مثل: أسود، بني، ذهبي</p>
+            <p style={{ marginTop: 4 }}><strong>المقاس</strong> — مثل: S, M, L, XL أو One Size</p>
+            <p style={{ marginTop: 4 }}><strong>الستوك</strong> — عدد القطع المتاحة في المخزن</p>
+            <p style={{ marginTop: 4 }}><strong>السعر الخاص</strong> — اختياري — لو الحجم ده بسعر مختلف، وإلا هيستخدم سعر المنتج الأساسي</p>
           </div>
-          <div className="g-step">
-            <div className="g-step-num">4</div>
-            <div className="g-step-body">
-              <strong>اضغطي "+ إضافة متغيّر"</strong>
-              <p>المتغيّر هيظهر فوراً في الجدول. ممكن تضيفي كمية متغيّرات عدد ما تحبي.</p>
-            </div>
+        </div>
+        <div className="g-step">
+          <div className="g-step-num">4</div>
+          <div className="g-step-body">
+            <strong>اضغطي "+ إضافة متغيّر"</strong>
+            <p>المتغيّر هيظهر فوراً في الجدول. ممكن تضيفي كمية متغيّرات عدد ما تحبي.</p>
           </div>
         </div>
 
-        <div className="g-subsection-title" style={{ marginTop: 32 }}>تعديل الستوك</div>
-        <p style={{ color: "rgba(245,239,224,0.65)", lineHeight: 1.85, marginBottom: 20 }}>
-          اضغطي "تعديل" جنب أي متغيّر عشان تغيّري الستوك أو السعر أو المقاس. لون الستوك بيتغيّر تلقائياً: <span style={{ color: "#f87171" }}>أحمر = نفد</span> / <span style={{ color: "#facc15" }}>أصفر = قليل (&lt;5)</span> / <span style={{ color: "#4ade80" }}>أخضر = متوفر</span>.
+        {/* Variants table mockup */}
+        <div className="g-screen">
+          <div className="g-screen-bar">
+            <div className="g-screen-dot" style={{ background: "#f87171" }}/>
+            <div className="g-screen-dot" style={{ background: "#facc15" }}/>
+            <div className="g-screen-dot" style={{ background: "#4ade80" }}/>
+            <div className="g-screen-url">shah-y-store.vercel.app/admin/products/edit</div>
+          </div>
+          <div className="g-screen-body">
+            <div className="g-screen-label">📦 جدول متغيّرات المنتج</div>
+            <table className="g-screen-table" style={{ marginBottom: 12 }}>
+              <thead>
+                <tr>
+                  <th>اللون</th>
+                  <th>المقاس</th>
+                  <th>الستوك</th>
+                  <th>السعر الخاص</th>
+                  <th>إجراء</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>أسود</td>
+                  <td>M</td>
+                  <td><span className="g-screen-stock-green">12</span></td>
+                  <td>—</td>
+                  <td><span style={{ color: "#C9A84C", cursor: "default", fontSize: 11 }}>تعديل | حذف</span></td>
+                </tr>
+                <tr>
+                  <td>أسود</td>
+                  <td>L</td>
+                  <td><span className="g-screen-stock-yellow">3</span></td>
+                  <td>—</td>
+                  <td><span style={{ color: "#C9A84C", cursor: "default", fontSize: 11 }}>تعديل | حذف</span></td>
+                </tr>
+                <tr>
+                  <td>بني</td>
+                  <td>M</td>
+                  <td><span className="g-screen-stock-red">0</span></td>
+                  <td>950 ج</td>
+                  <td><span style={{ color: "#C9A84C", cursor: "default", fontSize: 11 }}>تعديل | حذف</span></td>
+                </tr>
+              </tbody>
+            </table>
+            {/* Add row */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div className="g-screen-field" style={{ flex: 1, minWidth: 80, marginBottom: 0 }}>
+                <span className="g-screen-field-placeholder">اللون</span>
+              </div>
+              <div className="g-screen-field" style={{ flex: 1, minWidth: 80, marginBottom: 0 }}>
+                <span className="g-screen-field-placeholder">المقاس</span>
+              </div>
+              <div className="g-screen-field" style={{ flex: 1, minWidth: 80, marginBottom: 0 }}>
+                <span className="g-screen-field-placeholder">الستوك</span>
+              </div>
+              <span className="g-screen-btn g-screen-btn-gold" style={{ fontSize: 11, padding: "5px 14px" }}>+ إضافة متغيّر</span>
+            </div>
+          </div>
+        </div>
+        <p className="g-screen-caption">
+          جدول المتغيّرات — الأخضر = متوفر | الأصفر = قليل (أقل من 5) | الأحمر = نفد
         </p>
+
+        <div className="g-subsection-title" style={{ marginTop: 32 }}>تعديل الستوك</div>
+        <p style={{ color: "rgba(245,239,224,0.65)", lineHeight: 1.85, marginBottom: 12 }}>
+          اضغطي <strong>تعديل</strong> جنب أي متغيّر عشان تغيّري الستوك أو السعر أو المقاس. التغيير بيحصل في نفس الصف بدون ما الصفحة تتحرك.
+        </p>
+        <p style={{ color: "rgba(245,239,224,0.65)", lineHeight: 1.85, marginBottom: 20 }}>
+          لون الستوك بيتغيّر تلقائياً:
+          {" "}<span style={{ color: "#f87171", fontWeight: 700 }}>أحمر = نفد (0)</span>
+          {" / "}<span style={{ color: "#facc15", fontWeight: 700 }}>أصفر = قليل (أقل من 5)</span>
+          {" / "}<span style={{ color: "#4ade80", fontWeight: 700 }}>أخضر = متوفر (5 أو أكتر)</span>.
+        </p>
+
+        <div className="g-tip">
+          <span className="g-tip-icon">💡</span>
+          <div className="g-tip-body">
+            <strong>استراتيجية المتغيّرات</strong>
+            لو عندك منتج بمقاسين مختلفين — أضيفيهم كمتغيّرات. كده الستوك بيتحسب بشكل منفصل لكل مقاس، والعميلة بتشوف إيه المتوفر قبل الشراء.
+          </div>
+        </div>
 
         <div className="g-tip">
           <span className="g-tip-icon">📦</span>
           <div className="g-tip-body">
             <strong>لو منتج مافيهوش متغيّرات</strong>
-            المتغيّرات اختيارية — لو مضفتيش أي متغيّر، العميلة بتكمّل الشراء بدون اختيار مقاس أو لون. مفيدة بس للمنتجات اللي عندها أكتر من نوع.
+            المتغيّرات اختيارية — لو مضفتيش أي متغيّر، العميلة بتكمّل الشراء بدون اختيار مقاس أو لون. مفيدة بس للمنتجات اللي عندها أكتر من نوع أو مقاس.
           </div>
         </div>
       </div>
