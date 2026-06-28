@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 
-const WORDS = ["شُعوراً", "هويّتكِ", "قوّتكِ", "أُسلوباً", "تميّزكِ"]
+const DEFAULT_WORDS = ["شُعوراً", "هويّتكِ", "قوّتكِ", "أُسلوباً", "تميّزكِ"]
 
-export default function HeroSection() {
+export default function HeroSection({ words }: { words?: string[] }) {
+  const W = words?.length ? words : DEFAULT_WORDS
   const [idx, setIdx] = useState(0)
   const [visible, setVisible] = useState(true)
 
@@ -12,12 +13,12 @@ export default function HeroSection() {
     const interval = setInterval(() => {
       setVisible(false)
       setTimeout(() => {
-        setIdx(i => (i + 1) % WORDS.length)
+        setIdx(i => (i + 1) % W.length)
         setVisible(true)
       }, 320)
     }, 2400)
     return () => clearInterval(interval)
-  }, [])
+  }, [W.length])
 
   return (
     <section style={{
@@ -89,7 +90,7 @@ export default function HeroSection() {
             margin: 0, lineHeight: 1,
             animation: visible ? "wordIn 0.32s cubic-bezier(0.2,0,0.2,1) both" : "wordOut 0.28s cubic-bezier(0.4,0,1,1) both",
           }}>
-            {WORDS[idx]}
+            {W[idx]}
           </h1>
         </div>
 

@@ -1,127 +1,160 @@
-# Next.js Ecommerce Template
+# ShahY Store — متجر شاهي
 
-Modern ecommerce starter built with Next.js 16, React 19, App Router, Drizzle ORM, Supabase, Better Auth, Stripe, TanStack Query, Tailwind CSS, and Zod.
+> متجر إلكتروني فاخر للإكسسوارات النسائية المستوردة — شنط، محافظ، وشوزات
 
-## Stack
+**الموقع المباشر:** [shah-y-store.vercel.app](https://shah-y-store.vercel.app)
+**كتالوج المتجر:** [shah-y-store.vercel.app/catalog](https://shah-y-store.vercel.app/catalog)
 
-- Next.js 16 with App Router and Cache Components
-- React 19
-- TypeScript strict mode
-- Tailwind CSS
-- TanStack Query
-- Drizzle ORM
-- Supabase PostgreSQL
-- Better Auth
-- Stripe Checkout
-- Zod
-- Nodemailer
+---
 
-## Features
+## نبذة عن المتجر
 
-- Product catalog with categories and variants
-- Shopping cart and wishlist
-- Stripe checkout
-- Order history
-- Admin product management
-- Email notifications
-- Type-safe validation and data access
+ShahY Store متجر مصري فاخر متخصص في بيع الإكسسوارات النسائية المستوردة عبر الإنترنت. يجمع بين هوية بصرية راقية (ذهبي × برجندي × أسود) وتجربة تسوق سلسة تعتمد على WhatsApp للطلبات.
 
-## Getting Started
+- **صاحبة المتجر:** شاهندة سليمان — [@shah.ystore](https://www.instagram.com/shah.ystore/) — +201015835455
+- **تصميم وتطوير:** أحمد دارهوس — [@darhous](https://www.instagram.com/darhous/) — +201030002331
 
-1. Install dependencies:
+---
+
+## مميزات المتجر
+
+### 🏪 واجهة المتجر
+- **صفحة رئيسية فاخرة** — شاشة تحميل متحركة، كلمات دوارة ديناميكية، خلفية بخطوط ذهبية وبرجندي
+- **شبكة منتجات** مع فلترة حسب الجودة والسعر، وشارات خصم تلقائية
+- **بحث فوري** مع Debounce، نتائج بالصور، وإغلاق بـ Escape
+- **صفحة المنتج** — معرض صور بأسهم ومؤشرات، تنقل بالكيبورد، مشاركة المنتج
+- **سلة الشراء** — localStorage، تعديل الكميات، تأكيد الطلب عبر واتساب
+- **قائمة الأمنيات** — حفظ محلي، عداد في الهيدر، صفحة مستقلة
+- **المشاهدة مؤخراً** — آخر 8 منتجات، شريط أفقي أسفل صفحة المنتج
+
+### 🏷️ صفحات خاصة
+- **صفحة العروض `/sale`** — تلقائية، مرتبة حسب نسبة الخصم
+- **تتبع الطلبات `/track`** — 4 مراحل مرئية، بحث برقم الطلب
+- **قائمة الأمنيات `/wishlist`** — إدارة المفضلة
+- **كتالوج المتجر `/catalog`** — دليل شامل بكل المميزات والتصميم
+
+### ⚙️ لوحة الإدارة
+- **حماية كاملة** بـ Better Auth مع صلاحية الأدمن
+- **إدارة المنتجات** — إضافة / تعديل / حذف / رفع الصور
+- **إدارة الطلبات** — عرض وتحديث الحالة
+- **البانرات الإعلانية** — رفع، تفعيل، ترتيب، حذف
+- **إعدادات المتجر** — اسم المتجر، واتساب، سوشيال، كلمات الهيرو، إعلان علوي
+- **التصنيفات / الخصومات / الشحن / المراجعات / الأدمنز**
+- **لوحة إحصاءات** — إيرادات، طلبات، منتجات
+
+### 📱 تقني
+- **PWA** — قابل للتثبيت على الهاتف مع اختصارات للعروض وتتبع الطلبات
+- **SEO** — Meta tags + Open Graph + Twitter Cards
+- **OG Image** تلقائية 1200×630 بهوية المتجر (Edge Runtime)
+- **WhatsApp مجاني** — wa.me deep links، بدون WhatsApp Business API
+
+---
+
+## التقنيات المستخدمة (Stack)
+
+| التقنية | الدور |
+|---------|-------|
+| **Next.js 16** | App Router، Server + Client Components |
+| **TypeScript** | كود مضمون النوع بالكامل |
+| **Drizzle ORM** | قواعد البيانات (type-safe) |
+| **Supabase PostgreSQL** | قاعدة البيانات |
+| **Better Auth** | المصادقة وإدارة الجلسات |
+| **Vercel** | نشر تلقائي وبيئة الإنتاج |
+| **Tailwind CSS** | التصميم في لوحة الإدارة |
+| **next/og** | صور OG ديناميكية (Edge) |
+| **PWA** | manifest.json + Service Worker |
+
+---
+
+## الهوية البصرية
+
+| العنصر | القيمة |
+|--------|--------|
+| الذهبي الرئيسي | `#C9A84C` |
+| البرجندي | `#7B1C2E` |
+| الخلفية الداكنة | `#0A0806` |
+| العاجي | `#F5EFE0` |
+| الذهبي الفاتح | `#F0D882` |
+| الخطوط | Tajawal · Playfair Display · Cinzel · Cormorant Garamond |
+
+---
+
+## البدء السريع
 
 ```bash
+# تثبيت الاعتمادات
 npm install
-```
 
-2. Create `.env.local` from `.env.example`.
+# إنشاء ملف البيئة
+cp .env.example .env.local
+# (أضف متغيرات البيئة — انظر أدناه)
 
-3. Run the database setup:
-
-```bash
-npm run db:migrate
+# إعداد قاعدة البيانات
 npm run db:push
-```
 
-4. Start the development server:
-
-```bash
+# تشغيل محلي
 npm run dev
 ```
 
-5. Open `http://localhost:3000`.
-
-## Environment Variables
+## متغيرات البيئة
 
 ```env
-# App
+# التطبيق
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Database
-DATABASE_URL=your_supabase_database_url
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+# قاعدة البيانات (Supabase)
+DATABASE_URL=postgresql://...
 
 # Better Auth
-BETTER_AUTH_SECRET=your_better_auth_secret
-
-# Stripe
-STRIPE_SECRET_KEY=your_stripe_secret_key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-
-# Email
-EMAIL_SERVER_HOST=your_email_host
-EMAIL_SERVER_PORT=your_email_port
-EMAIL_SERVER_USER=your_email_user
-EMAIL_SERVER_PASSWORD=your_email_password
-EMAIL_FROM=your_email_from
-EMAIL_CONTACT_TO=your_email_inbox
+BETTER_AUTH_SECRET=your_secret_here
 ```
 
-## Scripts
+> **مهم:** لا تضع الأسرار أبداً في Git. استخدم `.env.local` محلياً وVercel Environment Variables في الإنتاج.
+
+---
+
+## هيكل المشروع
+
+```
+src/
+  app/
+    (store pages)       ← الصفحات العامة: / , /products, /sale, /track, /wishlist, /catalog
+    admin/              ← لوحة الإدارة بكل صفحاتها
+    api/                ← API Routes (admin + public)
+  components/
+    store/              ← مكونات الواجهة: Header, Footer, HeroSection, ProductGrid...
+    admin/              ← مكونات الإدارة: Forms, Tables, Dashboards
+  lib/
+    auth/               ← Better Auth + middleware
+    db/drizzle/         ← Schema + Connection
+  app/opengraph-image.tsx  ← صورة OG تلقائية
+  public/
+    manifest.json       ← PWA manifest
+    sw.js               ← Service Worker
+```
+
+---
+
+## الأوامر المهمة
 
 ```bash
-# App
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run typecheck
-
-# Database
-npm run db:generate
-npm run db:migrate
-npm run db:push
-npm run db:studio
-npm run db:pull
+npm run dev          # تطوير محلي
+npm run build        # بناء للإنتاج
+npm run typecheck    # فحص الأنواع
+npm run lint         # فحص الكود
+npm run db:push      # مزامنة Schema مع قاعدة البيانات
+npm run db:studio    # واجهة إدارة قاعدة البيانات
 ```
 
-## Project Structure
+---
 
-```text
-src/
-  app/         App Router routes, layouts, pages, route handlers
-  components/  UI and feature components
-  hooks/       Client hooks and React Query hooks
-  lib/         Infra code: auth, db, email, Stripe, shared helpers
-  schemas/     Zod schemas
-  services/    Business logic
-  styles/      Global CSS
-  types/       Shared TypeScript types
-  utils/       Stateless helpers and formatters
-```
+## قواعد الأمان
 
-## Deployment Notes
+- ✅ Supabase عبر API فقط — لا SDK مباشر في الكلاينت
+- ✅ الأسرار في `.env.local` فقط — لا تُكمِّت أبداً
+- ✅ WhatsApp مجاني — wa.me deep links لا WhatsApp Business API
+- ✅ Better Auth مع صلاحية Admin لحماية لوحة الإدارة
 
-- Configure all environment variables in production.
-- Use a public webhook URL for Stripe.
-- Run `npm run db:migrate` before `npm run db:push` on new environments.
-- Set `NEXT_PUBLIC_APP_URL` to the production domain.
+---
 
-## License
-
-MIT. See [LICENSE](LICENSE).
+*© 2025 ShahY Store — Designed & Developed by [Ahmed Darhous](https://www.instagram.com/darhous/)*

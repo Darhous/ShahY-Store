@@ -14,18 +14,22 @@ export default function StoreFooter() {
         .sf-dicon {
           width: 36px; height: 36px; border-radius: 10px;
           display: inline-flex; align-items: center; justify-content: center;
-          text-decoration: none; transition: all 0.25s cubic-bezier(0.2,0,0.2,1);
+          text-decoration: none; transition: all 0.3s cubic-bezier(0.2,0,0.2,1);
           flex-shrink: 0;
+          background: rgba(201,168,76,0.05);
+          border: 1px solid rgba(201,168,76,0.1);
         }
-        .sf-dicon:hover { transform: translateY(-2px) scale(1.1); }
-        .sf-dicon-ig { background: rgba(225,48,108,0.1); }
-        .sf-dicon-ig:hover { box-shadow: 0 6px 24px rgba(225,48,108,0.35); background: rgba(225,48,108,0.18); }
-        .sf-dicon-li { background: rgba(10,102,194,0.1); }
-        .sf-dicon-li:hover { box-shadow: 0 6px 24px rgba(10,102,194,0.35); background: rgba(10,102,194,0.18); }
-        .sf-dicon-fb { background: rgba(24,119,242,0.1); }
-        .sf-dicon-fb:hover { box-shadow: 0 6px 24px rgba(24,119,242,0.35); background: rgba(24,119,242,0.18); }
-        .sf-dicon-wa { background: rgba(37,211,102,0.1); }
-        .sf-dicon-wa:hover { box-shadow: 0 6px 24px rgba(37,211,102,0.35); background: rgba(37,211,102,0.18); }
+        .sf-dicon:hover {
+          transform: translateY(-3px) scale(1.08);
+          background: rgba(201,168,76,0.12);
+          border-color: rgba(201,168,76,0.35);
+          box-shadow: 0 8px 28px rgba(201,168,76,0.15);
+        }
+        .sf-dicon-ig {}
+        .sf-dicon-li {}
+        .sf-dicon-fb {}
+        .sf-dicon-wa {}
+        .sf-dicon-wa:hover { box-shadow: 0 8px 28px rgba(37,211,102,0.15); border-color: rgba(37,211,102,0.3); }
         .sf-designer-link {
           font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 3px;
           color: #F5EFE0; opacity: 0.38; text-decoration: none;
@@ -128,16 +132,16 @@ export default function StoreFooter() {
             {/* Instagram */}
             <a href="https://www.instagram.com/darhous/" target="_blank" rel="noopener noreferrer"
               className="sf-dicon sf-dicon-ig" title="Instagram">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5"/>
                 <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.5" fill="#E1306C"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="#C9A84C"/>
               </svg>
             </a>
             {/* LinkedIn */}
             <a href="https://www.linkedin.com/in/darhous/" target="_blank" rel="noopener noreferrer"
               className="sf-dicon sf-dicon-li" title="LinkedIn">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0A66C2" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
                 <rect x="2" y="9" width="4" height="12"/>
                 <circle cx="4" cy="4" r="2"/>
@@ -146,14 +150,14 @@ export default function StoreFooter() {
             {/* Facebook */}
             <a href="https://www.facebook.com/ahmed.darhous" target="_blank" rel="noopener noreferrer"
               className="sf-dicon sf-dicon-fb" title="Facebook">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1877F2" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
               </svg>
             </a>
             {/* WhatsApp */}
             <a href="https://wa.me/201030002331" target="_blank" rel="noopener noreferrer"
               className="sf-dicon sf-dicon-wa" title="WhatsApp">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
                 <path d="M9 10c0 5 3.5 7.5 7.5 7.5"/>
               </svg>

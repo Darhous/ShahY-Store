@@ -2,8 +2,13 @@
 
 import { useEffect, useState } from "react"
 
-export default function LoadingIntro({ duration = 3000 }: { duration?: number }) {
+export default function LoadingIntro({ duration = 5200 }: { duration?: number }) {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in")
+
+  function skip() {
+    setPhase("out")
+    setTimeout(() => { setPhase("gone"); sessionStorage.setItem("shahy-intro", "1") }, 900)
+  }
 
   useEffect(() => {
     if (sessionStorage.getItem("shahy-intro")) { setPhase("gone"); return }
@@ -206,6 +211,21 @@ export default function LoadingIntro({ duration = 3000 }: { duration?: number })
 
         <div className="si-credit">designed by ahmed darhous</div>
       </div>
+
+      {/* Skip button */}
+      <button onClick={skip} style={{
+        position: "absolute", bottom: 32, right: 40,
+        fontFamily: "Cinzel, serif", fontSize: 9, letterSpacing: "4px",
+        color: "#C9A84C", opacity: 0.3, background: "none", border: "none",
+        cursor: "pointer", textTransform: "uppercase",
+        animation: "si-credit 0.7s ease 2s both",
+        transition: "opacity 0.2s",
+      }}
+        onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
+        onMouseLeave={e => (e.currentTarget.style.opacity = "0.3")}
+      >
+        SKIP ›
+      </button>
     </div>
   )
 }

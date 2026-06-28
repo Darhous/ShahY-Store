@@ -9,11 +9,11 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     e.preventDefault();
     setLoading(true);
     const form = e.currentTarget;
-    const keys = ["whatsapp_number", "store_name_ar", "store_tagline_ar", "instagram_url", "facebook_url", "tiktok_url"];
-    const updates = keys.map((key) => ({
-      key,
-      value: (form.elements.namedItem(key) as HTMLInputElement)?.value || "",
-    }));
+    const textKeys = ["whatsapp_number", "store_name_ar", "store_tagline_ar", "instagram_url", "facebook_url", "tiktok_url", "hero_words", "announcement_text"];
+    const updates = [
+      ...textKeys.map((key) => ({ key, value: (form.elements.namedItem(key) as HTMLInputElement)?.value || "" })),
+      { key: "announcement_active", value: (form.elements.namedItem("announcement_active") as HTMLInputElement)?.checked ? "true" : "false" },
+    ];
 
     const res = await fetch("/api/admin/settings", {
       method: "POST",
@@ -65,6 +65,41 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
             <label className={labelCls}>تيك توك</label>
             <input name="tiktok_url" defaultValue={settings.tiktok_url} placeholder="https://tiktok.com/@..." className={inputCls} />
           </div>
+        </div>
+      </div>
+
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+        <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3">صفحة البداية</h2>
+        <div>
+          <label className={labelCls}>كلمات الهيرو (مفصولة بفواصل)</label>
+          <textarea
+            name="hero_words"
+            defaultValue={settings.hero_words || "شُعوراً, هويّتكِ, قوّتكِ, أُسلوباً, تميّزكِ"}
+            rows={2}
+            className={inputCls}
+            style={{ resize: "vertical", lineHeight: 1.6 }}
+            placeholder="شُعوراً, هويّتكِ, قوّتكِ"
+          />
+          <p className="text-xs text-[#F5EFE0]/30 mt-1">اكتبي الكلمات مفصولة بفواصل — ستظهر متعاقبة في الصفحة الرئيسية</p>
+        </div>
+        <div>
+          <label className={labelCls}>نص الإعلان العلوي (اتركيه فارغاً لإخفائه)</label>
+          <input
+            name="announcement_text"
+            defaultValue={settings.announcement_text || ""}
+            className={inputCls}
+            placeholder="مثال: شحن مجاني على جميع الطلبات اليوم!"
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="announcement_active"
+            id="announcement_active"
+            defaultChecked={settings.announcement_active === "true"}
+            className="w-4 h-4 accent-[#C9A84C]"
+          />
+          <label htmlFor="announcement_active" className="text-sm text-[#F5EFE0]/60 cursor-pointer">تفعيل الإعلان العلوي</label>
         </div>
       </div>
 

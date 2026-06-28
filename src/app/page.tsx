@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { db } from "@/lib/db/drizzle/connection"
-import { products, productImages, categories } from "@/lib/db/drizzle/schema"
+import { products, productImages, categories, settings } from "@/lib/db/drizzle/schema"
 import { eq, and } from "drizzle-orm"
 import LoadingIntro from "@/components/store/LoadingIntro"
 import ProductGrid, { type StoreProduct } from "@/components/store/ProductGrid"
@@ -54,8 +54,19 @@ async function getProducts(): Promise<StoreProduct[]> {
   }
 }
 
+async function getHeroWords(): Promise<string[]> {
+  try {
+    const row = await db.select().from(settings).where(eq(settings.key, "hero_words")).limit(1)
+    if (row[0]?.value) {
+      const words = row[0].value.split(",").map(w => w.trim()).filter(Boolean)
+      if (words.length) return words
+    }
+  } catch { /* fall through */ }
+  return []
+}
+
 export default async function StorePage() {
-  const initialProducts = await getProducts()
+  const [initialProducts, heroWords] = await Promise.all([getProducts(), getHeroWords()])
 
   return (
     <>
@@ -68,7 +79,7 @@ export default async function StorePage() {
       `}</style>
 
       <LoadingIntro />
-      <HeroSection />
+      <HeroSection words={heroWords} />
 
       {/* Products */}
       <div id="products">
