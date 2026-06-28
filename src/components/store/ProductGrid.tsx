@@ -389,8 +389,9 @@ export default function ProductGrid({ initialProducts }: { initialProducts: Stor
           </div>
         )}
 
-        {/* Quality + Price row */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+        {/* Quality row */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 11, color: "#444", marginLeft: 4 }}>الجودة:</span>
           {QUALITY_FILTER.map(q => (
             <button key={q.key} className="pg-cat-pill"
               onClick={() => setActiveQuality(q.key)}
@@ -404,9 +405,11 @@ export default function ProductGrid({ initialProducts }: { initialProducts: Stor
               {q.label}
             </button>
           ))}
+        </div>
 
-          <div style={{ width: 1, background: "#252018", margin: "0 4px" }} />
-
+        {/* Price row */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 11, color: "#444", marginLeft: 4 }}>السعر:</span>
           {PRICE_RANGES.map(r => (
             <button key={r.key} className="pg-cat-pill"
               onClick={() => setActivePriceKey(r.key)}

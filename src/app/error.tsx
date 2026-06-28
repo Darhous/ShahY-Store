@@ -1,8 +1,16 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 
-export default function Error({ reset }: { reset: () => void }) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    // Auto-reload on stale chunk error (happens after redeployment while user has old page cached)
+    if (error?.name === "ChunkLoadError" || error?.message?.includes("Loading chunk") || error?.message?.includes("Failed to load chunk")) {
+      window.location.reload()
+    }
+  }, [error])
+
   return (
     <div style={{
       minHeight: "100vh", background: "#0A0806",

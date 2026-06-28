@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-export default function LoadingIntro({ duration = 2800 }: { duration?: number }) {
+export default function LoadingIntro({ duration = 4500 }: { duration?: number }) {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in")
 
   function skip() {
@@ -53,9 +53,9 @@ export default function LoadingIntro({ duration = 2800 }: { duration?: number })
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Cinzel:wght@400&family=Cormorant+Garamond:ital,wght@1,300&display=swap');
         @keyframes si-auto-dismiss {
-          0%, 78% { opacity: 1; pointer-events: all; }
-          92%      { opacity: 0; pointer-events: none; }
-          100%     { opacity: 0; pointer-events: none; visibility: hidden; }
+          0%, 82% { opacity: 1; pointer-events: all; }
+          96%     { opacity: 0; pointer-events: none; }
+          100%    { opacity: 0; pointer-events: none; visibility: hidden; }
         }
         .shahy-intro {
           position: fixed; inset: 0; z-index: 99999;
@@ -64,7 +64,7 @@ export default function LoadingIntro({ duration = 2800 }: { duration?: number })
           overflow: hidden;
           opacity: 1; transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1);
           pointer-events: all;
-          animation: si-auto-dismiss 5s ease forwards;
+          animation: si-auto-dismiss 7s ease forwards;
         }
         .shahy-intro[data-phase="out"] { opacity: 0; pointer-events: none; animation: none; }
         .shahy-intro[data-phase="gone"] { display: none; }
