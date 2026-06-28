@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 
 async function getSaleProducts() {
+  try {
   const rows = await db
     .select({
       id: products.id,
@@ -48,6 +49,7 @@ async function getSaleProducts() {
       discount: Math.round((1 - Number(r.price) / Number(r.compare_at_price)) * 100),
     }))
     .sort((a, b) => b.discount - a.discount)
+  } catch { return [] }
 }
 
 const QUALITY_LABELS: Record<string, string> = { hi_copy: "هاي كوبي", mirror: "ميرور", original: "أورجنال" }

@@ -9,10 +9,11 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
     e.preventDefault();
     setLoading(true);
     const form = e.currentTarget;
-    const textKeys = ["whatsapp_number", "store_name_ar", "store_tagline_ar", "instagram_url", "facebook_url", "tiktok_url", "hero_words", "announcement_text"];
+    const textKeys = ["whatsapp_number", "store_name_ar", "store_tagline_ar", "instagram_url", "facebook_url", "tiktok_url", "hero_words", "announcement_text", "flash_deals_title_ar", "flash_deals_ends_at"];
     const updates = [
       ...textKeys.map((key) => ({ key, value: (form.elements.namedItem(key) as HTMLInputElement)?.value || "" })),
       { key: "announcement_active", value: (form.elements.namedItem("announcement_active") as HTMLInputElement)?.checked ? "true" : "false" },
+      { key: "flash_deals_active", value: (form.elements.namedItem("flash_deals_active") as HTMLInputElement)?.checked ? "true" : "false" },
     ];
 
     const res = await fetch("/api/admin/settings", {
@@ -100,6 +101,43 @@ export default function SettingsForm({ settings }: { settings: Record<string, st
             className="w-4 h-4 accent-[#C9A84C]"
           />
           <label htmlFor="announcement_active" className="text-sm text-[#F5EFE0]/60 cursor-pointer">تفعيل الإعلان العلوي</label>
+        </div>
+      </div>
+
+      {/* Flash Deals */}
+      <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 p-6 space-y-5">
+        <h2 className="font-semibold text-[#F5EFE0] border-b border-[#C9A84C]/10 pb-3 flex items-center gap-2">
+          ⚡ عروض الفلاش
+        </h2>
+        <p className="text-xs text-[#F5EFE0]/30">
+          يتم عرض المنتجات المميّزة (Featured) التي لديها سعر مخفّض تلقائياً في قسم عروض الفلاش.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>عنوان القسم</label>
+            <input name="flash_deals_title_ar" defaultValue={settings.flash_deals_title_ar || "عروض الفلاش"} className={inputCls} placeholder="عروض الفلاش" />
+          </div>
+          <div>
+            <label className={labelCls}>تاريخ ووقت الانتهاء</label>
+            <input
+              type="datetime-local"
+              name="flash_deals_ends_at"
+              defaultValue={settings.flash_deals_ends_at ? settings.flash_deals_ends_at.slice(0, 16) : ""}
+              className={inputCls}
+              style={{ colorScheme: "dark" }}
+            />
+            <p className="text-xs text-[#F5EFE0]/30 mt-1">اتركيه فارغاً لعرض العروض بدون عداد</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="flash_deals_active"
+            id="flash_deals_active"
+            defaultChecked={settings.flash_deals_active === "true"}
+            className="w-4 h-4 accent-[#C9A84C]"
+          />
+          <label htmlFor="flash_deals_active" className="text-sm text-[#F5EFE0]/60 cursor-pointer">تفعيل قسم عروض الفلاش</label>
         </div>
       </div>
 

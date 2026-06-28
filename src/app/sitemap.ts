@@ -1,17 +1,16 @@
 import { db } from "@/lib/db/drizzle/connection"
-import { products, categories } from "@/lib/db/drizzle/schema"
+import { products } from "@/lib/db/drizzle/schema"
 import { eq } from "drizzle-orm"
 import type { MetadataRoute } from "next"
 
 const BASE = "https://shah-y-store.vercel.app"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [allProducts, allCategories] = await Promise.all([
-    db.select({ slug: products.slug, updated_at: products.updated_at })
-      .from(products)
-      .where(eq(products.status, "active")),
-    db.select({ id: categories.id }).from(categories),
-  ])
+  let allProducts: { slug: string; updated_at: Date | null }[] = []
+  try {
+    allProducts = await db.select({ slug: products.slug, updated_at: products.updated_at })
+      .from(products).where(eq(products.status, "active"))
+  } catch { /* DB unavailable, return static routes only */ }
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
@@ -23,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/guide`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
   ]
 
-  const productRoutes: MetadataRoute.Sitemap = allProducts.map(p => ({
+  const productRoutes: MetadataRoute.Sitemap = (allProducts ?? []).map(p => ({
     url: `${BASE}/products/${p.slug}`,
     lastModified: p.updated_at ?? new Date(),
     changeFrequency: "weekly",

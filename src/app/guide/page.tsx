@@ -442,6 +442,7 @@ export default function GuidePage() {
           [11, "إدارة المسؤولين", "admins"],
           [12, "نصائح وتنبيهات مهمة", "tips"],
           [13, "معلومات الدعم الفني", "support"],
+          [14, "عروض الفلاش ⚡", "flash-deals"],
         ].map(([n, title, id]) => (
           <a key={id as string} href={`#${id}`} className="g-toc-item">
             <span className="g-toc-num">{n}.</span>
@@ -1013,6 +1014,9 @@ export default function GuidePage() {
           ["كلمات الصفحة الرئيسية", "الكلمات الدوارة في أعلى الصفحة — مفصولة بفواصل — مثلاً: شُعوراً, هويّتكِ, قوّتكِ"],
           ["نص الإعلان العلوي", "شريط إعلان صغير فوق الموقع — اتركيه فاضي لو مش عايزاه"],
           ["تفعيل الإعلان", "صندوق صح/غلط لإظهار أو إخفاء الإعلان"],
+          ["⚡ عنوان عروض الفلاش", "العنوان اللي هيظهر في قسم الفلاش — مثلاً: تخفيضات الجمعة ⚡"],
+          ["⚡ تاريخ انتهاء الفلاش", "تاريخ ووقت انتهاء العرض — هيظهر عداد تنازلي تلقائياً — اتركيه فاضي للعروض المستمرة"],
+          ["⚡ تفعيل عروض الفلاش", "صندوق صح/غلط لإظهار قسم الفلاش على الصفحة الرئيسية"],
         ].map(([label, desc], i) => (
           <div key={i} className="g-field-row">
             <span className="g-field-label">{label}</span>
@@ -1223,6 +1227,73 @@ export default function GuidePage() {
             <div style={{ fontFamily: "Cinzel, serif", fontSize: 10, letterSpacing: "3px", color: "#C9A84C", opacity: 0.6, marginBottom: 8 }}>LINKEDIN</div>
             <div style={{ fontFamily: "Tajawal, sans-serif", fontSize: 18, fontWeight: 700, color: "#F5EFE0", direction: "ltr" }}>in/darhous</div>
             <div style={{ fontSize: 12, color: "rgba(245,239,224,0.35)", marginTop: 6 }}>linkedin.com/in/darhous</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          14. FLASH DEALS
+      ══════════════════════════════════════════ */}
+      <div className="g-section" id="flash-deals">
+        <div className="g-section-title">
+          <div className="g-num">14</div>
+          <span className="g-emoji">⚡</span>
+          <h2>عروض الفلاش</h2>
+        </div>
+
+        <p style={{ color: "rgba(245,239,224,0.55)", fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
+          عروض الفلاش هي قسم خاص بيظهر تحت الهيرو مباشرة — بيعرض منتجات مخفّضة بعداد تنازلي يخلي العميلة تشتري بسرعة.
+        </p>
+
+        <div className="g-subsection">
+          <div className="g-subsection-title">كيف تشغّلي عروض الفلاش؟</div>
+
+          <div className="g-step">
+            <div className="g-step-num">1</div>
+            <div className="g-step-body">
+              <strong>علّمي المنتجات كـ "مميّز"</strong>
+              <p>من إدارة المنتجات، افتحي المنتج وفعّلي خيار <code>مميّز (Featured)</code>. المنتجات المميّزة اللي عليها خصم هي اللي بتظهر في الفلاش.</p>
+            </div>
+          </div>
+
+          <div className="g-step">
+            <div className="g-step-num">2</div>
+            <div className="g-step-body">
+              <strong>افتحي الإعدادات ← عروض الفلاش</strong>
+              <p>من القايمة اضغطي "الإعدادات" وانزلي لقسم <code>⚡ عروض الفلاش</code>.</p>
+            </div>
+          </div>
+
+          <div className="g-step">
+            <div className="g-step-num">3</div>
+            <div className="g-step-body">
+              <strong>اكتبي العنوان وحدّدي وقت الانتهاء</strong>
+              <p>اكتبي عنوان مثل "تخفيضات الجمعة ⚡" وحدّدي التاريخ والوقت اللي هينتهي فيه العرض — هيظهر عداد تنازلي تلقائياً.</p>
+            </div>
+          </div>
+
+          <div className="g-step">
+            <div className="g-step-num">4</div>
+            <div className="g-step-body">
+              <strong>فعّلي القسم واحفظي</strong>
+              <p>اضغطي على <code>تفعيل قسم عروض الفلاش</code> ثم "حفظ الإعدادات" — القسم هيظهر فوراً على الموقع.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="g-tip">
+          <span className="g-tip-icon">⚡</span>
+          <div className="g-tip-body">
+            <strong>استراتيجية الفلاش</strong>
+            استخدمي عروض الفلاش في المناسبات: الجمعة السوداء، عيد الأم، رمضان، العروض الأسبوعية. العداد التنازلي بيزود الإحساس بالإلحاح ويرفع المبيعات بشكل ملحوظ.
+          </div>
+        </div>
+
+        <div className="g-tip">
+          <span className="g-tip-icon">💡</span>
+          <div className="g-tip-body">
+            <strong>بدون عداد</strong>
+            لو اتركتي خانة "تاريخ الانتهاء" فارغة، هيظهر القسم بدون عداد — مفيد للعروض المستمرة.
           </div>
         </div>
       </div>
