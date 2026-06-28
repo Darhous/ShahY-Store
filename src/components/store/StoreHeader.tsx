@@ -155,15 +155,6 @@ export default function StoreHeader() {
           {count > 0 && <span className="sh-badge">{count > 99 ? "99+" : count}</span>}
         </Link>
 
-        <Link href="/admin/dashboard" style={{
-          fontFamily: "Tajawal, sans-serif", fontSize: 12, fontWeight: 700, color: "#C9A84C",
-          border: "1px solid rgba(201,168,76,0.35)", padding: "6px 16px", borderRadius: 6,
-          textDecoration: "none", transition: "all 0.25s ease", background: "rgba(201,168,76,0.06)",
-        }}
-          onMouseEnter={e => { e.currentTarget.style.background = "rgba(201,168,76,0.15)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.7)" }}
-          onMouseLeave={e => { e.currentTarget.style.background = "rgba(201,168,76,0.06)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.35)" }}>
-          ⚙ الأدمن
-        </Link>
       </nav>
 
       {/* Mobile right icons + hamburger */}
@@ -223,10 +214,6 @@ export default function StoreHeader() {
             style={{ fontFamily: "Tajawal, sans-serif", fontSize: 14, color: "#25a055", textDecoration: "none", border: "1px solid rgba(37,160,85,0.4)", padding: "10px 24px", borderRadius: 8 }}>
             واتساب
           </a>
-          <Link href="/admin/dashboard" onClick={() => setMenuOpen(false)}
-            style={{ fontFamily: "Tajawal, sans-serif", fontSize: 14, color: "#C9A84C", textDecoration: "none", border: "1px solid rgba(201,168,76,0.35)", padding: "10px 24px", borderRadius: 8 }}>
-            ⚙ الأدمن
-          </Link>
         </div>
       </div>
     )}

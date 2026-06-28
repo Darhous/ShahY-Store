@@ -12,7 +12,7 @@ const STATUS_STEPS = [
   { key: "delivered", label: "تم التسليم",          icon: "🎉" },
 ]
 
-const QUALITY: Record<string, string> = { hi_copy: "هاي كوبي", mirror: "ميرور", original: "أورجنال" }
+const QUALITY: Record<string, string> = { hi_copy: "بريميوم", mirror: "ميرور كواليتي", original: "أصلي" }
 
 interface TrackResult {
   order_number: string

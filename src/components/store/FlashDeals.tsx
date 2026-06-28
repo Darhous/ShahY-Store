@@ -177,7 +177,7 @@ export default function FlashDeals({ deals, title, endsAt }: FlashDealsProps) {
                 <div style={{ position: "relative", overflow: "hidden" }}>
                   {deal.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={deal.image} alt={deal.name_ar} className="fd-img" />
+                    <img src={deal.image} alt={deal.name_ar} className="fd-img" loading="lazy" />
                   ) : (
                     <div style={{ width: "100%", aspectRatio: "1", background: "#1a0a0a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, opacity: 0.2 }}>🛍️</div>
                   )}

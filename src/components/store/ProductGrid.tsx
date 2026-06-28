@@ -8,8 +8,8 @@ import { useCart } from "@/contexts/CartContext"
 const WA = "201015835455"
 
 const QUALITY_LABELS: Record<string, string> = {
-  hi_copy:  "نسخة عالية",
-  mirror:   "ميرور",
+  hi_copy:  "بريميوم",
+  mirror:   "ميرور كواليتي",
   original: "أصلي",
 }
 const QUALITY_COLORS: Record<string, string> = {
@@ -143,6 +143,7 @@ function ProductCard({ product, index }: { product: StoreProduct; index: number 
           {product.image?.url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={product.image.url} alt={product.image.alt_ar ?? product.name_ar}
+              loading="lazy"
               style={{
                 position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
                 transform: hovered ? "scale(1.09)" : "scale(1)",
@@ -329,9 +330,9 @@ function SectionHeader() {
 // ── Main export ──────────────────────────────────────────────────────────────
 const QUALITY_FILTER = [
   { key: "الكل", label: "الكل" },
-  { key: "hi_copy", label: "هاي كوبي" },
-  { key: "mirror", label: "ميرور" },
-  { key: "original", label: "أورجنال" },
+  { key: "hi_copy", label: "بريميوم" },
+  { key: "mirror", label: "ميرور كواليتي" },
+  { key: "original", label: "أصلي" },
 ]
 const PRICE_RANGES = [
   { key: "الكل", label: "كل الأسعار", min: 0, max: Infinity },

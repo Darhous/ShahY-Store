@@ -52,7 +52,7 @@ async function getSaleProducts() {
   } catch { return [] }
 }
 
-const QUALITY_LABELS: Record<string, string> = { hi_copy: "هاي كوبي", mirror: "ميرور", original: "أورجنال" }
+const QUALITY_LABELS: Record<string, string> = { hi_copy: "بريميوم", mirror: "ميرور كواليتي", original: "أصلي" }
 const QUALITY_COLORS: Record<string, string> = { hi_copy: "#888", mirror: "#7B1C2E", original: "#C9A84C" }
 
 export default async function SalePage() {
@@ -110,7 +110,7 @@ export default async function SalePage() {
                   {/* Discount badge */}
                   <div style={{ position: "relative" }}>
                     {item.image ? (
-                      <img src={item.image} alt={item.name_ar} className="card-img" />
+                      <img src={item.image} alt={item.name_ar} className="card-img" loading="lazy" />
                     ) : (
                       <div className="card-img-placeholder">🛍️</div>
                     )}

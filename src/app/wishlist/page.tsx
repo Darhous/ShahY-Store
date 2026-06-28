@@ -15,7 +15,7 @@ export interface WishlistItem {
   quality_tier: string; image: string | null
 }
 
-const QUALITY: Record<string, string> = { hi_copy: "هاي كوبي", mirror: "ميرور", original: "أورجنال" }
+const QUALITY: Record<string, string> = { hi_copy: "بريميوم", mirror: "ميرور كواليتي", original: "أصلي" }
 const QC: Record<string, string> = { hi_copy: "#888", mirror: "#7B1C2E", original: "#C9A84C" }
 
 export default function WishlistPage() {
@@ -78,7 +78,7 @@ export default function WishlistPage() {
                   <Link href={`/products/${item.slug}`} style={{ textDecoration: "none", display: "block", position: "relative" }}>
                     <div style={{ overflow: "hidden" }}>
                       {item.image
-                        ? <img src={item.image} alt={item.name_ar} className="wl-img" />
+                        ? <img src={item.image} alt={item.name_ar} className="wl-img" loading="lazy" />
                         : <div style={{ width: "100%", aspectRatio: "1", background: "#111", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, opacity: 0.15 }}>👜</div>
                       }
                     </div>

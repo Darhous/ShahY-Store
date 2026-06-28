@@ -117,15 +117,14 @@ export default function HeroSection({ words }: { words?: string[] }) {
           }}>
             تسوّقي الآن
           </a>
-          <a href={`https://wa.me/201015835455?text=${encodeURIComponent("السلام عليكم، أريد الاستفسار عن منتجاتكم")}`}
-            target="_blank" rel="noopener noreferrer"
+          <a href="/sale"
             style={{
               fontFamily: "Tajawal, sans-serif", fontWeight: 700, fontSize: 15,
               padding: "14px 36px", borderRadius: 8, textDecoration: "none",
               background: "transparent", color: "#F5EFE0",
               border: "1px solid rgba(201,168,76,0.3)", letterSpacing: "0.5px",
             }}>
-            📱 تواصلي معنا
+            اكتشفي العروض ✦
           </a>
         </div>
 

@@ -11,7 +11,7 @@ const WL_KEY = "shahy-wishlist"
 
 const WA = "201015835455"
 
-const QUALITY_LABELS: Record<string, string> = { hi_copy: "نسخة عالية", mirror: "ميرور", original: "أصلي" }
+const QUALITY_LABELS: Record<string, string> = { hi_copy: "بريميوم", mirror: "ميرور كواليتي", original: "أصلي" }
 const QUALITY_COLORS: Record<string, string> = { hi_copy: "#4a4a4a", mirror: "#7B1C2E", original: "#C9A84C" }
 const QUALITY_DESC: Record<string, string> = {
   hi_copy:  "جودة عالية، تشطيب ممتاز، مواد مطابقة للأصل",
@@ -203,6 +203,7 @@ export default function ProductDetail({ product, images, related = [], variants 
               {activeImg?.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={activeImg.url} alt={activeImg.alt_ar ?? product.name_ar}
+                  loading="eager"
                   style={{
                     position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
                     transform: hovered ? "scale(1.04)" : "scale(1)",
@@ -235,7 +236,7 @@ export default function ProductDetail({ product, images, related = [], variants 
                     onClick={() => setActiveIdx(i)}
                     style={{ width: 72, height: 72, flexShrink: 0, position: "relative", border: `2px solid ${i === activeIdx ? "rgba(201,168,76,0.7)" : "rgba(201,168,76,0.15)"}` }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt={img.alt_ar ?? product.name_ar} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={img.url} alt={img.alt_ar ?? product.name_ar} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     {i === activeIdx && <div style={{ position: "absolute", inset: 0, background: "rgba(201,168,76,0.12)" }} />}
                   </div>
                 ))}
@@ -458,7 +459,7 @@ export default function ProductDetail({ product, images, related = [], variants 
                       {rel.image?.url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={rel.image.url} alt={rel.image.alt_ar ?? rel.name_ar}
-                          className="pd-rel-img"
+                          className="pd-rel-img" loading="lazy"
                           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
                         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, opacity: 0.2 }}>👜</div>
