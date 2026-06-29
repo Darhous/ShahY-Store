@@ -149,6 +149,10 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | `name` | text | Full name |
 | `phone` | text | Egyptian phone number — used to match orders |
 | `email` | text (nullable) | Customer email |
+| `avatar_url` | text (nullable) | Supabase Storage URL — bucket: `avatars` |
+| `instagram_url` | text (nullable) | Customer's Instagram profile URL |
+| `facebook_url` | text (nullable) | Customer's Facebook profile URL |
+| `tiktok_url` | text (nullable) | Customer's TikTok profile URL |
 | `created_at` | timestamp | |
 | `updated_at` | timestamp | |
 
@@ -192,9 +196,9 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 |---|---|---|
 | `id` | uuid (PK) | |
 | `product_id` | uuid (FK, nullable) | → products.id |
-| `reviewer_name` | text | |
+| `customer_name` | text | Display name submitted by reviewer |
 | `rating` | integer | 1–5 stars |
-| `body` | text | Review content |
+| `comment_ar` | text (nullable) | Arabic review text |
 | `is_approved` | boolean | Must be approved before showing on site |
 | `created_at` | timestamp | |
 
@@ -273,7 +277,12 @@ Managed by Better Auth. Admin credentials stored securely. Each admin has: id, n
 
 | Endpoint | Method | Description |
 |---|---|---|
+| `/api/account/me` | GET | Get full customer record (name, phone, email, avatar_url, social links, created_at) |
+| `/api/account/me` | PATCH | Update profile fields: name, phone, avatar_url, instagram_url, facebook_url, tiktok_url |
+| `/api/account/avatar` | POST | Upload avatar image (FormData `file` field, max 3MB, JPEG/PNG/WebP) → saves to Supabase bucket `avatars` → returns `{ url }` |
 | `/api/account/orders?limit=N` | GET | Get orders for logged-in customer (matched by customer.phone) |
+| `/api/account/coupons` | GET | Get available discount codes for logged-in customer |
+| `/api/account/notifications` | GET | New products added in the last 30 days |
 
 ### Protected Admin APIs (require Better Auth admin session)
 
@@ -350,7 +359,7 @@ Managed by Better Auth. Admin credentials stored securely. Each admin has: id, n
 | **Categories** | `/admin/categories` | **Full CRUD**: add modal, inline edit (name/slug/sort), status toggle (نشط/مخفي), delete with product-count guard |
 | Shipping | `/admin/shipping` | Shipping zones and prices — changes immediately reflected in checkout |
 | Discounts | `/admin/discounts` | Coupon code management |
-| Banners | `/admin/banners` | Homepage banner carousel management |
+| Banners | `/admin/banners` | Homepage banner carousel management — **upload image from device** OR paste URL |
 | **Flash Deals** ⚡ | `/admin/flash-deals` | Dedicated flash deals management: toggle is_featured per product, set compare_at_price inline, manage flash settings (active/title/end date) |
 | **Customers** 🧑‍💼 | `/admin/customers` | All registered customers with order count per phone |
 | Admins | `/admin/admins` | Admin user management |

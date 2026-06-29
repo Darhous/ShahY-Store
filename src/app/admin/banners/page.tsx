@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface Banner { id: string; image_url: string; title_ar: string | null; link: string | null; sort_order: number; is_active: boolean }
 
@@ -10,7 +10,21 @@ export default function AdminBannersPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ image_url: "", title_ar: "", link: "", sort_order: "0" })
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState("")
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function handleImageUpload(file: File) {
+    setUploading(true)
+    setError("")
+    const fd = new FormData()
+    fd.append("file", file)
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd })
+    setUploading(false)
+    if (!res.ok) { setError("فشل رفع الصورة"); return }
+    const { url } = await res.json()
+    setForm(f => ({ ...f, image_url: url }))
+  }
 
   async function load() {
     setLoading(true)
@@ -67,9 +81,19 @@ export default function AdminBannersPage() {
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-[#F5EFE0]/50 mb-1">رابط الصورة *</label>
-              <input required value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
-                placeholder="https://..." dir="ltr"
+              <label className="block text-xs text-[#F5EFE0]/50 mb-1">صورة البانر *</label>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f) }} />
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="w-full flex items-center justify-center gap-2 bg-[#C9A84C]/10 hover:bg-[#C9A84C]/20 border border-[#C9A84C]/30 border-dashed rounded-lg px-3 py-3 text-sm text-[#C9A84C] font-bold transition-colors disabled:opacity-50 mb-2">
+                {uploading ? (
+                  <><span className="inline-block w-4 h-4 border-2 border-[#C9A84C]/30 border-t-[#C9A84C] rounded-full animate-spin" /> جاري الرفع...</>
+                ) : (
+                  <><span className="text-lg">📁</span> ارفع صورة من جهازك</>
+                )}
+              </button>
+              <input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
+                placeholder="أو الصق رابط الصورة هنا..." dir="ltr" required
                 className="w-full bg-[#111] border border-[#C9A84C]/15 rounded-lg px-3 py-2 text-sm text-[#F5EFE0] outline-none focus:border-[#C9A84C]/40" />
             </div>
             <div>
