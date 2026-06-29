@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 import { db } from "@/lib/db/drizzle/connection"
 import { products, productImages, categories, settings, productVariants, banners } from "@/lib/db/drizzle/schema"
-import { eq, and, gt, isNotNull, sql } from "drizzle-orm"
+import { eq, and, gt, isNotNull } from "drizzle-orm"
 import LoadingIntro from "@/components/store/LoadingIntro"
 import ProductGrid, { type StoreProduct } from "@/components/store/ProductGrid"
 import StoreHeader from "@/components/store/StoreHeader"
@@ -84,7 +84,6 @@ async function getActiveBanners() {
 async function getFlashDealsSettings() {
   try {
     const rows = await db.select().from(settings)
-      .where(sql`${settings.key} IN ('flash_deals_active','flash_deals_title_ar','flash_deals_ends_at')`)
     const map = Object.fromEntries(rows.map(r => [r.key, r.value]))
     return {
       active: map.flash_deals_active === "true",
@@ -109,18 +108,19 @@ async function getFlashDeals(): Promise<FlashDeal[]> {
         eq(products.status, "active"),
         eq(products.is_featured, true),
         isNotNull(products.compare_at_price),
-        sql`${products.compare_at_price} > ${products.price}`,
       ))
-      .limit(8)
-    const images = rows.length > 0
+      .limit(20)
+    // filter JS-side: compare_at_price > price
+    const qualified = rows.filter(r => r.compare_at_price && Number(r.compare_at_price) > Number(r.price)).slice(0, 8)
+    const images = qualified.length > 0
       ? await db.select({ product_id: productImages.product_id, url: productImages.url })
           .from(productImages).where(eq(productImages.sort_order, 0))
       : []
     const imgMap = Object.fromEntries(images.map(i => [i.product_id, i.url]))
-    return rows.map(r => ({
+    return qualified.map(r => ({
       id: r.id, slug: r.slug, name_ar: r.name_ar,
       price: Number(r.price),
-      compare_at_price: Number(r.compare_at_price),
+      compare_at_price: Number(r.compare_at_price!),
       discount: Math.round((1 - Number(r.price) / Number(r.compare_at_price)) * 100),
       image: imgMap[r.id] ?? null,
       quality_tier: r.quality_tier,
