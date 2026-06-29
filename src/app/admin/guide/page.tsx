@@ -555,6 +555,123 @@ const SECTIONS: Section[] = [
       </AdminMockupShell>
     ),
   },
+  {
+    id: "ads",
+    icon: "📣",
+    title: "دليل الإعلانات المدفوعة",
+    subtitle: "Google Ads · Meta Ads · TikTok Ads — دليل مبتدئ متكامل",
+    steps: [
+      "ابدأ بـ Meta Ads (فيسبوك/انستاجرام) — الأسهل والأكثر فاعلية للبنات في مصر",
+      "حدّدي الجمهور: نساء 18-45 سنة، مصر كلها أو محافظات محددة، اهتمامات: موضة، شنط، إكسسوارات",
+      "ابدأي بميزانية صغيرة: 50-100 ج/يوم وراقبي النتائج أسبوع قبل ما تزوّدي",
+      "لـ Google Ads: اختاري نوع «شبكة البحث» وكلمات مفتاحية زي: شنط شانيل مصر، شنط فاخرة، إكسسوارات نسائية",
+      "لـ TikTok Ads: الفيديو هو الملك — سجّلي فيديو Unboxing أو عرض المنتج وارفعيه كإعلان",
+      "استخدمي الـ Pixel دايماً — هو اللي بيساعدك تعرفي مين اشترى وتستهدفيه تاني",
+    ],
+    tips: [
+      "افتحي حساب Business على Meta قبل الإعلانات: business.facebook.com",
+      "أهم رقم: CPP (تكلفة الشراء) مش CPM أو CPC",
+      "أعلاني عن المنتجات الأكثر مبيعاً مش كل المنتجات",
+      "Retargeting: استهدفي الناس اللي زاروا موقعك بعروض خاصة",
+      "A/B Testing: جرّبي 2-3 إعلانات بنفس الوقت وشوفي أيهم أحسن",
+      "أوقات الإعلانات الأحسن: 8-11 مساءً وأيام الخميس والجمعة",
+    ],
+    mockup: (
+      <AdminMockupShell title="خطة الإعلانات — شاهي ستور">
+        <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            {[
+              { platform: "Meta Ads", color: "#1877F2", budget: "100-200 ج/يوم", icon: "📘" },
+              { platform: "TikTok Ads", color: "#FF0050", budget: "50-150 ج/يوم", icon: "🎵" },
+              { platform: "Google Ads", color: "#34A853", budget: "100-200 ج/يوم", icon: "🔍" },
+            ].map(p => (
+              <div key={p.platform} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1px solid ${p.color}33`, background: `${p.color}11`, textAlign: "center" }}>
+                <div style={{ fontSize: 16, marginBottom: 4 }}>{p.icon}</div>
+                <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 10, color: "#F5EFE0", fontWeight: 700, marginBottom: 2 }}>{p.platform}</div>
+                <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 9, color: `${p.color}`, fontWeight: 700 }}>{p.budget}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding: "8px 12px", background: "#111009", borderRadius: 8, border: "1px solid rgba(201,168,76,0.1)" }}>
+            <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 10, color: "#C9A84C", fontWeight: 700, marginBottom: 4 }}>✦ مثال إعلان انستاجرام</div>
+            <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 10, color: "rgba(245,239,224,0.7)", lineHeight: 1.7 }}>
+              «شنطة شانيل أوريجنال 🖤 بأسعار لا تصدقيها — اطلبي دلوقتي وهيوصلك خلال يومين 🚀 كود خصم: SHAHY10»
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            {[
+              { label: "الجمهور المستهدف", val: "نساء 18-45، مصر" },
+              { label: "أفضل وقت للنشر", val: "8-11 مساءً" },
+              { label: "أهم مقياس", val: "CPP (تكلفة الشراء)" },
+              { label: "ابدأي بـ", val: "50-100 ج/يوم" },
+            ].map(i => (
+              <div key={i.label} style={{ padding: "6px 8px", background: "rgba(201,168,76,0.05)", borderRadius: 6, border: "1px solid rgba(201,168,76,0.08)" }}>
+                <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 9, color: "rgba(245,239,224,0.4)", marginBottom: 2 }}>{i.label}</div>
+                <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 10, color: "#F5EFE0", fontWeight: 700 }}>{i.val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AdminMockupShell>
+    ),
+  },
+  {
+    id: "ai-image",
+    icon: "🤖",
+    title: "برومبت الصور بالذكاء الاصطناعي",
+    subtitle: "حوّلي أي صورة لإعلان عالمي في ثوانٍ",
+    steps: [
+      "افتحي أي نموذج AI للصور: ChatGPT-4o أو Gemini أو Claude أو Midjourney",
+      "ارفعي صورة المنتج (الخلفية البيضاء أو صورة طبيعية)",
+      "انسخي البرومبت الجاهز من زرار التحميل أدناه وأضيفي عليه اسم المنتج",
+      "النموذج هيعدّل الإضاءة والخلفية ويحوّلها لصورة إعلانية احترافية",
+      "استخدمي الصورة مباشرة في إعلانات Meta أو TikTok أو Stories",
+    ],
+    tips: [
+      "أوضح الصور: خلفية بيضاء أو رمادية فاتحة بدون فوضى",
+      "جرّبي أكثر من صورة وخذي أحسن نتيجة",
+      "ChatGPT-4o مجاني للمشتركين ويدي نتائج ممتازة",
+      "احفظي الصور بجودة عالية (PNG أو JPG 1080×1080 على الأقل)",
+    ],
+    mockup: (
+      <AdminMockupShell title="AI Image Prompt — شاهي ستور">
+        <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ padding: "10px 12px", background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 8 }}>
+            <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 10, color: "#a855f7", fontWeight: 700, marginBottom: 6 }}>🤖 البرومبت الجاهز (مثال مختصر)</div>
+            <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(245,239,224,0.6)", lineHeight: 1.7 }}>
+              "Transform this product photo into a world-class luxury fashion ad. Dark golden background, dramatic lighting, Arabic text «شاهي ستور» elegant serif font..."
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {[
+              { tool: "ChatGPT-4o", color: "#10b981", note: "مجاني ✓" },
+              { tool: "Gemini", color: "#3b82f6", note: "مجاني ✓" },
+              { tool: "Claude", color: "#C9A84C", note: "مجاني ✓" },
+            ].map(t => (
+              <div key={t.tool} style={{ flex: 1, padding: "6px 8px", borderRadius: 6, border: `1px solid ${t.color}33`, background: `${t.color}11`, textAlign: "center" }}>
+                <div style={{ fontFamily: "monospace", fontSize: 9, color: t.color, fontWeight: 700 }}>{t.tool}</div>
+                <div style={{ fontFamily: "Tajawal,sans-serif", fontSize: 8, color: "rgba(245,239,224,0.4)", marginTop: 2 }}>{t.note}</div>
+              </div>
+            ))}
+          </div>
+          <a
+            href="/ai-image-prompt.md"
+            download="shahy-ai-prompt.md"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "8px 0", borderRadius: 8,
+              background: "linear-gradient(135deg,rgba(168,85,247,0.15),rgba(168,85,247,0.05))",
+              border: "1px solid rgba(168,85,247,0.3)",
+              color: "#a855f7", textDecoration: "none",
+              fontFamily: "Tajawal,sans-serif", fontSize: 11, fontWeight: 700,
+            }}
+          >
+            ⬇️ تحميل البرومبت الكامل
+          </a>
+        </div>
+      </AdminMockupShell>
+    ),
+  },
 ]
 
 // ── Main Component ─────────────────────────────────────────────────────────
@@ -641,6 +758,24 @@ export default function AdminGuidePage() {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
           وثيقة نقل الملكية
+        </a>
+        <a
+          href="/ai-image-prompt.md"
+          download="shahy-ai-prompt.md"
+          className="guide-dl-btn"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 7,
+            padding: "8px 18px", borderRadius: 8, textDecoration: "none",
+            background: "rgba(168,85,247,0.1)",
+            border: "1px solid rgba(168,85,247,0.3)",
+            color: "#a855f7", fontFamily: "Tajawal,sans-serif",
+            fontSize: 13, fontWeight: 600,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1H1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 12 2z"/>
+          </svg>
+          برومبت AI للصور
         </a>
       </div>
 

@@ -400,10 +400,18 @@ Managed by Better Auth. Admin credentials stored securely. Each admin has: id, n
 - Orders tab shows 4-step timeline tracker (pending → confirmed → shipped → delivered)
 - Coupons tab shows valid/used/expired codes with copy-to-clipboard
 - Notifications tab shows new products added in the last 30 days
+- **Profile editing**: "بياناتي" tab has a full edit form — name, phone, Instagram/Facebook/TikTok URLs
+- **Avatar upload**: Click the avatar in the hero card → file input → `POST /api/account/avatar` → Supabase Storage bucket `avatars` → public URL stored in `customers.avatar_url`
 - **Checkout pre-fill**: if logged in, name and phone auto-filled from session + customer record
 - **Order linking**: checkout sends `customer_id` so orders are linked to customer UUID (not just phone match)
-- Account linked to orders: `/api/account/me` returns customer record; orders fetched by `orders.phone = customer.phone`
+- Account linked to orders: `GET /api/account/me` returns full customer record (incl. social links); `PATCH /api/account/me` updates name/phone/social URLs
 - Customer accounts are separate from admin accounts
+
+### AI Image Prompt
+- Available at `/ai-image-prompt.md` (public file, downloadable)
+- A world-class prompt for transforming any product photo into a luxury ad image using ChatGPT-4o, Gemini, Claude, or Midjourney
+- Includes: full prompt, short prompt, video prompt, usage tips, recommended free tools
+- Accessible from the admin guide download bar
 
 ### Coupons
 - Discount is applied client-side at cart calculation
@@ -591,6 +599,8 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=+201015835455
 NEXT_PUBLIC_APP_URL=https://shah-y-store.vercel.app
 # Optional — add to enable Google Analytics:
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+# Required for avatar upload via Supabase Storage:
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
 
 ---
@@ -685,34 +695,31 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
 ## 15. Development Roadmap — What's Left
 
-### ✅ Completed (Phases 1–3)
+### ✅ Completed (Phases 1–4)
 - Full storefront (home, product detail, cart, checkout, wishlist, track, sale, FAQ)
-- Admin panel: products, orders, reviews, categories (CRUD), shipping, discounts, banners, settings, admins, guide
+- Admin panel: products, orders (+ CSV export), reviews, categories (CRUD), shipping, discounts, banners, settings, admins, guide (13 sections)
 - Flash Deals dedicated admin page
 - Customers admin table
-- Customer accounts: `/signin`, `/signup`, `/account/profile`, `/account/orders`
-- Shipping live from DB (not hardcoded)
-- Sitemap cleaned
+- Customer accounts: `/signin`, `/signup`, `/account/profile` (world-class 5-tab dashboard), `/account/orders`
+- **Profile editing**: name, phone, social links (Instagram/Facebook/TikTok)
+- **Avatar upload**: Supabase Storage `avatars` bucket via `POST /api/account/avatar`
+- Checkout pre-fill from session + customer record
+- Order-to-account auto-link (`customer_id` in orders)
+- GA4 wired (needs `NEXT_PUBLIC_GA_ID` env var)
+- SEO: JSON-LD structured data, robots meta, expanded keywords
+- Admin guide: 13 sections incl. ads guide + AI image prompt section
+- AI image prompt file at `/ai-image-prompt.md`
+- Handover document at `/admin/guide/handover`
+- Realistic product reviews seeded (30 reviews across 10 products)
+- Shipping live from DB (not hardcoded); sitemap cleaned
 
-### 🔄 Pending (Phases 4–6 — require manual decisions or setup)
-
-**Phase 4 — Notifications & Integrations:**
-- WhatsApp/SMS auto-notifications to customers on order status change
-- Email notifications (requires SMTP setup)
-- Low stock alerts for admin
-
-**Phase 5 — Analytics & Reporting:**
-- Google Analytics 4 integration
-- Order export to Excel/CSV
-- Advanced dashboard (conversion rate, AOV, repeat customers)
-
-**Phase 6 — Advanced Features:**
-- Online payment (Paymob, Fawry integration) — requires merchant account setup
-- Checkout pre-fill from customer account (read session → prefill name/phone)
-- Order-to-account auto-link (when logged-in customer places order, link `orders.customer_id`)
-- Password reset / email verification (requires SMTP in Vercel env)
-- Instagram product feed sync
-- Bulk product import via CSV
+### 🔄 Pending (user actions, no code needed)
+- **GA4**: Add `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX` to Vercel env vars
+- **Meta Pixel**: Add via Facebook Events Manager for ad conversion tracking
+- **Avatar storage bucket**: Create `avatars` bucket in Supabase Storage (public read) + add `SUPABASE_SERVICE_ROLE_KEY` to Vercel env
+- **Email/SMS notifications**: Requires SMTP setup (optional)
+- **Online payment**: Paymob or Fawry (requires merchant account)
+- **Transfer ownership**: Vercel + Supabase + GitHub → client account
 
 ### ⚠️ Manual steps not yet done (user hasn't done these)
 - No SMTP configured → password reset not working

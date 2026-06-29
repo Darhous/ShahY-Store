@@ -711,7 +711,7 @@ export default function AdminGuidePrintPage() {
             <div style={{ display: "flex", gap: 24, fontSize: 12, color: "#999" }}>
               <span>📅 يونيو 2026</span>
               <span>·</span>
-              <span>12 قسم</span>
+              <span>13 قسم</span>
               <span>·</span>
               <span>الإصدار 1.0</span>
             </div>
@@ -970,6 +970,105 @@ export default function AdminGuidePrintPage() {
                     <span>{tip}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── AI Image Prompt ─────────────────────────────────────────── */}
+        <div className="section-paper">
+          <div className="section-header">
+            <span className="section-num">13</span>
+            <div className="section-icon-wrap">🤖</div>
+            <div>
+              <div className="section-heading">برومبت الذكاء الاصطناعي للصور</div>
+              <div className="section-subheading">حوّلي أي صورة منتج إلى إعلان عالمي في ثوانٍ — مجاناً</div>
+            </div>
+            <span className="section-url">تحميل: /ai-image-prompt.md</span>
+          </div>
+
+          <div className="section-body">
+            <div>
+              <div className="col-label">كيفية الاستخدام</div>
+              <ol style={{ margin: 0, paddingRight: 16, fontSize: 11, lineHeight: 2, color: "#555" }}>
+                <li>افتحي أي نموذج AI: ChatGPT-4o أو Gemini أو Claude</li>
+                <li>ارفعي صورة المنتج (خلفية بيضاء أفضل)</li>
+                <li>انسخي البرومبت من ملف <strong>ai-image-prompt.md</strong> الموجود في المتجر</li>
+                <li>أضيفي اسم المنتج في آخر البرومبت وأرسليه</li>
+                <li>احفظي الصورة الناتجة واستخدميها في الإعلانات</li>
+              </ol>
+
+              <div style={{ marginTop: 14, background: "#f8f4ff", border: "1px solid #d5b8f0", borderRadius: 8, padding: "12px 14px" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#6E3FC1", marginBottom: 8 }}>📋 البرومبت المختصر (للنماذج المحدودة)</div>
+                <div style={{ fontFamily: "monospace", fontSize: 9, color: "#333", lineHeight: 1.8, direction: "ltr", background: "white", padding: "8px 10px", borderRadius: 6, border: "1px solid #e0d5f5" }}>
+                  {`Transform this product photo into a luxury fashion ad.
+Brand: ShahY Store (شاهي ستور) — Egyptian luxury accessories.
+Style: Chanel/Dior editorial. Dark dramatic background,
+warm golden rim lighting, professional studio quality.
+Add small Arabic text "شاهي ستور" in gold at top.
+Output: 1:1 square, highest resolution, PNG.
+Make it look like a €300 European luxury brand campaign.`}
+                </div>
+              </div>
+
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 8 }}>النماذج المجانية الموصى بها:</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                  {[
+                    { name: "ChatGPT-4o", url: "chat.openai.com", color: "#10b981" },
+                    { name: "Google Gemini", url: "gemini.google.com", color: "#3b82f6" },
+                    { name: "Claude", url: "claude.ai", color: "#C9A84C" },
+                  ].map(t => (
+                    <div key={t.name} style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${t.color}44`, background: `${t.color}11`, textAlign: "center" }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: t.color }}>{t.name}</div>
+                      <div style={{ fontSize: 9, color: "#888", marginTop: 2 }}>{t.url}</div>
+                      <div style={{ fontSize: 9, color: "#27ae60", marginTop: 2, fontWeight: 700 }}>✓ مجاني</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="col-label">نصائح التصوير</div>
+              <div className="tips-box">
+                <div className="tips-label">📸 قبل استخدام الـ AI</div>
+                {[
+                  "صوّري المنتج على خلفية بيضاء نظيفة — النتائج أوضح بكثير",
+                  "الإضاءة الطبيعية كافية — لا تحتاجي استوديو",
+                  "التصوير من الأمام أو بزاوية 45 درجة يعطي أفضل النتائج",
+                  "احتفظي بالصورة الأصلية دايماً — تحتاجيها لتعديلات مستقبلية",
+                ].map((tip, i) => (
+                  <div key={i} className="tips-item">
+                    <span style={{ color: "#6E3FC1", flexShrink: 0 }}>•</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="tips-box" style={{ marginTop: 12 }}>
+                <div className="tips-label">🎨 بعد الحصول على الصورة</div>
+                {[
+                  "جرّبي 3-4 مرات وخذي أجمل نتيجة",
+                  "الحجم المطلوب للإعلانات: 1080×1080 (مربع) أو 1080×1920 (ستوري)",
+                  "احفظيها PNG للجودة العالية أو JPEG لحجم أصغر",
+                  "أضيفي الصورة مباشرة في إعلانات Meta أو TikTok كـ Creative",
+                  "يمكن استخدام نفس الصورة للموقع والسوشيال ميديا",
+                ].map((tip, i) => (
+                  <div key={i} className="tips-item">
+                    <span style={{ color: "#C9A84C", flexShrink: 0 }}>•</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 14, padding: "12px 14px", background: "#fffbf0", border: "1px solid #C9A84C44", borderRadius: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#C9A84C", marginBottom: 6 }}>✦ الملف الكامل</div>
+                <div style={{ fontSize: 10, color: "#555", lineHeight: 1.7 }}>
+                  البرومبت الكامل مع كل التفاصيل موجود في:<br />
+                  <span style={{ fontFamily: "monospace", color: "#333" }}>shah-y-store.vercel.app/ai-image-prompt.md</span><br />
+                  يمكن تحميله من صفحة الدليل التفاعلي في لوحة الأدمن.
+                </div>
               </div>
             </div>
           </div>

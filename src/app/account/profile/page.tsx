@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth/client"
@@ -20,6 +20,13 @@ interface Notification {
 interface Coupon {
   id: string; code: string; type: "percent" | "fixed"; value: number;
   min_order: number; expires_at: string | null; status: "valid" | "used" | "expired";
+}
+
+interface CustomerProfile {
+  id: string; name: string; phone: string; email: string | null;
+  avatar_url: string | null; instagram_url: string | null;
+  facebook_url: string | null; tiktok_url: string | null;
+  created_at: string;
 }
 
 const STATUS_AR: Record<string, string> = {
@@ -51,8 +58,20 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [customer, setCustomer] = useState<CustomerProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
+
+  // Profile edit state
+  const [editName, setEditName] = useState("")
+  const [editPhone, setEditPhone] = useState("")
+  const [editInstagram, setEditInstagram] = useState("")
+  const [editFacebook, setEditFacebook] = useState("")
+  const [editTiktok, setEditTiktok] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [saveMsg, setSaveMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isPending && !session) router.push("/signin")
@@ -64,10 +83,19 @@ export default function ProfilePage() {
       fetch("/api/account/orders").then(r => r.json()),
       fetch("/api/account/notifications").then(r => r.json()),
       fetch("/api/account/coupons").then(r => r.json()),
-    ]).then(([o, n, c]) => {
+      fetch("/api/account/me").then(r => r.json()),
+    ]).then(([o, n, c, m]) => {
       setOrders(o.orders || [])
       setNotifications(n.notifications || [])
       setCoupons(c.coupons || [])
+      if (m.customer) {
+        setCustomer(m.customer)
+        setEditName(m.customer.name || "")
+        setEditPhone(m.customer.phone || "")
+        setEditInstagram(m.customer.instagram_url || "")
+        setEditFacebook(m.customer.facebook_url || "")
+        setEditTiktok(m.customer.tiktok_url || "")
+      }
     }).catch(() => {}).finally(() => setLoading(false))
   }, [session])
 
@@ -83,8 +111,62 @@ export default function ProfilePage() {
     })
   }
 
+  async function handleSaveProfile() {
+    setSaving(true)
+    setSaveMsg(null)
+    try {
+      const res = await fetch("/api/account/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          phone: editPhone,
+          instagram_url: editInstagram,
+          facebook_url: editFacebook,
+          tiktok_url: editTiktok,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setCustomer(data.customer)
+        setSaveMsg({ ok: true, text: "تم الحفظ بنجاح ✓" })
+      } else {
+        setSaveMsg({ ok: false, text: data.error || "حدث خطأ" })
+      }
+    } catch {
+      setSaveMsg({ ok: false, text: "تعذّر الاتصال" })
+    } finally {
+      setSaving(false)
+      setTimeout(() => setSaveMsg(null), 3000)
+    }
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarUploading(true)
+    const fd = new FormData()
+    fd.append("file", file)
+    try {
+      const res = await fetch("/api/account/avatar", { method: "POST", body: fd })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        setCustomer(prev => prev ? { ...prev, avatar_url: data.url } : prev)
+        setSaveMsg({ ok: true, text: "تم رفع الصورة ✓" })
+      } else {
+        setSaveMsg({ ok: false, text: data.error || "فشل رفع الصورة" })
+      }
+    } catch {
+      setSaveMsg({ ok: false, text: "تعذّر الاتصال" })
+    } finally {
+      setAvatarUploading(false)
+      setTimeout(() => setSaveMsg(null), 3000)
+    }
+  }
+
   if (isPending) return null
 
+  const avatarSrc = customer?.avatar_url || null
   const initials = (session?.user?.name || "U").charAt(0).toUpperCase()
   const totalSpent = orders.reduce((s, o) => s + Number(o.total), 0)
 
@@ -117,14 +199,45 @@ export default function ProfilePage() {
           {/* Hero Card */}
           <div className="card" style={{ marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
-                background: "linear-gradient(135deg,#C9A84C,#F0D882)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 26, fontWeight: 900, color: "#0A0806",
-                fontFamily: "Tajawal,sans-serif",
-                boxShadow: "0 0 0 3px rgba(201,168,76,0.2)",
-              }}>{initials}</div>
+              <div
+                style={{ position: "relative", flexShrink: 0, cursor: "pointer" }}
+                onClick={() => fileInputRef.current?.click()}
+                title="اضغط لتغيير الصورة"
+              >
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt="صورتك" style={{
+                    width: 64, height: 64, borderRadius: "50%", objectFit: "cover",
+                    boxShadow: "0 0 0 3px rgba(201,168,76,0.3)",
+                    border: "2px solid #C9A84C",
+                  }} />
+                ) : (
+                  <div style={{
+                    width: 64, height: 64, borderRadius: "50%",
+                    background: "linear-gradient(135deg,#C9A84C,#F0D882)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 26, fontWeight: 900, color: "#0A0806",
+                    fontFamily: "Tajawal,sans-serif",
+                    boxShadow: "0 0 0 3px rgba(201,168,76,0.2)",
+                  }}>{initials}</div>
+                )}
+                <div style={{
+                  position: "absolute", bottom: 0, left: 0,
+                  width: 20, height: 20, borderRadius: "50%",
+                  background: avatarUploading ? "#eab308" : "#C9A84C",
+                  border: "2px solid #0A0806",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 10,
+                }}>
+                  {avatarUploading ? "⏳" : "📷"}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  style={{ display: "none" }}
+                  onChange={handleAvatarChange}
+                />
+              </div>
               <div>
                 <div style={{ fontFamily: "Cinzel,serif", fontSize: 9, letterSpacing: "4px", color: "#C9A84C", opacity: 0.6, marginBottom: 4 }}>✦ ACCOUNT ✦</div>
                 <div style={{
@@ -507,31 +620,118 @@ export default function ProfilePage() {
 
               {/* PROFILE */}
               {tab === "profile" && (
-                <div className="card">
-                  <h2 style={{ fontFamily: "Tajawal,sans-serif", fontSize: 17, fontWeight: 700, color: "#F5EFE0", margin: "0 0 20px", paddingBottom: 14, borderBottom: "1px solid rgba(201,168,76,0.08)" }}>
-                    بياناتي الشخصية
-                  </h2>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  {/* Info row */}
+                  <div className="card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingBottom: 14, borderBottom: "1px solid rgba(201,168,76,0.08)" }}>
+                      <h2 style={{ fontFamily: "Tajawal,sans-serif", fontSize: 17, fontWeight: 700, color: "#F5EFE0", margin: 0 }}>معلومات الحساب</h2>
+                      <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 11, padding: "3px 10px", borderRadius: 20, background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontWeight: 700 }}>👑 عضو ShahY</span>
+                    </div>
                     {([
-                      { label: "الاسم", value: session?.user?.name || "—" },
                       { label: "البريد الإلكتروني", value: session?.user?.email || "—", ltr: true },
                       {
                         label: "تاريخ التسجيل",
-                        value: (session?.user as unknown as { createdAt?: string | Date })?.createdAt
-                          ? new Date((session?.user as unknown as { createdAt: string | Date }).createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })
+                        value: customer?.created_at
+                          ? new Date(customer.created_at).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })
                           : "—",
                       },
-                      { label: "رتبة العضوية", value: "عضو ShahY" },
                     ] as { label: string; value: string; ltr?: boolean }[]).map(row => (
-                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                         <span style={{ fontFamily: "Tajawal,sans-serif", fontSize: 13, color: "#F5EFE0", opacity: 0.45 }}>{row.label}</span>
                         <span style={{ fontFamily: row.ltr ? "monospace" : "Tajawal,sans-serif", fontSize: 14, fontWeight: 700, color: "#F5EFE0", direction: row.ltr ? "ltr" : "rtl" }}>{row.value}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 24, padding: "14px 18px", borderRadius: 10, background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.1)" }}>
+
+                  {/* Edit form */}
+                  <div className="card">
+                    <h3 style={{ fontFamily: "Tajawal,sans-serif", fontSize: 15, fontWeight: 700, color: "#F5EFE0", margin: "0 0 18px", paddingBottom: 14, borderBottom: "1px solid rgba(201,168,76,0.08)" }}>
+                      تعديل البيانات الشخصية
+                    </h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {[
+                        { label: "الاسم الكامل", value: editName, setter: setEditName, placeholder: "اسمك الكامل", icon: "👤" },
+                        { label: "رقم الهاتف", value: editPhone, setter: setEditPhone, placeholder: "01xxxxxxxxx", icon: "📱", ltr: true },
+                      ].map(field => (
+                        <div key={field.label}>
+                          <label style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#F5EFE0", opacity: 0.5, marginBottom: 6, display: "block" }}>
+                            {field.icon} {field.label}
+                          </label>
+                          <input
+                            value={field.value}
+                            onChange={e => field.setter(e.target.value)}
+                            placeholder={field.placeholder}
+                            dir={field.ltr ? "ltr" : "rtl"}
+                            style={{
+                              width: "100%", padding: "11px 14px", borderRadius: 10,
+                              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(201,168,76,0.15)",
+                              color: "#F5EFE0", fontFamily: "Tajawal,sans-serif", fontSize: 14,
+                              outline: "none", boxSizing: "border-box",
+                            }}
+                          />
+                        </div>
+                      ))}
+
+                      <div style={{ height: 1, background: "rgba(201,168,76,0.08)", margin: "4px 0" }} />
+                      <p style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#C9A84C", margin: 0, opacity: 0.7 }}>
+                        🔗 روابط السوشيال ميديا (اختياري)
+                      </p>
+
+                      {[
+                        { label: "Instagram", value: editInstagram, setter: setEditInstagram, placeholder: "https://instagram.com/username", icon: "📸" },
+                        { label: "Facebook", value: editFacebook, setter: setEditFacebook, placeholder: "https://facebook.com/username", icon: "👤" },
+                        { label: "TikTok", value: editTiktok, setter: setEditTiktok, placeholder: "https://tiktok.com/@username", icon: "🎵" },
+                      ].map(field => (
+                        <div key={field.label}>
+                          <label style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#F5EFE0", opacity: 0.45, marginBottom: 6, display: "block" }}>
+                            {field.icon} {field.label}
+                          </label>
+                          <input
+                            value={field.value}
+                            onChange={e => field.setter(e.target.value)}
+                            placeholder={field.placeholder}
+                            dir="ltr"
+                            style={{
+                              width: "100%", padding: "10px 14px", borderRadius: 10,
+                              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(201,168,76,0.1)",
+                              color: "#F5EFE0", fontFamily: "monospace", fontSize: 13,
+                              outline: "none", boxSizing: "border-box",
+                            }}
+                          />
+                        </div>
+                      ))}
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 6 }}>
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={saving}
+                          style={{
+                            flex: 1, padding: "12px 0", borderRadius: 10,
+                            background: saving ? "rgba(201,168,76,0.3)" : "linear-gradient(135deg,#C9A84C,#F0D882)",
+                            border: "none", color: "#0A0806",
+                            fontFamily: "Tajawal,sans-serif", fontSize: 15, fontWeight: 900,
+                            cursor: saving ? "not-allowed" : "pointer",
+                            transition: "opacity 0.2s",
+                          }}
+                        >
+                          {saving ? "جاري الحفظ..." : "حفظ التعديلات"}
+                        </button>
+                        {saveMsg && (
+                          <span style={{
+                            fontFamily: "Tajawal,sans-serif", fontSize: 13, fontWeight: 700,
+                            color: saveMsg.ok ? "#22c55e" : "#ef4444",
+                          }}>
+                            {saveMsg.text}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Avatar upload hint */}
+                  <div style={{ padding: "13px 18px", borderRadius: 10, background: "rgba(201,168,76,0.04)", border: "1px solid rgba(201,168,76,0.1)", textAlign: "center" }}>
                     <p style={{ fontFamily: "Tajawal,sans-serif", fontSize: 12, color: "#F5EFE0", opacity: 0.4, margin: 0, lineHeight: 1.7 }}>
-                      لتغيير بياناتك أو كلمة المرور، تواصل معنا عبر واتساب وسنساعدك فوراً.
+                      📷 لتغيير صورة الحساب — اضغط على الصورة في أعلى الصفحة
                     </p>
                   </div>
                 </div>
