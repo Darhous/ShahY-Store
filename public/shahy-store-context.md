@@ -356,9 +356,11 @@ Managed by Better Auth. Admin credentials stored securely. Each admin has: id, n
 | Admins | `/admin/admins` | Admin user management |
 | Settings | `/admin/settings` | Store-wide settings (WhatsApp, announcement, flash, hero words) |
 | Guide | `/admin/guide` | Interactive admin guide |
-| Guide PDF | `/admin/guide/print` | Printable PDF version of the guide |
+| Guide PDF | `/admin/guide/print` | Printable PDF (12 sections + ads guide) |
+| **Handover** | `/admin/guide/handover` | **Ownership transfer PDF** for site owner |
+| Orders CSV | `/api/admin/orders/export` | Downloads all orders as CSV (admin-gated) |
 
-**Admin access from storefront**: There is a hidden padlock icon (🔒) in the header nav with opacity 5%. It becomes slightly visible (30%) on hover. Click it to go to `/admin/login`.
+**Admin access from storefront**: The `⚙ الأدمن` button appears in the header nav ONLY when the logged-in user is in the `admins` table (checked via `/api/check-admin`). It is session-aware and invisible to non-admins.
 
 ---
 
@@ -392,11 +394,16 @@ Managed by Better Auth. Admin credentials stored securely. Each admin has: id, n
 - Flash section settings (on/off, title, end date) editable in `/admin/flash-deals` settings panel OR `/admin/settings`
 - The countdown timer runs based on `flash_deals_ends_at` setting
 
-### Customer Accounts
-- Customers can register at `/signup` and sign in at `/signup`
-- Account is linked to orders via `customers.phone` — the phone used when ordering must match the registered phone
-- `/account/orders` shows orders where `orders.phone = customers.phone` (looked up via `auth_user_id`)
-- Customer accounts are separate from admin accounts — admin login is at `/admin/login`
+### Customer Accounts & Dashboard
+- Customers register at `/signup`, sign in at `/signin` (unified — also redirects admins to `/admin/dashboard`)
+- **World-class account dashboard** at `/account/profile`: 5 tabs — نظرة عامة / طلباتي / الكوبونات / الإشعارات / بياناتي
+- Orders tab shows 4-step timeline tracker (pending → confirmed → shipped → delivered)
+- Coupons tab shows valid/used/expired codes with copy-to-clipboard
+- Notifications tab shows new products added in the last 30 days
+- **Checkout pre-fill**: if logged in, name and phone auto-filled from session + customer record
+- **Order linking**: checkout sends `customer_id` so orders are linked to customer UUID (not just phone match)
+- Account linked to orders: `/api/account/me` returns customer record; orders fetched by `orders.phone = customer.phone`
+- Customer accounts are separate from admin accounts
 
 ### Coupons
 - Discount is applied client-side at cart calculation
@@ -498,7 +505,10 @@ src/
 │       ├── store-config/route.ts
 │       ├── announcement/route.ts
 │       ├── account/
-│       │   └── orders/route.ts       ← Customer orders (session-gated)
+│       │   ├── orders/route.ts       ← Customer orders (session-gated)
+│       │   ├── me/route.ts           ← Customer profile (id, name, phone)
+│       │   ├── notifications/route.ts ← New products last 30 days
+│       │   └── coupons/route.ts      ← All coupons + user usage status
 │       └── admin/
 │           ├── products/route.ts
 │           ├── products/[id]/route.ts
@@ -519,7 +529,8 @@ src/
 │           ├── customers/route.ts          ← New: GET customers list
 │           ├── upload/route.ts
 │           ├── admins/route.ts
-│           └── admins/[id]/route.ts
+│           ├── admins/[id]/route.ts
+│           └── orders/export/route.ts  ← CSV download (admin-gated)
 │
 ├── components/
 │   ├── store/
@@ -532,6 +543,7 @@ src/
 │   └── admin/
 │       ├── RevenueChart.tsx
 │       ├── SettingsForm.tsx
+│       ├── ExportCSVButton.tsx  ← "تصدير CSV" button in admin orders
 │       └── ...
 │
 ├── contexts/
@@ -577,6 +589,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 BETTER_AUTH_SECRET=[random 32+ char string]
 NEXT_PUBLIC_WHATSAPP_NUMBER=+201015835455
 NEXT_PUBLIC_APP_URL=https://shah-y-store.vercel.app
+# Optional — add to enable Google Analytics:
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
 
 ---

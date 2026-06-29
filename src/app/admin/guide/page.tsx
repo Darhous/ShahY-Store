@@ -623,6 +623,25 @@ export default function AdminGuidePage() {
           </svg>
           ملف السياق للـ AI
         </a>
+        <a
+          href="/admin/guide/handover"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="guide-dl-btn"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 7,
+            padding: "8px 18px", borderRadius: 8, textDecoration: "none",
+            background: "rgba(123,28,46,0.15)",
+            border: "1px solid rgba(123,28,46,0.4)",
+            color: "#E8756A", fontFamily: "Tajawal,sans-serif",
+            fontSize: 13, fontWeight: 600,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          وثيقة نقل الملكية
+        </a>
       </div>
 
       {/* ── Header ─────────────────────────────────────────── */}

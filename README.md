@@ -35,7 +35,7 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 
 ## Features
 
-### Store Front (Phase 1–3 Complete)
+### Store Front (Phase 1–4 Complete)
 
 - **Luxury homepage** — 4.5s animated loader, dynamic rotating hero words, gold/burgundy background lines
 - **Trust strip** — 4 cards: fast shipping, cash on delivery, returns, curated quality
@@ -55,13 +55,15 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 - **FAQ `/faq`** — 8 common questions with luxury design + WhatsApp link
 - **User Guide `/guide`** — 15 detailed sections with screen mockups, PDF-printable
 
-### Customer Account
+### Customer Account (Phase 4)
 
 | Page | Path | Description |
 |------|------|-------------|
 | Sign In | `/signin` | Unified login — auto-redirects admins to dashboard, customers to account |
 | Sign Up | `/signup` | Registration with Better Auth |
-| Account | `/account` | Profile, order history |
+| Dashboard | `/account/profile` | **World-class dashboard**: 5 tabs (overview, orders, coupons, notifications, profile) |
+| Orders | `/account/orders` | Full order history with 4-step timeline tracker |
+| Checkout | `/checkout` | Auto pre-fills name & phone from session; sends `customer_id` with order |
 
 ### Admin Panel (`/admin/*`)
 
@@ -70,7 +72,7 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 | Dashboard | `/admin/dashboard` | Revenue, orders, products stats |
 | Products | `/admin/products` | Add / edit / delete / upload images |
 | Product Variants | (within products) | Sizes, colors, stock, independent pricing |
-| Orders | `/admin/orders` | View and update status |
+| Orders | `/admin/orders` | View, update status, **export CSV** |
 | Customers & Members | `/admin/customers` | ALL auth users with role management (promote/demote admin) |
 | Admins | `/admin/admins` | Admin list |
 | Banners | `/admin/banners` | Upload, activate, sort, delete |
@@ -79,6 +81,8 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 | Shipping | `/admin/shipping` | Shipping zones |
 | Reviews | `/admin/reviews` | Moderate customer reviews |
 | Settings | `/admin/settings` | Store name, WhatsApp, social links, hero words, announcement bar, flash deals |
+| Guide & PDF | `/admin/guide/print` | Full admin guide PDF (12 sections + ads guide) |
+| **Handover Doc** | `/admin/guide/handover` | **Ownership transfer document** — printable PDF for site owner |
 
 > **Admin Login:** Go to `/signin` and log in with your admin credentials — you will be automatically redirected to the dashboard.
 
@@ -99,13 +103,20 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 ```env
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_WHATSAPP_NUMBER=+201015835455
 
 # Database (Supabase)
 DATABASE_URL=postgresql://...
+DIRECT_URL=postgresql://...
+NEXT_PUBLIC_SUPABASE_URL=https://[project].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
 # Better Auth
 BETTER_AUTH_SECRET=your_secret_here
 BETTER_AUTH_URL=http://localhost:3000
+
+# Optional: Google Analytics
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
 
 > **Important:** Never commit secrets to Git. Use `.env.local` locally and Vercel Environment Variables in production.
