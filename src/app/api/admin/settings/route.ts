@@ -3,6 +3,13 @@ import { db } from "@/lib/db/drizzle/connection";
 import { settings } from "@/lib/db/drizzle/schema";
 import { getSessionFromRequest } from "@/lib/auth/middleware";
 
+export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const all = await db.select().from(settings);
+  return NextResponse.json(all);
+}
+
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

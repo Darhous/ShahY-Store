@@ -17,8 +17,6 @@ function slugify(text: string) {
     .replace(/[^\w؀-ۿ-]/g, "")
 }
 
-export const dynamic = "force-dynamic"
-
 export default function CategoriesPage() {
   const [cats, setCats] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)

@@ -20,8 +20,6 @@ interface FlashSettings {
   flash_deals_ends_at: string
 }
 
-export const dynamic = "force-dynamic"
-
 export default function FlashDealsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,7 +74,13 @@ export default function FlashDealsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          settings: [
+            { key: "flash_deals_active", value: body.flash_deals_active },
+            { key: "flash_deals_title_ar", value: body.flash_deals_title_ar },
+            { key: "flash_deals_ends_at", value: body.flash_deals_ends_at },
+          ],
+        }),
       })
       if (res.ok) { toast.success("تم حفظ إعدادات الفلاش"); setSettings({ ...settings, ...body }) }
       else toast.error("حدث خطأ")
