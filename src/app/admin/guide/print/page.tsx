@@ -711,7 +711,7 @@ export default function AdminGuidePrintPage() {
             <div style={{ display: "flex", gap: 24, fontSize: 12, color: "#999" }}>
               <span>📅 يونيو 2026</span>
               <span>·</span>
-              <span>11 قسم</span>
+              <span>12 قسم</span>
               <span>·</span>
               <span>الإصدار 1.0</span>
             </div>
@@ -807,6 +807,173 @@ export default function AdminGuidePrintPage() {
             </div>
           </div>
         ))}
+
+        {/* ── Ads Guide ────────────────────────────────────────────────── */}
+        <div className="section-paper">
+          <div className="section-header">
+            <span className="section-num">12</span>
+            <div className="section-icon-wrap">📣</div>
+            <div>
+              <div className="section-heading">دليل الإعلانات المدفوعة</div>
+              <div className="section-subheading">Google Ads · Meta Ads · TikTok Ads — مخصص لشاهي ستور</div>
+            </div>
+            <span className="section-url">دليل مرجعي</span>
+          </div>
+
+          <div className="section-body">
+            <div>
+              <div className="col-label">المنصات الثلاث</div>
+
+              {/* Google Ads */}
+              <div style={{ marginBottom: 16, border: "1px solid #e8f0fe", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ background: "#e8f0fe", padding: "9px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #d2e3fc" }}>
+                  <span style={{ fontSize: 14 }}>🔍</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#1a73e8" }}>Google Ads</span>
+                  <span style={{ fontSize: 10, color: "#5f6368", marginRight: "auto" }}>ميزانية مقترحة: 100–200 ج.م / يوم</span>
+                </div>
+                <div style={{ padding: "12px 14px", background: "white", fontSize: 11, lineHeight: 1.9, color: "#333" }}>
+                  <div style={{ fontWeight: 700, marginBottom: 6, color: "#1a73e8" }}>الكلمات المفتاحية الموصى بها:</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
+                    {["شنط مستوردة", "شنط فاخرة", "شنط هاي كوبي", "شنط ميرور", "محافظ نسائية فاخرة", "شنط شانيل مصر", "شوزات فاخرة", "إكسسوارات فاخرة"].map(k => (
+                      <span key={k} style={{ background: "#e8f0fe", color: "#1a73e8", padding: "2px 8px", borderRadius: 4, fontSize: 10, border: "1px solid #d2e3fc" }}>{k}</span>
+                    ))}
+                  </div>
+                  <div style={{ fontWeight: 700, marginBottom: 4, color: "#555" }}>خطوات الإعداد:</div>
+                  <ol style={{ margin: 0, paddingRight: 16, color: "#555" }}>
+                    <li>افتحي حساب Google Ads على ads.google.com</li>
+                    <li>اختاري «حملة بحث» — الهدف: المبيعات أو الزيارات</li>
+                    <li>الاستهداف: مصر · نساء · 20–45 سنة</li>
+                    <li>اكتبي إعلاناتك بالعربي مع ذكر «شاهي ستور» والسعر</li>
+                    <li>حوّلي الرابط لصفحة المنتج المستهدف مباشرةً لا الهوم</li>
+                    <li>راقبي معدل النقر CTR وكلفة التحويل يومياً</li>
+                  </ol>
+                </div>
+              </div>
+
+              {/* Meta Ads */}
+              <div style={{ marginBottom: 16, border: "1px solid #e7d7f5", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ background: "#e7d7f5", padding: "9px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #d5b8f0" }}>
+                  <span style={{ fontSize: 14 }}>📘</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6E3FC1" }}>Meta Ads — Facebook &amp; Instagram</span>
+                  <span style={{ fontSize: 10, color: "#5f6368", marginRight: "auto" }}>ميزانية مقترحة: 150–300 ج.م / يوم</span>
+                </div>
+                <div style={{ padding: "12px 14px", background: "white", fontSize: 11, lineHeight: 1.9, color: "#333" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: 6, color: "#6E3FC1" }}>الجمهور المستهدف:</div>
+                      <ul style={{ margin: 0, paddingRight: 14, color: "#555" }}>
+                        <li>نساء · 18–40 سنة · مصر</li>
+                        <li>اهتمامات: موضة، فاشون، تسوق، ماركات</li>
+                        <li>سلوك: مشترو المنتجات الفاخرة عبر الإنترنت</li>
+                        <li>Lookalike من زوار موقعك (بعد 1000 زيارة)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: 6, color: "#6E3FC1" }}>أفضل فورمات الإعلانات:</div>
+                      <ul style={{ margin: 0, paddingRight: 14, color: "#555" }}>
+                        <li>Carousel — 3–5 منتجات في إعلان واحد</li>
+                        <li>Reels — فيديو 15 ثانية للمنتج</li>
+                        <li>Story — صورة بسيطة + سعر + CTA</li>
+                        <li>Catalog — ربط مباشر بالمنتجات</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 10, background: "#f8f4ff", borderRadius: 6, padding: "8px 12px", fontSize: 10, color: "#555", border: "1px solid #d5b8f0" }}>
+                    ⚠️ مهم: أضيفي Meta Pixel على الموقع (من Events Manager) لتتبع الطلبات وقياس التحويلات بدقة.
+                  </div>
+                </div>
+              </div>
+
+              {/* TikTok Ads */}
+              <div style={{ border: "1px solid #ffe0e8", borderRadius: 10, overflow: "hidden" }}>
+                <div style={{ background: "#ffe0e8", padding: "9px 14px", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid #ffc2d1" }}>
+                  <span style={{ fontSize: 14 }}>🎵</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#ff0050" }}>TikTok Ads</span>
+                  <span style={{ fontSize: 10, color: "#5f6368", marginRight: "auto" }}>ميزانية مقترحة: 50–150 ج.م / يوم</span>
+                </div>
+                <div style={{ padding: "12px 14px", background: "white", fontSize: 11, lineHeight: 1.9, color: "#333" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: 6, color: "#ff0050" }}>نوع المحتوى الأفضل:</div>
+                      <ul style={{ margin: 0, paddingRight: 14, color: "#555" }}>
+                        <li>فيديو Unboxing 15–30 ثانية</li>
+                        <li>عرض المنتج من زوايا متعددة</li>
+                        <li>«كنت بدور على شنطة فاخرة وأسعار معقولة...»</li>
+                        <li>ريف للإعلان من مؤثرات موضة مصريات</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: 6, color: "#ff0050" }}>إعداد الحملة:</div>
+                      <ul style={{ margin: 0, paddingRight: 14, color: "#555" }}>
+                        <li>ads.tiktok.com ← حساب Business</li>
+                        <li>In-Feed Ads: تظهر في الفيد الطبيعي</li>
+                        <li>الاستهداف: مصر · إناث · 18–38</li>
+                        <li>الهدف: حركة مرور للموقع أو تحويلات</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="col-label">نصائح وأمثلة</div>
+
+              {/* Ad copy examples */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 8 }}>نماذج نصوص إعلانية جاهزة:</div>
+                {[
+                  { platform: "Google", text: "شنط فاخرة مستوردة | أسعار لا تصدق | توصيل لكل مصر | شاهي ستور", note: "عنوان الإعلان" },
+                  { platform: "Meta", text: "✨ تشكيلة شانيل ولويس فيتون الجديدة وصلت!\nجودة ميرور بأسعار معقولة\nاطلبي الآن وادفعي عند الاستلام 📦", note: "نص البوست" },
+                  { platform: "TikTok", text: "فاجئتكم بأحسن شنطة في القاهرة🤫 #شاهي_ستور #شنط_فاخرة #هاي_كوبي", note: "وصف الفيديو + هاشتاقات" },
+                ].map(({ platform, text, note }) => (
+                  <div key={platform} style={{ marginBottom: 8, border: "1px solid #eee", borderRadius: 8, overflow: "hidden" }}>
+                    <div style={{ background: "#f5f5f5", padding: "4px 10px", fontSize: 9, color: "#888", fontWeight: 700 }}>{platform} · {note}</div>
+                    <div style={{ padding: "8px 10px", fontSize: 10, color: "#333", lineHeight: 1.7, direction: "rtl", whiteSpace: "pre-wrap" }}>{text}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Budget plan */}
+              <div style={{ background: "#fffbf0", border: "1px solid #C9A84C30", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#C9A84C", marginBottom: 8 }}>💰 خطة ميزانية مقترحة (شهرياً)</div>
+                {[
+                  ["Google Ads (Search)", "3,000 – 6,000 ج.م"],
+                  ["Meta Ads (Facebook + Instagram)", "4,500 – 9,000 ج.م"],
+                  ["TikTok Ads", "1,500 – 4,500 ج.م"],
+                  ["إجمالي التسويق المدفوع", "9,000 – 19,500 ج.م"],
+                ].map(([label, val], i) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: i < 3 ? "1px solid #f0e8d0" : "none", fontSize: 10 }}>
+                    <span style={{ color: "#555" }}>{label}</span>
+                    <span style={{ fontWeight: 700, color: i === 3 ? "#C9A84C" : "#333" }}>{val}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 8, fontSize: 9, color: "#999", lineHeight: 1.6 }}>
+                  * ابدأي بالحد الأدنى أسبوعين لاختبار ما يشتغل، ثم زيدي الميزانية على الإعلانات الفائزة.
+                </div>
+              </div>
+
+              {/* Tips */}
+              <div className="tips-box" style={{ marginTop: 12 }}>
+                <div className="tips-label">💡 نصائح مهمة</div>
+                {[
+                  "دايماً روّحي لصفحة المنتج مباشرةً، مش الهوم بيج — هيزيد معدل التحويل",
+                  "صوّري المنتجات على خلفية بيضاء نظيفة لإعلانات Google Shopping",
+                  "استخدمي وجه حقيقي في TikTok — المنتج بدون وجه بيأدى أضعف",
+                  "اعملي A/B testing على نصين مختلفين واحتفظي بالأفضل",
+                  "تابعي Cost Per Purchase (CPP) لا Cost Per Click فقط",
+                  "أوقات الذروة: 8م – 12م مصر — ارفعي الميزانية في هذا الوقت",
+                  "أضيفي Retargeting لمن زاروا الموقع ولم يشتروا: ذكّريهم بالمنتج",
+                ].map((tip, i) => (
+                  <div key={i} className="tips-item">
+                    <span style={{ color: "#C9A84C", flexShrink: 0 }}>•</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ── Back cover ───────────────────────────────────────────────── */}
         <div className="paper" style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400 }}>

@@ -16,7 +16,8 @@ export const metadata: Metadata = {
     template: "%s — ShahY Store",
   },
   description: "أرقى الشنط والمحافظ والشوزات النسائية المستوردة — تشكيلات حصرية بأفضل الأسعار",
-  keywords: ["شنط مستوردة", "محافظ فاخرة", "شوزات نسائية", "هاي كوبي", "ميرور", "ShahY Store"],
+  keywords: ["شنط مستوردة", "محافظ فاخرة", "شوزات نسائية", "هاي كوبي", "ميرور", "أورجنال", "شنط شانيل", "شنط لويس فيتون", "شنط ديور", "إكسسوارات فاخرة مصر", "ShahY Store", "شاهي ستور"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   authors: [{ name: "ShahY Store" }],
   openGraph: {
     type: "website",
@@ -50,6 +51,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
           }
         `}} />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} />
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+            `}} />
+          </>
+        )}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://shah-y-store.vercel.app/#org",
+              "name": "ShahY Store",
+              "url": "https://shah-y-store.vercel.app",
+              "logo": "https://shah-y-store.vercel.app/icon-192.png",
+              "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "telephone": "+201015835455", "availableLanguage": "Arabic" }
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://shah-y-store.vercel.app/#website",
+              "url": "https://shah-y-store.vercel.app",
+              "name": "ShahY Store",
+              "publisher": { "@id": "https://shah-y-store.vercel.app/#org" },
+              "potentialAction": { "@type": "SearchAction", "target": "https://shah-y-store.vercel.app/?q={search_term_string}", "query-input": "required name=search_term_string" }
+            }
+          ]
+        })}} />
       </head>
       <body className={GeistSans.className}>
         <CartProvider>

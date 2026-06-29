@@ -3,6 +3,7 @@ import { db } from "@/lib/db/drizzle/connection";
 import { orders } from "@/lib/db/drizzle/schema";
 import { desc } from "drizzle-orm";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import ExportCSVButton from "@/components/admin/ExportCSVButton";
 import Link from "next/link";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -34,11 +35,12 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#F5EFE0]">الطلبات</h1>
-        <p className="text-[#F5EFE0]/40 text-sm mt-1">
-          {allOrders.length} طلب
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#F5EFE0]">الطلبات</h1>
+          <p className="text-[#F5EFE0]/40 text-sm mt-1">{allOrders.length} طلب</p>
+        </div>
+        <ExportCSVButton />
       </div>
 
       <div className="bg-[#0A0806] rounded-xl border border-[#C9A84C]/10 overflow-x-auto">

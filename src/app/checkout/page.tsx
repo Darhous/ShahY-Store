@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useCart } from "@/contexts/CartContext"
+import { useSession } from "@/lib/auth/client"
 import StoreHeader from "@/components/store/StoreHeader"
 import StoreFooter from "@/components/store/StoreFooter"
 import FloatingWA from "@/components/store/FloatingWA"
@@ -14,6 +15,8 @@ interface ShippingZone { id: string; governorate_ar: string; cost: number }
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, total, clearCart } = useCart()
+  const { data: session } = useSession()
+  const [customerId, setCustomerId] = useState<string | null>(null)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [governorate, setGovernorate] = useState("")
@@ -31,6 +34,17 @@ export default function CheckoutPage() {
       setZones(data.map((z: ShippingZone) => ({ ...z, cost: Number(z.cost) })))
     }).catch(() => {}).finally(() => setZonesLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (!session?.user) return
+    fetch("/api/account/me").then(r => r.json()).then(d => {
+      if (d.customer) {
+        setCustomerId(d.customer.id)
+        if (!phone) setPhone(d.customer.phone)
+      }
+      if (!name && session.user.name) setName(session.user.name)
+    }).catch(() => {})
+  }, [session])
 
   const shippingFee = zones.find(z => z.governorate_ar === governorate)?.cost ?? 0
   const discountAmount = appliedDiscount?.discount ?? 0
@@ -63,6 +77,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           customer_name: name,
           phone,
+          customer_id: customerId,
           governorate,
           address,
           notes: notes || null,
