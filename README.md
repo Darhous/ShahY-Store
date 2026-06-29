@@ -2,190 +2,218 @@
 
 > متجر إلكتروني فاخر للإكسسوارات النسائية المستوردة — شنط، محافظ، وشوزات
 
-**الموقع المباشر:** [shah-y-store.vercel.app](https://shah-y-store.vercel.app)
-**دليل الاستخدام:** [shah-y-store.vercel.app/guide](https://shah-y-store.vercel.app/guide)
+**Live URL:** [shah-y-store.vercel.app](https://shah-y-store.vercel.app)  
+**Admin Panel:** [shah-y-store.vercel.app/admin/dashboard](https://shah-y-store.vercel.app/admin/dashboard)  
+**User Guide:** [shah-y-store.vercel.app/guide](https://shah-y-store.vercel.app/guide)
 
 ---
 
-## نبذة عن المتجر
+## Overview / نبذة
 
-ShahY Store متجر مصري فاخر متخصص في بيع الإكسسوارات النسائية المستوردة عبر الإنترنت. يجمع بين هوية بصرية راقية (ذهبي × برجندي × أسود) وتجربة تسوق سلسة تعتمد على WhatsApp للطلبات.
+ShahY Store is a luxury Egyptian e-commerce store for imported women's accessories (bags, wallets, shoes). It combines an elegant visual identity (Gold × Burgundy × Black) with a smooth shopping experience powered by WhatsApp for order fulfilment.
 
-- **صاحبة المتجر:** شاهندة سليمان — [@shah.ystore](https://www.instagram.com/shah.ystore/) — +201015835455
-- **تصميم وتطوير:** أحمد درهوس — [@darhous](https://www.instagram.com/darhous/) — +201030002331
-
----
-
-## مميزات المتجر
-
-### 🏪 واجهة المتجر
-- **صفحة رئيسية فاخرة** — شاشة تحميل متحركة (4.5 ثانية)، كلمات دوارة ديناميكية، خلفية بخطوط ذهبية وبرجندي
-- **شريط الثقة** — 4 كاردات: شحن سريع، دفع عند الاستلام، استبدال واسترجاع، جودة مختارة
-- **شريط التصنيفات** — pills تفاعلية للانتقال السريع بين الفئات
-- **عروض الفلاش ⚡** — عداد تنازلي ديناميكي، شارات خصم، تفعيل/إيقاف من الإعدادات
-- **شبكة منتجات** مع فلترة مستقلة للتصنيف والجودة والسعر، وشارات خصم تلقائية
-- **زر قائمة الأمنيات** على كل كارت منتج مع تأثير القلب
-- **بحث فوري** مع Debounce، نتائج بالصور، بحث مؤخراً، وأكثر البحثات شيوعاً
-- **درج السلة** — يفتح تلقائياً عند الإضافة، عرض المنتجات وتعديل الكميات
-- **آراء العملاء** — عرض التقييمات المميزة على الصفحة الرئيسية
-- **صفحة المنتج** — معرض صور بأسهم ومؤشرات، تنقل بالكيبورد، مشاركة المنتج، كاردات الثقة
-- **سلة الشراء** — localStorage، تعديل الكميات، شريط تأكيد ثابت في الموبايل
-- **قائمة الأمنيات** — حفظ محلي، عداد في الهيدر، صفحة مستقلة
-- **المشاهدة مؤخراً** — آخر 8 منتجات، شريط أفقي أسفل صفحة المنتج
-
-### 🏷️ صفحات خاصة
-- **صفحة العروض `/sale`** — تلقائية، مرتبة حسب نسبة الخصم
-- **تتبع الطلبات `/track`** — 4 مراحل مرئية، بحث برقم الطلب
-- **قائمة الأمنيات `/wishlist`** — إدارة المفضلة
-- **الأسئلة الشائعة `/faq`** — 8 أسئلة شائعة مع تصميم فاخر ورابط واتساب
-- **دليل الاستخدام `/guide`** — 15 قسماً تفصيلياً بمحاكاة الشاشات، قابل للطباعة PDF
-
-### ⚙️ لوحة الإدارة
-- **حماية كاملة** بـ Better Auth مع صلاحية الأدمن
-- **إدارة المنتجات** — إضافة / تعديل / حذف / رفع الصور
-- **متغيّرات المنتج** — مقاسات وألوان مع ستوك وسعر مستقل لكل متغيّر
-- **إدارة الطلبات** — عرض وتحديث الحالة
-- **البانرات الإعلانية** — رفع، تفعيل، ترتيب، حذف
-- **عروض الفلاش ⚡** — عنوان وعداد تنازلي مع تشغيل/إيقاف من الإعدادات
-- **إعدادات المتجر** — اسم المتجر، واتساب، سوشيال، كلمات الهيرو، إعلان علوي
-- **التصنيفات / الخصومات / الشحن / المراجعات / الأدمنز**
-- **لوحة إحصاءات** — إيرادات، طلبات، منتجات
-
-### 📱 تقني
-- **PWA** — قابل للتثبيت على الهاتف مع اختصارات للعروض وتتبع الطلبات
-- **SEO** — Meta tags + Open Graph + Twitter Cards
-- **OG Image** تلقائية 1200×630 بهوية المتجر (Edge Runtime)
-- **WhatsApp مجاني** — wa.me deep links، بدون WhatsApp Business API
+- **Store Owner:** شاهندة سليمان — [@shah.ystore](https://www.instagram.com/shah.ystore/) — +201015835455
+- **Design & Development:** أحمد درهوس — [@darhous](https://www.instagram.com/darhous/) — +201030002331
 
 ---
 
-## التقنيات المستخدمة (Stack)
+## Stack
 
-| التقنية | الدور |
-|---------|-------|
-| **Next.js 16** | App Router، Server + Client Components |
-| **TypeScript** | كود مضمون النوع بالكامل |
-| **Drizzle ORM** | قواعد البيانات (type-safe) |
-| **Supabase PostgreSQL** | قاعدة البيانات |
-| **Better Auth** | المصادقة وإدارة الجلسات |
-| **Vercel** | نشر تلقائي وبيئة الإنتاج |
-| **Tailwind CSS** | التصميم في لوحة الإدارة |
-| **next/og** | صور OG ديناميكية (Edge) |
+| Technology | Role |
+|-----------|------|
+| **Next.js 16** | App Router — Server + Client Components |
+| **TypeScript** | Fully type-safe codebase |
+| **Drizzle ORM** | Type-safe database queries |
+| **Supabase PostgreSQL** | Database (with RLS enabled) |
+| **Better Auth** | Authentication & session management |
+| **Vercel** | Hosting & automatic deployments |
+| **Tailwind CSS** | Admin panel styling |
+| **next/og** | Dynamic OG images (Edge Runtime) |
 | **PWA** | manifest.json + Service Worker |
 
 ---
 
-## الهوية البصرية
+## Features
 
-| العنصر | القيمة |
-|--------|--------|
-| الذهبي الرئيسي | `#C9A84C` |
-| البرجندي | `#7B1C2E` |
-| الخلفية الداكنة | `#0A0806` |
-| العاجي | `#F5EFE0` |
-| الذهبي الفاتح | `#F0D882` |
-| الخطوط | Tajawal · Playfair Display · Cinzel · Cormorant Garamond |
+### Store Front (Phase 1–3 Complete)
+
+- **Luxury homepage** — 4.5s animated loader, dynamic rotating hero words, gold/burgundy background lines
+- **Trust strip** — 4 cards: fast shipping, cash on delivery, returns, curated quality
+- **Categories strip** — interactive pills for quick category navigation
+- **Flash Deals** — dynamic countdown timer, discount badges, enable/disable from settings
+- **Product grid** — independent filter by category, quality tier, price; automatic discount badges
+- **Wishlist heart** on every product card with heart animation
+- **Instant search** — debounced, with results + thumbnails, recent searches, trending searches
+- **Cart drawer** — auto-opens on add, shows products + quantity editor
+- **Customer reviews** — featured ratings on homepage
+- **Product page** — image gallery with arrows + indicators, keyboard navigation, share button, trust cards
+- **Cart page** — localStorage, quantity editing, sticky mobile confirm bar
+- **Wishlist page** — local storage, counter in header
+- **Recently viewed** — last 8 products, horizontal strip below product page
+- **Sale page `/sale`** — automatic, sorted by discount percentage
+- **Order tracking `/track`** — 4 visual stages, search by order number
+- **FAQ `/faq`** — 8 common questions with luxury design + WhatsApp link
+- **User Guide `/guide`** — 15 detailed sections with screen mockups, PDF-printable
+
+### Customer Account
+
+| Page | Path | Description |
+|------|------|-------------|
+| Sign In | `/signin` | Unified login — auto-redirects admins to dashboard, customers to account |
+| Sign Up | `/signup` | Registration with Better Auth |
+| Account | `/account` | Profile, order history |
+
+### Admin Panel (`/admin/*`)
+
+| Page | Path | Description |
+|------|------|-------------|
+| Dashboard | `/admin/dashboard` | Revenue, orders, products stats |
+| Products | `/admin/products` | Add / edit / delete / upload images |
+| Product Variants | (within products) | Sizes, colors, stock, independent pricing |
+| Orders | `/admin/orders` | View and update status |
+| Customers & Members | `/admin/customers` | ALL auth users with role management (promote/demote admin) |
+| Admins | `/admin/admins` | Admin list |
+| Banners | `/admin/banners` | Upload, activate, sort, delete |
+| Categories | `/admin/categories` | Category management |
+| Discounts | `/admin/discounts` | Discount codes |
+| Shipping | `/admin/shipping` | Shipping zones |
+| Reviews | `/admin/reviews` | Moderate customer reviews |
+| Settings | `/admin/settings` | Store name, WhatsApp, social links, hero words, announcement bar, flash deals |
+
+> **Admin Login:** Go to `/signin` and log in with your admin credentials — you will be automatically redirected to the dashboard.
 
 ---
 
-## البدء السريع
+## Authentication Architecture
 
-```bash
-# تثبيت الاعتمادات
-npm install
+- **Better Auth** manages all users (stored in `user` table)
+- Admins are tracked in a separate `admins` table (linked by `auth_user_id`)
+- `/api/check-admin` — public endpoint to check if logged-in user is an admin
+- `/api/admin/users` — lists all registered users with admin status
+- `/api/admin/users/[id]/role` — PATCH to promote/demote users to/from admin
 
-# إنشاء ملف البيئة
-cp .env.example .env.local
-# (أضف متغيرات البيئة — انظر أدناه)
+---
 
-# إعداد قاعدة البيانات
-npm run db:push
-
-# تشغيل محلي
-npm run dev
-```
-
-## متغيرات البيئة
+## Environment Variables
 
 ```env
-# التطبيق
+# App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# قاعدة البيانات (Supabase)
+# Database (Supabase)
 DATABASE_URL=postgresql://...
 
 # Better Auth
 BETTER_AUTH_SECRET=your_secret_here
+BETTER_AUTH_URL=http://localhost:3000
 ```
 
-> **مهم:** لا تضع الأسرار أبداً في Git. استخدم `.env.local` محلياً وVercel Environment Variables في الإنتاج.
+> **Important:** Never commit secrets to Git. Use `.env.local` locally and Vercel Environment Variables in production.
 
 ---
 
-## هيكل المشروع
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Create env file
+cp .env.example .env.local
+# (fill in env vars — see above)
+
+# Push schema to database
+npm run db:push
+
+# Run locally
+npm run dev
+```
+
+---
+
+## Project Structure
 
 ```
 src/
   app/
-    (store pages)       ← الصفحات العامة: / , /products, /sale, /track, /wishlist, /faq, /guide
-    admin/              ← لوحة الإدارة بكل صفحاتها
-    api/                ← API Routes (admin + public)
+    (store pages)         ← Public: / , /products, /sale, /track, /wishlist, /faq, /guide, /signin, /signup, /account
+    admin/                ← Admin panel pages (protected)
+    api/
+      check-admin/        ← POST: check if current user is admin
+      admin/users/        ← GET: all users; PATCH [id]/role: promote/demote
+      admin/...           ← Other admin API routes
   components/
-    store/              ← مكونات الواجهة: Header, Footer, HeroSection, ProductGrid...
-    admin/              ← مكونات الإدارة: Forms, Tables, Dashboards
+    store/                ← StoreHeader, StoreFooter, HeroSection, ProductGrid...
+    admin/                ← Admin forms, tables, dashboards
   lib/
-    auth/               ← Better Auth + middleware
-    db/drizzle/         ← Schema + Connection
-  app/opengraph-image.tsx  ← صورة OG تلقائية
+    auth/                 ← Better Auth config + middleware
+    db/drizzle/           ← Schema + connection
+  utils/
+    auth.ts               ← Better Auth server instance
   public/
-    manifest.json       ← PWA manifest
-    sw.js               ← Service Worker
+    manifest.json         ← PWA manifest
+    sw.js                 ← Service Worker
 ```
 
 ---
 
-## الأوامر المهمة
+## Key Commands
 
 ```bash
-npm run dev          # تطوير محلي
-npm run build        # بناء للإنتاج
-npm run typecheck    # فحص الأنواع
-npm run lint         # فحص الكود
-npm run db:push      # مزامنة Schema مع قاعدة البيانات
-npm run db:studio    # واجهة إدارة قاعدة البيانات
+npm run dev          # Local development
+npm run build        # Production build
+npm run typecheck    # TypeScript check
+npm run lint         # Lint
+npm run db:push      # Sync schema to database
+npm run db:studio    # Database GUI
 ```
 
 ---
 
-## قواعد الأمان
+## Visual Identity
 
-- ✅ Supabase عبر API فقط — لا SDK مباشر في الكلاينت
-- ✅ الأسرار في `.env.local` فقط — لا تُكمِّت أبداً
-- ✅ WhatsApp مجاني — wa.me deep links لا WhatsApp Business API
-- ✅ Better Auth مع صلاحية Admin لحماية لوحة الإدارة
-
----
-
----
-
-## ملاحظات الاستقرار (v1.4.0)
-
-- **شاشة التحميل:** 4.5 ثانية مع CSS fallback يُخفيها تلقائياً بعد 7 ثوانٍ حتى لو فشل JavaScript
-- **React Hydration:** `suppressHydrationWarning` على `<html>` يمنع خطأ #418 من إضافات المتصفح — أزرار واتساب داخل كاردات المنتجات محوّلة لـ `<button>` لتجنب تداخل `<a>` داخل `<a>`
-- **ChunkLoadError:** `error.tsx` يُعيد التحميل تلقائياً عند تحديث الموقع مع وجود نسخة قديمة في cache المتصفح
-- **رقم الواتساب:** `+201015835455` — يُجلب ديناميكياً من `/api/store-config`
-- **لوحة الإدارة:** الدخول عبر `/admin/login` فقط — المسار `/admin` يُعيد التوجيه تلقائياً
+| Element | Value |
+|---------|-------|
+| Gold (primary) | `#C9A84C` |
+| Burgundy | `#7B1C2E` |
+| Dark background | `#0A0806` |
+| Ivory | `#F5EFE0` |
+| Light gold | `#F0D882` |
+| Fonts | Tajawal · Playfair Display · Cinzel · Cormorant Garamond |
 
 ---
 
-## سجل الإصدارات
+## Security Notes
 
-| الإصدار | التاريخ | التغييرات |
-|--------|---------|-----------|
-| v1.4.0 | 2026-06-28 | إصلاح Hydration (a داخل a)، إعادة توجيه /admin، تحديث README |
-| v1.3.0 | 2026-06-28 | Phase 3: آراء العملاء، بحث بتلميحات، صفحة FAQ، سلة موبايل، Footer محسّن |
-| v1.2.0 | 2026-06-28 | Phase 2: درج السلة، قسم الثقة، شريط الفئات، قلب الأمنيات |
-| v1.1.0 | 2026-06-28 | Phase 1: إخفاء أدمن، لافتات الجودة، lazy loading، CTA هيرو |
-| v1.0.0 | 2026-06-27 | الإطلاق الأول: متجر كامل + لوحة إدارة + Better Auth |
+- Supabase accessed via API only — no direct client SDK
+- Secrets in `.env.local` only — never committed
+- WhatsApp via free wa.me deep links — no WhatsApp Business API
+- Better Auth with admin role protection on all `/admin/*` routes
+- RLS enabled on all Supabase tables
 
-*© 2025 ShahY Store — Designed & Developed by [Ahmed Darhous](https://www.instagram.com/darhous/)*
+---
+
+## Stability Notes
+
+- **Loading screen:** 4.5s with CSS fallback that hides it after 7s even if JS fails
+- **React Hydration:** `suppressHydrationWarning` on `<html>` prevents error #418 from browser extensions
+- **ChunkLoadError:** `error.tsx` auto-reloads on stale cache
+- **WhatsApp number:** `+201015835455` — fetched dynamically from `/api/store-config`
+- **Admin entry:** `/signin` — logs in and auto-redirects to dashboard if admin
+
+---
+
+## Changelog
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.5.0 | 2026-06-29 | Unified signin (admin + customer auto-redirect), role management UI, remove padlock from header |
+| v1.4.0 | 2026-06-28 | Fix Hydration, /admin redirect, guide PDF, download buttons |
+| v1.3.0 | 2026-06-28 | Phase 3: reviews, search hints, FAQ, mobile cart, footer |
+| v1.2.0 | 2026-06-28 | Phase 2: cart drawer, trust section, categories strip, wishlist heart |
+| v1.1.0 | 2026-06-28 | Phase 1: quality badges, lazy loading, hero CTA |
+| v1.0.0 | 2026-06-27 | Initial launch: full store + admin panel + Better Auth |
+
+---
+
+*© 2026 ShahY Store — Designed & Developed by [Ahmed Darhous](https://www.instagram.com/darhous/)*

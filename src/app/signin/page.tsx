@@ -19,12 +19,18 @@ export default function SignInPage() {
     setError("")
     setLoading(true)
     try {
-      const result = await signIn.email({ email, password, callbackURL: "/account" })
-      if (result.error) { setError("البريد الإلكتروني أو كلمة المرور غير صحيحة"); return }
-      router.push("/account")
+      const result = await signIn.email({ email, password })
+      if (result.error) {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة")
+        setLoading(false)
+        return
+      }
+      // Check if admin
+      const roleRes = await fetch("/api/check-admin")
+      const { isAdmin } = await roleRes.json()
+      router.push(isAdmin ? "/admin/dashboard" : "/account")
     } catch {
       setError("حدث خطأ، حاول مرة أخرى")
-    } finally {
       setLoading(false)
     }
   }
@@ -32,8 +38,7 @@ export default function SignInPage() {
   const inp: React.CSSProperties = {
     width: "100%", background: "#0E0C09", border: "1px solid rgba(201,168,76,0.2)",
     borderRadius: 10, padding: "12px 16px", color: "#F5EFE0",
-    fontFamily: "Tajawal,sans-serif", fontSize: 14, outline: "none",
-    boxSizing: "border-box",
+    fontFamily: "Tajawal,sans-serif", fontSize: 14, outline: "none", boxSizing: "border-box",
   }
 
   return (
@@ -80,6 +85,11 @@ export default function SignInPage() {
               مش عندك حساب؟{" "}
               <Link href="/signup" style={{ color: "#C9A84C", opacity: 1, textDecoration: "none", fontWeight: 700 }}>سجّل الآن</Link>
             </div>
+          </div>
+
+          {/* Subtle admin hint */}
+          <div style={{ marginTop: 16, textAlign: "center", fontFamily: "Tajawal,sans-serif", fontSize: 11, color: "#F5EFE0", opacity: 0.18 }}>
+            للأدمن: ادخل ببيانات الأدمن وهيتحول للوحة التحكم تلقائياً
           </div>
         </div>
       </main>
