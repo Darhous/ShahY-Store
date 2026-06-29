@@ -45,7 +45,8 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 - **Wishlist heart** on every product card with heart animation
 - **Instant search** — debounced, with results + thumbnails, recent searches, trending searches
 - **Cart drawer** — auto-opens on add, shows products + quantity editor
-- **Customer reviews** — featured ratings on homepage
+- **Customer reviews** — featured ratings on homepage + submission form on every product page (pending admin approval)
+- **AI Image Prompt** — downloadable luxury photography prompt for ChatGPT-4o / Gemini / Claude
 - **Product page** — image gallery with arrows + indicators, keyboard navigation, share button, trust cards
 - **Cart page** — localStorage, quantity editing, sticky mobile confirm bar
 - **Wishlist page** — local storage, counter in header
@@ -63,6 +64,8 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 | Sign Up | `/signup` | Registration with Better Auth |
 | Dashboard | `/account/profile` | **World-class dashboard**: 5 tabs (overview, orders, coupons, notifications, profile) |
 | Orders | `/account/orders` | Full order history with 4-step timeline tracker |
+| Profile Editing | `/account/profile` → بياناتي | Edit name, phone, Instagram/Facebook/TikTok URLs |
+| Avatar Upload | `/account/profile` | Click avatar → upload from device → Supabase Storage `avatars` bucket |
 | Checkout | `/checkout` | Auto pre-fills name & phone from session; sends `customer_id` with order |
 
 ### Admin Panel (`/admin/*`)
@@ -75,7 +78,7 @@ ShahY Store is a luxury Egyptian e-commerce store for imported women's accessori
 | Orders | `/admin/orders` | View, update status, **export CSV** |
 | Customers & Members | `/admin/customers` | ALL auth users with role management (promote/demote admin) |
 | Admins | `/admin/admins` | Admin list |
-| Banners | `/admin/banners` | Upload, activate, sort, delete |
+| Banners | `/admin/banners` | **Upload from device** or paste URL, activate, sort, delete |
 | Categories | `/admin/categories` | Category management |
 | Discounts | `/admin/discounts` | Discount codes |
 | Shipping | `/admin/shipping` | Shipping zones |
@@ -110,6 +113,7 @@ DATABASE_URL=postgresql://...
 DIRECT_URL=postgresql://...
 NEXT_PUBLIC_SUPABASE_URL=https://[project].supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...   # server-only — for avatar & banner uploads
 
 # Better Auth
 BETTER_AUTH_SECRET=your_secret_here
@@ -218,6 +222,8 @@ npm run db:studio    # Database GUI
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **v2.1.0** | 2026-06-29 | **Phase 5**: Banner image upload from device, customer review submission form on product pages, profile editing (name/phone/socials), avatar upload, 30 Arabic reviews seeded, ads guide (Google/Meta/TikTok), AI image prompt file, Vercel cleanup (deleted duplicate project, added 4 missing env vars), context.md updated |
+| v2.0.0 | 2026-06-29 | **Phase 4**: World-class customer dashboard (5 tabs), checkout pre-fill, GA4, CSV export, ads guide section 12, handover doc, admin guide PDF updated |
 | v1.5.0 | 2026-06-29 | Unified signin (admin + customer auto-redirect), role management UI, remove padlock from header |
 | v1.4.0 | 2026-06-28 | Fix Hydration, /admin redirect, guide PDF, download buttons |
 | v1.3.0 | 2026-06-28 | Phase 3: reviews, search hints, FAQ, mobile cart, footer |
