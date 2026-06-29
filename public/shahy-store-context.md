@@ -47,12 +47,19 @@ Imported women's luxury accessories from international brands. Categories includ
 | Framework | **Next.js 16** (App Router) | Server + client components |
 | Database | **PostgreSQL** via Supabase | Connection pooler port 6543 |
 | ORM | **Drizzle ORM** | Schema in `src/lib/db/drizzle/schema/` |
-| Auth | **Better Auth** | Admin sessions only |
+| Auth | **Better Auth** | Admin sessions AND customer accounts (emailAndPassword + admin plugin) |
 | Deployment | **Vercel** | Auto-deploy from main branch |
 | Image Storage | **Supabase Storage** | Bucket: `product-images` |
 | Admin UI | **Tailwind CSS** | Standard utility classes |
 | Storefront UI | **Inline styles** | No CSS framework — design system enforced via inline style objects |
 | Fonts | Google Fonts | Tajawal, Cinzel, Playfair Display, Cormorant Garamond |
+
+### Auth Architecture
+- **Admin auth**: Same Better Auth instance. Admins checked against `admins` table.
+- **Customer auth**: Better Auth `emailAndPassword` — customers sign up at `/signup`, sign in at `/signin`.
+- **Auth client**: `src/lib/auth/client.ts` exports `signIn`, `signUp`, `signOut`, `useSession`.
+- **Auth server**: `src/utils/auth.ts` — `auth.api.getSession({ headers })` used in API routes.
+- **Admin middleware**: `src/lib/auth/middleware.ts` → `getSessionFromRequest(req)` used in all admin APIs.
 
 ---
 
@@ -65,6 +72,8 @@ User Browser
 Next.js App on Vercel
     │
     ├── /app/(store)/*       → Public storefront pages
+    ├── /app/signin|signup   → Customer auth pages
+    ├── /app/account/*       → Customer account area (session-gated)
     ├── /app/admin/*         → Protected admin panel (Better Auth)
     └── /app/api/*           → API routes (server-side only)
                 │
@@ -95,7 +104,7 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | `quality_tier` | enum | `hi_copy` / `mirror` / `original` |
 | `price` | numeric | Actual sale price in EGP |
 | `compare_at_price` | numeric (nullable) | Original/old price — shows as struck-through |
-| `is_featured` | boolean | If true + compare_at_price > price → appears in Flash Deals |
+| `is_featured` | boolean | If true + compare_at_price > price + status=active → appears in Flash Deals |
 | `status` | enum | `active` (visible) / `draft` (hidden) / `archived` (out of stock) |
 | `created_at` | timestamp | |
 | `updated_at` | timestamp | |
@@ -121,18 +130,42 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | `alt_ar` | text | Arabic alt text |
 | `sort_order` | integer | 0 = main/primary image shown in card |
 
+### `categories` table
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid (PK) | |
+| `name_ar` | text | Arabic display name |
+| `slug` | text (unique) | English slug |
+| `sort_order` | integer | Display order in strips and filters |
+| `is_active` | boolean | If false, hidden from storefront |
+| `created_at` | timestamp | |
+| `updated_at` | timestamp | |
+
+### `customers` table
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid (PK) | |
+| `auth_user_id` | text (unique, nullable) | Links to Better Auth user ID — set when customer has an account |
+| `name` | text | Full name |
+| `phone` | text | Egyptian phone number — used to match orders |
+| `email` | text (nullable) | Customer email |
+| `created_at` | timestamp | |
+| `updated_at` | timestamp | |
+
+**Order matching**: `/api/account/orders` looks up `customers` by `auth_user_id`, then fetches `orders` where `orders.phone = customer.phone`.
+
 ### `orders` table
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid (PK) | |
 | `order_number` | text (unique) | Format: SHY-0001, SHY-0002, ... |
-| `customer_id` | uuid (FK, nullable) | → customers.id (optional, orders can be anonymous) |
+| `customer_id` | uuid (FK, nullable) | → customers.id (set null on delete) — optional, orders can be anonymous |
 | `customer_name` | text | Full name |
 | `phone` | text | Egyptian phone number |
 | `governorate` | text | Egyptian governorate (محافظة) |
 | `address` | text | Delivery address |
 | `subtotal` | numeric | Before shipping + discounts |
-| `shipping_cost` | numeric | Shipping zone price |
+| `shipping_cost` | numeric | From `shipping_zones.cost` at checkout time |
 | `total` | numeric | Final total (subtotal + shipping - discount) |
 | `method` | enum | `whatsapp` / `cod` |
 | `status` | enum | `pending` / `confirmed` / `shipped` / `delivered` / `cancelled` |
@@ -153,14 +186,6 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | `quality_tier` | text | Snapshot of quality tier |
 | `qty` | integer | Quantity ordered |
 | `unit_price` | numeric | Price at time of order |
-
-### `categories` table
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid (PK) | |
-| `name_ar` | text | Arabic display name |
-| `slug` | text (unique) | English slug |
-| `sort_order` | integer | Display order in strips and filters |
 
 ### `reviews` table
 | Column | Type | Notes |
@@ -193,15 +218,11 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid (PK) | |
-| `name_ar` | text | Zone name in Arabic |
-| `price` | numeric | Shipping cost in EGP |
-| `days_min` | integer | Min delivery days |
-| `days_max` | integer | Max delivery days |
+| `governorate_ar` | text | Governorate name in Arabic |
+| `cost` | numeric | Shipping cost in EGP |
+| `is_active` | boolean | If false, hidden from checkout dropdown |
 
-**Current zones:**
-- القاهرة الكبرى والجيزة — 35 EGP, 2–3 days
-- الإسكندرية والمحافظات الكبرى — 45 EGP, 3–4 days
-- باقي المحافظات والصعيد — 55 EGP, 4–6 days
+**Important**: Checkout (`/checkout/page.tsx`) fetches live shipping zones from `/api/shipping` — NOT hardcoded. Admin changes in `/admin/shipping` immediately affect checkout prices.
 
 ### `banners` table
 | Column | Type | Notes |
@@ -214,22 +235,19 @@ Supabase is **NEVER** accessed directly from the client. All database operations
 | `is_active` | boolean | |
 
 ### `settings` table (key-value store)
-| Key | Current Value | Description |
-|---|---|---|
-| `store_name_ar` | شاهي ستور | Store name displayed in UI |
-| `whatsapp_number` | +201015835455 | Store owner's WhatsApp — used in ALL wa.me links |
-| `hero_words` | شعوراً, هويتك, أناقة, ثقة, جمال, تألقي | Rotating words in homepage hero animation |
-| `announcement_text` | 🚚 شحن مجاني على الطلبات فوق 500 ج | Top announcement bar text |
-| `announcement_active` | true | Show/hide announcement bar |
-| `flash_deals_active` | true | Show/hide flash deals section |
-| `flash_deals_ends_at` | 2026-07-28T20:01 | Flash deals countdown end time |
-| `flash_deals_title_ar` | عروض الفلاش 🔥 | Flash section heading |
-
-### `customers` table
-Anonymous customers created when they place an order. Contains: name, phone, governorate, address.
+| Key | Description |
+|---|---|
+| `store_name_ar` | Store name displayed in UI |
+| `whatsapp_number` | Store owner's WhatsApp — used in ALL wa.me links |
+| `hero_words` | Rotating words in homepage hero animation (comma-separated) |
+| `announcement_text` | Top announcement bar text |
+| `announcement_active` | Show/hide announcement bar (`"true"` / `"false"`) |
+| `flash_deals_active` | Show/hide flash deals section (`"true"` / `"false"`) |
+| `flash_deals_ends_at` | Flash deals countdown end time (ISO datetime string) |
+| `flash_deals_title_ar` | Flash section heading |
 
 ### `admins` table
-Managed by **Better Auth**. Admin credentials stored securely. Each admin has: id, name, email, hashed password, created_at.
+Managed by Better Auth. Admin credentials stored securely. Each admin has: id, name, email, hashed password, role, created_at.
 
 ---
 
@@ -244,23 +262,32 @@ Managed by **Better Auth**. Admin credentials stored securely. Each admin has: i
 | `/api/search?q={query}` | GET | Full-text search across product names |
 | `/api/store-config` | GET | Public config: whatsapp_number, announcement, flash deals settings |
 | `/api/announcement` | GET | Current announcement bar text + active state |
+| `/api/shipping` | GET | Active shipping zones with `{ id, governorate_ar, cost }` — used by checkout |
 | `/api/orders` | POST | Create a new order (from cart checkout) |
 | `/api/orders/track?phone={}&num={}` | GET | Track order by phone + order number |
 | `/api/reviews` | GET | Approved reviews only |
 | `/api/reviews` | POST | Submit a new review (goes to moderation queue) |
 | `/api/discounts/validate?code={}&total={}` | GET | Validate coupon code and return discount amount |
 
-### Protected Admin APIs (require Better Auth session)
+### Customer Account APIs (require Better Auth customer session)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/account/orders?limit=N` | GET | Get orders for logged-in customer (matched by customer.phone) |
+
+### Protected Admin APIs (require Better Auth admin session)
 
 | Endpoint | Methods | Description |
 |---|---|---|
 | `/api/admin/products` | GET, POST | List all products / create product |
-| `/api/admin/products/[id]` | GET, PUT, DELETE | Product CRUD |
+| `/api/admin/products/[id]` | PATCH, DELETE | Update (name, price, compare_at_price, is_featured, status, etc.) / delete |
 | `/api/admin/products/[id]/images` | GET, POST, DELETE | Manage product images |
 | `/api/admin/products/[id]/variants` | GET, POST | Manage variants |
 | `/api/admin/products/[id]/variants/[vid]` | PUT, DELETE | Update/delete variant |
+| `/api/admin/categories` | GET, POST | List / create categories |
+| `/api/admin/categories/[id]` | PATCH, DELETE | Update / delete (DELETE blocked if category has products) |
 | `/api/admin/orders/[id]` | GET, PUT | Order detail + status update |
-| `/api/admin/settings` | GET, PUT | Read/write store settings |
+| `/api/admin/settings` | GET, POST | Read all settings / upsert settings (body: `{ settings: [{ key, value }] }`) |
 | `/api/admin/reviews` | GET | All reviews including unapproved |
 | `/api/admin/reviews/[id]` | PUT | Approve or reject review |
 | `/api/admin/discounts` | GET, POST | List / create discount codes |
@@ -269,6 +296,7 @@ Managed by **Better Auth**. Admin credentials stored securely. Each admin has: i
 | `/api/admin/shipping/[id]` | PUT, DELETE | Update / delete zone |
 | `/api/admin/banners` | GET, POST | List / upload banners |
 | `/api/admin/banners/[id]` | PUT, DELETE | Update / delete banner |
+| `/api/admin/customers` | GET | All registered customers with order counts |
 | `/api/admin/upload` | POST | Upload image to Supabase Storage, returns URL |
 | `/api/admin/admins` | GET, POST | List admins / create admin |
 | `/api/admin/admins/[id]` | DELETE | Remove admin |
@@ -283,22 +311,30 @@ Managed by **Better Auth**. Admin credentials stored securely. Each admin has: i
 | Product Detail | `/products/[slug]` | Image gallery, variant selector, add-to-cart, sticky checkout bar, quality badge |
 | Sale | `/sale` | Discounted/featured products only |
 | Cart | `/cart` | Cart items, coupon code input, shipping selector, WhatsApp checkout button |
+| Checkout | `/checkout` | Full COD checkout form — shipping zones loaded live from DB |
+| Order Confirmed | `/order-confirmed?order=SHY-XXXX` | Order success page |
 | Wishlist | `/wishlist` | Saved products (localStorage) |
 | Track Order | `/track` | Form: phone + order number → shows status |
+| Sign In | `/signin` | Customer login (Better Auth emailAndPassword) |
+| Sign Up | `/signup` | Customer registration |
+| Account Hub | `/account` | Redirects to `/account/profile` |
+| Account Profile | `/account/profile` | Session-gated: profile info, sidebar nav, recent 3 orders |
+| Account Orders | `/account/orders` | Session-gated: full order history (matched by phone) |
 | FAQ | `/faq` | Accordion questions and answers |
 | About | `/about` | Brand story |
 | Returns | `/returns` | Return/exchange policy |
 | Privacy | `/privacy` | Privacy policy |
 
 ### Key Storefront Components
-- `StoreNav` — top navigation bar, search, cart icon, wishlist icon (admin link hidden)
-- `StoreFooter` — footer with links, social icons, designer credit, hidden admin padlock icon
+- `StoreHeader` — top navigation: logo, nav links, search, wishlist icon, **account icon** (→ `/account`), cart icon, hidden admin padlock icon (opacity 5%)
+- `StoreFooter` — footer with links, social icons, designer credit
 - `CartDrawer` — slide-out cart panel from the right
 - `FloatingWA` — floating WhatsApp button (bottom-right), fetches number from `/api/store-config`
 - `AnnouncementBar` — top colored strip for announcements
 - `HomeReviews` — reviews carousel (only shows approved reviews)
 - `CategoriesStrip` — horizontal scrollable category pills
 - `FlashDeals` — flash deals section with countdown timer
+- `SearchOverlay` — full-screen search modal
 
 ---
 
@@ -307,38 +343,39 @@ Managed by **Better Auth**. Admin credentials stored securely. Each admin has: i
 | Page | URL | Function |
 |---|---|---|
 | Login | `/admin/login` | Better Auth login form |
-| Dashboard | `/admin/dashboard` | Stats, revenue chart, recent orders |
+| Dashboard | `/admin/dashboard` | Stats (orders, pending, products, revenue, customers), revenue chart 30d, recent orders, top-5 selling products |
 | Products | `/admin/products` | Full product CRUD with image upload |
 | Orders | `/admin/orders` | Order list with filters + status management |
 | Reviews | `/admin/reviews` | Approve/reject customer reviews |
-| Categories | `/admin/categories` | Manage store categories |
-| Shipping | `/admin/shipping` | Shipping zones and prices |
+| **Categories** | `/admin/categories` | **Full CRUD**: add modal, inline edit (name/slug/sort), status toggle (نشط/مخفي), delete with product-count guard |
+| Shipping | `/admin/shipping` | Shipping zones and prices — changes immediately reflected in checkout |
 | Discounts | `/admin/discounts` | Coupon code management |
 | Banners | `/admin/banners` | Homepage banner carousel management |
+| **Flash Deals** ⚡ | `/admin/flash-deals` | Dedicated flash deals management: toggle is_featured per product, set compare_at_price inline, manage flash settings (active/title/end date) |
+| **Customers** 🧑‍💼 | `/admin/customers` | All registered customers with order count per phone |
 | Admins | `/admin/admins` | Admin user management |
 | Settings | `/admin/settings` | Store-wide settings (WhatsApp, announcement, flash, hero words) |
-| Guide | `/admin/guide` | This interactive admin guide |
+| Guide | `/admin/guide` | Interactive admin guide |
 | Guide PDF | `/admin/guide/print` | Printable PDF version of the guide |
 
-**Admin access from storefront**: There is a hidden padlock icon (🔒) in the footer with opacity 6%. It becomes slightly visible on hover. Click it to go to `/admin/login`. This is intentionally invisible to regular customers.
+**Admin access from storefront**: There is a hidden padlock icon (🔒) in the header nav with opacity 5%. It becomes slightly visible (30%) on hover. Click it to go to `/admin/login`.
 
 ---
 
 ## 9. Business Rules
 
 ### Ordering Process
-1. Customer adds items to cart (stored in localStorage)
+1. Customer adds items to cart (stored in localStorage/context)
 2. Customer applies coupon code if available (validated via `/api/discounts/validate`)
-3. Customer fills out: name, phone, governorate, address
-4. Customer chooses shipping zone (price added automatically)
-5. Clicking "اطلب عبر واتساب" opens a pre-filled WhatsApp message to the store owner
-6. The order is simultaneously saved to the database with status `pending`
-7. Store owner confirms order manually by phone/WhatsApp and updates status in admin panel
+3. Customer fills out: name, phone, governorate, address (checkout page)
+4. Shipping fee is **live from DB** via `/api/shipping` — admin changes take effect immediately
+5. Customer clicks "تأكيد الطلب" — order saved to DB with status `pending`, cart cleared, redirect to `/order-confirmed`
+6. Store owner sees order in `/admin/orders` and updates status manually
 
 ### Payment
 - **No online payment gateway**
-- Accepted: Cash on Delivery (COD) or Instapay transfer
-- Payment happens physically at delivery or via Instapay before shipping
+- Accepted: Cash on Delivery (COD)
+- Payment happens physically at delivery
 
 ### WhatsApp Number Rules
 - **Store owner (orders)**: +201015835455 — used in all customer-facing WhatsApp links
@@ -349,19 +386,26 @@ Managed by **Better Auth**. Admin credentials stored securely. Each admin has: i
 - All reviews require admin approval before appearing on the site
 - Approved reviews appear in the homepage carousel, sorted by rating (highest first)
 
-### Flash Deals
-- Only products with `is_featured = true` AND `compare_at_price > price` appear in flash deals
+### Flash Deals Logic
+- Only products with **all three**: `status = 'active'` AND `is_featured = true` AND `compare_at_price > price` appear in Flash Deals section
+- Managed from `/admin/flash-deals` — toggle is_featured, set compare_at_price inline
+- Flash section settings (on/off, title, end date) editable in `/admin/flash-deals` settings panel OR `/admin/settings`
 - The countdown timer runs based on `flash_deals_ends_at` setting
-- When timer reaches zero, the flash deals section automatically hides
+
+### Customer Accounts
+- Customers can register at `/signup` and sign in at `/signup`
+- Account is linked to orders via `customers.phone` — the phone used when ordering must match the registered phone
+- `/account/orders` shows orders where `orders.phone = customers.phone` (looked up via `auth_user_id`)
+- Customer accounts are separate from admin accounts — admin login is at `/admin/login`
 
 ### Coupons
 - Discount is applied client-side at cart calculation
 - The order saved in DB reflects the final discounted total
-- The WhatsApp message shows the discounted amount
 
 ### Categories
-- Categories with products cannot be deleted (foreign key RESTRICT)
+- Categories with products **cannot be deleted** (foreign key RESTRICT — returns error with product count)
 - Move products to another category first, then delete
+- `is_active = false` hides category from storefront without deleting
 
 ---
 
@@ -396,11 +440,11 @@ Cormorant Garamond — Elegant quotes, subtitles (400, 500)
 
 ### Order Status Badge Colors
 ```
-معلّق (pending):    Orange  #e65100
-مؤكد (confirmed):   Blue    #1565c0
-شُحن (shipped):     Purple  #6a1b9a
-سُلّم (delivered):  Green   #27ae60
-ملغي (cancelled):  Red     #c62828
+معلّق (pending):    Orange  #e65100 / yellow-400
+مؤكد (confirmed):   Blue    #1565c0 / blue-400
+شُحن (shipped):     Purple  #6a1b9a / purple-400
+سُلّم (delivered):  Green   #27ae60 / green-400
+ملغي (cancelled):  Red     #c62828 / red-400
 ```
 
 ---
@@ -410,67 +454,113 @@ Cormorant Garamond — Elegant quotes, subtitles (400, 500)
 ```
 src/
 ├── app/
-│   ├── (store)/              ← Storefront route group
-│   │   ├── page.tsx          ← Home page (/)
-│   │   ├── products/
-│   │   │   └── [slug]/page.tsx  ← Product detail
-│   │   ├── sale/page.tsx
-│   │   ├── cart/page.tsx
-│   │   ├── wishlist/page.tsx
-│   │   ├── track/page.tsx
-│   │   ├── faq/page.tsx
-│   │   ├── about/page.tsx
-│   │   ├── returns/page.tsx
-│   │   └── privacy/page.tsx
+│   ├── page.tsx              ← Home page (/)
+│   ├── products/[slug]/page.tsx
+│   ├── sale/page.tsx
+│   ├── cart/page.tsx
+│   ├── checkout/page.tsx     ← "use client" — fetches zones from /api/shipping
+│   ├── wishlist/page.tsx
+│   ├── track/page.tsx
+│   ├── signin/page.tsx       ← Customer login (Better Auth)
+│   ├── signup/page.tsx       ← Customer registration
+│   ├── account/
+│   │   ├── page.tsx          ← Redirect → /account/profile
+│   │   ├── profile/page.tsx  ← Session-gated: profile + recent orders
+│   │   └── orders/page.tsx   ← Session-gated: full order history
 │   │
-│   ├── admin/                ← Admin panel
-│   │   ├── layout.tsx        ← Sidebar nav (excludes /admin/login and /admin/guide/print)
+│   ├── admin/
+│   │   ├── layout.tsx        ← Sidebar nav (13 links)
 │   │   ├── login/page.tsx
-│   │   ├── dashboard/page.tsx
+│   │   ├── dashboard/page.tsx  ← 5 stat cards + chart + top products
 │   │   ├── products/page.tsx
 │   │   ├── orders/page.tsx
 │   │   ├── reviews/page.tsx
-│   │   ├── categories/page.tsx
+│   │   ├── categories/page.tsx ← Full CRUD (add/edit/delete/toggle)
 │   │   ├── shipping/page.tsx
 │   │   ├── discounts/page.tsx
 │   │   ├── banners/page.tsx
+│   │   ├── flash-deals/page.tsx ← New: flash management UI
+│   │   ├── customers/page.tsx   ← New: registered customers table
 │   │   ├── admins/page.tsx
 │   │   ├── settings/page.tsx
-│   │   ├── guide/page.tsx         ← Interactive admin guide
-│   │   └── guide/print/page.tsx   ← Printable PDF guide
+│   │   ├── guide/page.tsx
+│   │   └── guide/print/page.tsx
 │   │
-│   └── api/                  ← API routes (all server-side)
-│       ├── admin/            ← Protected admin APIs
-│       └── ...               ← Public APIs
+│   └── api/
+│       ├── shipping/route.ts         ← Public GET active zones
+│       ├── products/route.ts
+│       ├── products/[slug]/route.ts
+│       ├── orders/route.ts
+│       ├── orders/track/route.ts
+│       ├── reviews/route.ts
+│       ├── search/route.ts
+│       ├── discounts/validate/route.ts
+│       ├── store-config/route.ts
+│       ├── announcement/route.ts
+│       ├── account/
+│       │   └── orders/route.ts       ← Customer orders (session-gated)
+│       └── admin/
+│           ├── products/route.ts
+│           ├── products/[id]/route.ts
+│           ├── products/[id]/images/route.ts
+│           ├── products/[id]/variants/route.ts
+│           ├── categories/route.ts         ← New: GET + POST
+│           ├── categories/[id]/route.ts    ← New: PATCH + DELETE
+│           ├── orders/[id]/route.ts
+│           ├── settings/route.ts           ← GET + POST
+│           ├── reviews/route.ts
+│           ├── reviews/[id]/route.ts
+│           ├── discounts/route.ts
+│           ├── discounts/[id]/route.ts
+│           ├── shipping/route.ts
+│           ├── shipping/[id]/route.ts
+│           ├── banners/route.ts
+│           ├── banners/[id]/route.ts
+│           ├── customers/route.ts          ← New: GET customers list
+│           ├── upload/route.ts
+│           ├── admins/route.ts
+│           └── admins/[id]/route.ts
 │
 ├── components/
-│   ├── store/                ← Storefront components
-│   │   ├── StoreNav.tsx
-│   │   ├── StoreFooter.tsx   ← "use client" — has hidden admin padlock
+│   ├── store/
+│   │   ├── StoreHeader.tsx      ← Account icon added to desktop + mobile nav
+│   │   ├── StoreFooter.tsx
 │   │   ├── CartDrawer.tsx
 │   │   ├── FloatingWA.tsx
-│   │   ├── AnnouncementBar.tsx
+│   │   ├── SearchOverlay.tsx
 │   │   └── ...
-│   └── admin/                ← Admin components
+│   └── admin/
 │       ├── RevenueChart.tsx
+│       ├── SettingsForm.tsx
 │       └── ...
 │
-└── lib/
-    ├── db/
-    │   ├── drizzle/
-    │   │   ├── connection.ts    ← Drizzle DB instance
-    │   │   └── schema/          ← All table definitions
-    │   │       ├── products.ts
-    │   │       ├── orders.ts
-    │   │       ├── categories.ts
-    │   │       ├── reviews.ts
-    │   │       ├── discounts.ts
-    │   │       ├── shipping.ts
-    │   │       ├── banners.ts
-    │   │       ├── settings.ts
-    │   │       └── admins.ts
-    │   └── supabase/           ← Supabase client (images only)
-    └── auth/                   ← Better Auth configuration
+├── contexts/
+│   └── CartContext.tsx
+│
+├── lib/
+│   ├── db/drizzle/
+│   │   ├── connection.ts
+│   │   └── schema/
+│   │       ├── index.ts
+│   │       ├── products.ts
+│   │       ├── orders.ts
+│   │       ├── categories.ts
+│   │       ├── customers.ts
+│   │       ├── reviews.ts
+│   │       ├── discounts.ts
+│   │       ├── shipping.ts
+│   │       ├── banners.ts
+│   │       ├── settings.ts
+│   │       ├── admins.ts
+│   │       └── relations.ts
+│   └── auth/
+│       ├── client.ts     ← signIn, signUp, signOut, useSession
+│       └── middleware.ts ← getSessionFromRequest(req)
+│
+├── utils/
+│   └── auth.ts           ← Better Auth config (emailAndPassword + admin plugin)
+│
+└── proxy.ts              ← Next.js middleware (admin route protection)
 ```
 
 ---
@@ -486,7 +576,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://[project-ref].supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 BETTER_AUTH_SECRET=[random 32+ char string]
 NEXT_PUBLIC_WHATSAPP_NUMBER=+201015835455
-NEXT_PUBLIC_SITE_URL=https://shah-y-store.vercel.app
+NEXT_PUBLIC_APP_URL=https://shah-y-store.vercel.app
 ```
 
 ---
@@ -517,52 +607,103 @@ NEXT_PUBLIC_SITE_URL=https://shah-y-store.vercel.app
 2. Click "✓ موافقة" to approve (appears on homepage)
 3. Click "✕ رفض" to reject and remove
 
-### Run a flash sale
-1. `/admin/settings` → enable "عروض الفلاش" + set "تاريخ انتهاء الفلاش"
-2. `/admin/products` → for each flash product: enable "مميّز" + ensure compare_at_price > price
-3. Flash section appears automatically on homepage with countdown
+### Manage categories (Full CRUD)
+1. `/admin/categories` — see all categories in a table
+2. **Add**: click "+ قسم جديد" → fill name (slug auto-generated) → Confirm
+3. **Edit**: click "تعديل" on any row → edit name/slug/sort_order inline → Save
+4. **Toggle status**: click the نشط/مخفي badge to instantly show/hide on storefront
+5. **Delete**: click "حذف" — blocked if category has products (shows product count in error)
+
+### Manage Flash Deals
+1. `/admin/flash-deals` → see all active products
+2. **Toggle product in flash**: click the toggle switch in the "مميّز (فلاش)" column
+3. **Set original price**: click the compare_at_price value (or —) and type the original price → Enter
+4. **Flash settings**: fill in the settings panel at the top (title, end date, active toggle) → "حفظ الإعدادات"
+5. Filter: switch between "الفلاش فقط" and "كل المنتجات النشطة" views
+
+### Run a flash sale (quick steps)
+1. `/admin/flash-deals` → enable "تفعيل القسم على الموقع" + set end date → Save
+2. Toggle is_featured ON for each flash product
+3. Set compare_at_price > price for each product
+4. Flash section appears automatically on homepage with countdown
 
 ### Create a coupon code
 1. `/admin/discounts` → "+ كود جديد"
 2. Code name (UPPERCASE), type (percent/fixed), value, minimum order
 3. Save → share code with customers via WhatsApp/Instagram
 
+### Update shipping prices
+1. `/admin/shipping` → click ✏️ on any zone
+2. Change the price → Save
+3. Checkout page fetches live from DB — customers see the new price immediately
+
 ### Change store WhatsApp number
 1. `/admin/settings` → update "رقم واتساب الطلبات"
 2. ALSO update `NEXT_PUBLIC_WHATSAPP_NUMBER` in Vercel Environment Variables
 3. Redeploy (Vercel dashboard → Deployments → Redeploy)
-4. Inform developer to verify the change
 
 ### Add a new admin user
 1. `/admin/admins` → "+ أدمن جديد"
 2. Enter: name, email, password
 3. They can log in immediately at `/admin/login`
 
+### View registered customers
+1. `/admin/customers` — table showing all registered customers
+2. Shows: name, phone, email, order count, join date
+3. Order count = count of orders in DB matching customer's phone number
+
 ---
 
 ## 14. Known Limitations
 
-| Limitation | Workaround |
-|---|---|
-| No online payment | COD or Instapay transfer manually confirmed |
-| No customer accounts | Orders are anonymous; tracking by phone + order number |
-| No automated notifications | Store owner gets WhatsApp message; manual follow-up |
-| No stock reservation | Stock can theoretically go negative if not monitored |
-| WhatsApp checkout is client-side | If customer closes WA without sending, order still saved in DB as pending |
-| No multi-language | Arabic only (English for labels/UI only) |
+| Limitation | Status | Workaround |
+|---|---|---|
+| No online payment | Active | COD — physical payment at delivery |
+| No automated notifications | Active | Store owner gets WhatsApp message; manual follow-up |
+| No stock reservation | Active | Stock can go negative if not monitored |
+| WhatsApp checkout fallback | Active | If customer closes WA without sending, order still saved in DB as pending |
+| No multi-language | Active | Arabic only |
+| Orders not auto-linked to accounts | Active | Orders matched by phone — customer must use same phone as registered |
+| No email verification / password reset | Active | Needs SMTP config (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` in env) |
+| Checkout not pre-filled from account | Active | Could be added: read session → prefill name/phone from customer record |
 
 ---
 
-## 15. Suggested Future Improvements
+## 15. Development Roadmap — What's Left
 
-- Instapay webhook for automatic payment confirmation
-- SMS/WhatsApp notifications to customers on status changes
-- Customer accounts with order history
+### ✅ Completed (Phases 1–3)
+- Full storefront (home, product detail, cart, checkout, wishlist, track, sale, FAQ)
+- Admin panel: products, orders, reviews, categories (CRUD), shipping, discounts, banners, settings, admins, guide
+- Flash Deals dedicated admin page
+- Customers admin table
+- Customer accounts: `/signin`, `/signup`, `/account/profile`, `/account/orders`
+- Shipping live from DB (not hardcoded)
+- Sitemap cleaned
+
+### 🔄 Pending (Phases 4–6 — require manual decisions or setup)
+
+**Phase 4 — Notifications & Integrations:**
+- WhatsApp/SMS auto-notifications to customers on order status change
+- Email notifications (requires SMTP setup)
+- Low stock alerts for admin
+
+**Phase 5 — Analytics & Reporting:**
 - Google Analytics 4 integration
-- Automated low-stock alerts
-- Bulk product import via CSV
-- Order export to Excel
+- Order export to Excel/CSV
+- Advanced dashboard (conversion rate, AOV, repeat customers)
+
+**Phase 6 — Advanced Features:**
+- Online payment (Paymob, Fawry integration) — requires merchant account setup
+- Checkout pre-fill from customer account (read session → prefill name/phone)
+- Order-to-account auto-link (when logged-in customer places order, link `orders.customer_id`)
+- Password reset / email verification (requires SMTP in Vercel env)
 - Instagram product feed sync
+- Bulk product import via CSV
+
+### ⚠️ Manual steps not yet done (user hasn't done these)
+- No SMTP configured → password reset not working
+- No registered customers yet (feature is ready, awaiting real users)
+- No products marked as flash deals yet (admin needs to set is_featured + compare_at_price)
 
 ---
 
@@ -577,5 +718,6 @@ NEXT_PUBLIC_SITE_URL=https://shah-y-store.vercel.app
 
 ---
 
-*Document version: 1.0 — Generated June 2026*
-*Project: ShahY Store v1.0 | Framework: Next.js 16 | Database: Supabase PostgreSQL*
+*Document version: 2.0 — Updated June 2026*
+*ShahY Store v1.5.2 | Framework: Next.js 16 | Database: Supabase PostgreSQL*
+*Commits: a30469e (v1.5.1) → a71f23b (Phase 1-3) → ae9d04c (bug fixes)*
